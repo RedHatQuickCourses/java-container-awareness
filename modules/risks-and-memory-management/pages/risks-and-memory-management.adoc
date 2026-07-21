@@ -1,5 +1,3 @@
-#  Risks and Memory Management
-
 = Risks and Memory Management
 :page-audio-src: risks-and-memory-management.wav
 :page-transcript-src: risks-and-memory-management.txt

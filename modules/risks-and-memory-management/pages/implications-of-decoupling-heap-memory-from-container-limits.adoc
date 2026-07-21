@@ -1,5 +1,3 @@
-#  Implications of decoupling heap memory from container limits
-
 = Implications of Decoupling Heap Memory from Container Limits
 :page-audio-src: implications-of-decoupling-heap-memory-from-container-limits.wav
 :page-transcript-src: implications-of-decoupling-heap-memory-from-container-limits.txt

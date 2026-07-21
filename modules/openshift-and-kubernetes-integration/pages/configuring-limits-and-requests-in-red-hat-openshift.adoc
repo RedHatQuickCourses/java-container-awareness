@@ -1,5 +1,3 @@
-#  Configuring limits and requests in Red Hat OpenShift
-
 = Configuring Limits and Requests in Red Hat OpenShift
 :page-audio-src: configuring-limits-and-requests-in-red-hat-openshift.wav
 :page-transcript-src: configuring-limits-and-requests-in-red-hat-openshift.txt

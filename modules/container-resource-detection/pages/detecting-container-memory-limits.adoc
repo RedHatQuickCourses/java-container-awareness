@@ -1,5 +1,3 @@
-#  Detecting container memory limits
-
 = Detecting Container Memory Limits
 :page-audio-src: detecting-container-memory-limits.wav
 :page-transcript-src: detecting-container-memory-limits.txt

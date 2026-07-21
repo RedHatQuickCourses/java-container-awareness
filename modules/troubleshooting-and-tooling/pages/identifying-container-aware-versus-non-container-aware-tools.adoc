@@ -1,5 +1,3 @@
-#  Identifying container-aware versus non-container-aware tools
-
 = Identifying Container-Aware versus Non-Container-Aware Tools
 :page-audio-src: identifying-container-aware-versus-non-container-aware-tools.wav
 :page-transcript-src: identifying-container-aware-versus-non-container-aware-tools.txt

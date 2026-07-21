@@ -1,5 +1,3 @@
-#  Container Resource Detection
-
 = Container Resource Detection
 :page-audio-src: container-resource-detection.wav
 :page-transcript-src: container-resource-detection.txt

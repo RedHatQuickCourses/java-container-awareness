@@ -1,5 +1,3 @@
-#  Navigating Kubernetes resource management for Java
-
 = Navigating Kubernetes resource management for Java
 :page-audio-src: navigating-kubernetes-resource-management-for-java.wav
 :page-transcript-src: navigating-kubernetes-resource-management-for-java.txt

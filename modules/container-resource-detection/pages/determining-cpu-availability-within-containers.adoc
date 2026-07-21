@@ -1,5 +1,3 @@
-#  Determining CPU availability within containers
-
 = Determining CPU Availability Within Containers
 :page-audio-src: determining-cpu-availability-within-containers.wav
 :page-transcript-src: determining-cpu-availability-within-containers.txt

@@ -1,5 +1,3 @@
-#  Troubleshooting and Tooling
-
 = Troubleshooting and Tooling
 :page-audio-src: troubleshooting-and-tooling.wav
 :page-transcript-src: troubleshooting-and-tooling.txt

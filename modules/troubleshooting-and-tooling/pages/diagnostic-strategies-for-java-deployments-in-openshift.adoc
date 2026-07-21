@@ -1,5 +1,3 @@
-#  Diagnostic strategies for Java deployments in OpenShift
-
 = Diagnostic strategies for Java deployments in OpenShift
 :page-audio-src: diagnostic-strategies-for-java-deployments-in-openshift.wav
 :page-transcript-src: diagnostic-strategies-for-java-deployments-in-openshift.txt

@@ -1,5 +1,3 @@
-#  Analyzing container limits and resource utilization
-
 = Analyzing Container Limits and Resource Utilization
 :page-audio-src: analyzing-container-limits-and-resource-utilization.wav
 :page-transcript-src: analyzing-container-limits-and-resource-utilization.txt

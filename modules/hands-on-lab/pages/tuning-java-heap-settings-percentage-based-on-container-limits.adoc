@@ -1,5 +1,3 @@
-#  Tuning Java heap settings (percentage) based on container limits
-
 = Tuning Java Heap Settings Based on Container Limits
 :page-audio-src: tuning-java-heap-settings-percentage-based-on-container-limits.wav
 :page-transcript-src: tuning-java-heap-settings-percentage-based-on-container-limits.txt

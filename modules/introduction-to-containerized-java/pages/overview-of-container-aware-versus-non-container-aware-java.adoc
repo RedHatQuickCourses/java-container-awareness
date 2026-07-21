@@ -1,5 +1,3 @@
-#  Overview of container-aware versus non-container-aware Java
-
 = Overview of container-aware versus non-container-aware Java
 :page-audio-src: overview-of-container-aware-versus-non-container-aware-java.wav
 :page-transcript-src: overview-of-container-aware-versus-non-container-aware-java.txt

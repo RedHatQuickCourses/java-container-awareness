@@ -1,5 +1,3 @@
-#  Monitoring CPU and memory usage using container-aware tools
-
 = Monitoring CPU and Memory Usage with Container-Aware Tools
 :page-audio-src: monitoring-cpu-and-memory-usage-using-container-aware-tools.wav
 :page-transcript-src: monitoring-cpu-and-memory-usage-using-container-aware-tools.txt

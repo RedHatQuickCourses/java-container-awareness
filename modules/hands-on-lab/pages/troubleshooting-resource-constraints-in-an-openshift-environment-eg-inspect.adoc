@@ -1,5 +1,3 @@
-#  Troubleshooting resource constraints in an OpenShift environment (e.g. inspect)
-
 = Troubleshooting Resource Constraints in OpenShift
 :page-audio-src: troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.wav
 :page-transcript-src: troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.txt

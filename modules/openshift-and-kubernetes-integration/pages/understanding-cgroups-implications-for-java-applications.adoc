@@ -1,5 +1,3 @@
-#  Understanding cgroups implications for Java applications
-
 = Understanding cgroups implications for Java applications
 :page-audio-src: understanding-cgroups-implications-for-java-applications.wav
 :page-transcript-src: understanding-cgroups-implications-for-java-applications.txt

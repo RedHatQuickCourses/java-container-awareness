@@ -1,5 +1,3 @@
-#  OpenShift and Kubernetes Integration
-
 = OpenShift and Kubernetes Integration
 :page-audio-src: openshift-and-kubernetes-integration.wav
 :page-transcript-src: openshift-and-kubernetes-integration.txt

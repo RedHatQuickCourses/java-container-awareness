@@ -1,5 +1,3 @@
-#  Importance of cgroup detection for modern deployments
-
 = Importance of cgroup detection for modern deployments
 :page-audio-src: importance-of-cgroup-detection-for-modern-deployments.wav
 :page-transcript-src: importance-of-cgroup-detection-for-modern-deployments.txt

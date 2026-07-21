@@ -1,5 +1,3 @@
-#  Java Diagnostics: jcmd
-
 = Java Diagnostics: jcmd
 :page-audio-src: java-diagnostics-jcmd.wav
 :page-transcript-src: java-diagnostics-jcmd.txt

@@ -1,5 +1,3 @@
-#  Managing off-heap memory in containerized environments
-
 = Managing Off-Heap Memory in Containerized Environments
 :page-audio-src: managing-off-heap-memory-in-containerized-environments.wav
 :page-transcript-src: managing-off-heap-memory-in-containerized-environments.txt

@@ -1,5 +1,3 @@
-#  Understanding JDK8146115 and Java 8u191 updates
-
 = Understanding JDK8146115 and Java 8u191 Updates
 :page-audio-src: understanding-jdk8146115-and-java-8u191-updates.wav
 :page-transcript-src: understanding-jdk8146115-and-java-8u191-updates.txt

@@ -1,5 +1,3 @@
-#  Best practices for Java memory configuration in containers
-
 = Best Practices for Java Memory Configuration in Containers
 :page-audio-src: best-practices-for-java-memory-configuration-in-containers.wav
 :page-transcript-src: best-practices-for-java-memory-configuration-in-containers.txt

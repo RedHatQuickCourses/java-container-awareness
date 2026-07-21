@@ -1,5 +1,3 @@
-#  Introduction to Containerized Java
-
 = Introduction to Containerized Java
 :page-audio-src: introduction-to-containerized-java.wav
 :page-transcript-src: introduction-to-containerized-java.txt
