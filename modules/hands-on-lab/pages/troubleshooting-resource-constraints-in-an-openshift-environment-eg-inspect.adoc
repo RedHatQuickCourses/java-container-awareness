@@ -1,0 +1,96 @@
+#  Troubleshooting resource constraints in an OpenShift environment (e.g. inspect)
+
+= Troubleshooting Resource Constraints in OpenShift
+
+When Java applications run in OpenShift, they operate within the constraints defined by the Linux kernel's control groups (cgroups). If these constraints are misconfigured or if the Java Virtual Machine (JVM) is unaware of them, you may encounter performance degradation, unexpected `OutOfMemoryError` (OOM) exceptions, or even container restarts due to OOMKills.
+
+This section focuses on diagnostic strategies and using tools to inspect resource constraints for Java workloads in OpenShift.
+
+== Diagnostic Strategy
+
+To effectively troubleshoot resource constraints, you must correlate three distinct layers:
+1.  **OpenShift/Kubernetes Layer:** The resource requests and limits defined in your `Deployment` or `Pod` specification.
+2.  **Kernel/Cgroup Layer:** The actual hardware quotas enforced by the container runtime.
+3.  **JVM Layer:** The memory and CPU settings perceived by the Java process.
+
+=== Identifying Misalignment
+A common pitfall is the misalignment between the container limit and the JVM heap size. If your container limit is 1Gi but the JVM is configured with `-Xmx2G`, the process will either fail to start or be killed by the kernel when it attempts to allocate memory beyond the cgroup boundary.
+
+== Tools for Inspection
+
+=== Using `oc describe`
+The first step in any troubleshooting process is verifying the resource configuration of the pod.
+
+[source,bash]
+----
+oc describe pod <pod-name>
+----
+
+*   **Look for:** The `Limits` and `Requests` sections.
+*   **Action:** Ensure the `Limits` are explicitly defined. If `Limits` are missing, the JVM may default to host-level visibility rather than container-level, potentially leading to incorrect heap sizing.
+
+=== Leveraging `oc debug` and `inspect`
+When an application behaves unexpectedly, you can use `oc debug` to inspect the runtime environment from inside the pod's namespace.
+
+[source,bash]
+----
+# Access the pod environment
+oc debug pod/<pod-name> --image=registry.access.redhat.com/ubi9/ubi-minimal
+
+# Once inside, inspect the cgroup limits directly
+cat /sys/fs/cgroup/memory/memory.limit_in_bytes
+----
+
+*Note: In cgroup v2 environments, the path may be located under `/sys/fs/cgroup/memory.max`.*
+
+=== Using `jcmd`
+The `jcmd` utility is the standard diagnostic tool for Java. Since Java 8u191+, the JVM is container-aware. You can use `jcmd` to verify how the JVM "sees" the container.
+
+[source,bash]
+----
+# Run jcmd inside the container to see VM flags
+oc exec <pod-name> -- jcmd 1 VM.flags
+----
+
+*   **Look for:** `MaxHeapSize` and `UseContainerSupport`. 
+*   **Verification:** Ensure `UseContainerSupport` is `true`. If `MaxHeapSize` is disproportionately large compared to your container limit, your application is at risk of being killed by the kernel.
+
+== Hands-on Lab: Troubleshooting a Resource-Constrained Pod
+
+In this exercise, you will diagnose a pod experiencing memory constraints.
+
+**Prerequisites:**
+*   An active OpenShift cluster.
+*   The `oc` CLI tool authenticated to your cluster.
+
+**Steps:**
+
+1. **Simulate a crash:** 
+   Deploy a pod with a very low memory limit (e.g., 64Mi) and a JVM heap requirement that exceeds it. Observe the crash:
+   [source,bash]
+   ----
+   oc get pods
+   # Look for OOMKilled status
+   ----
+
+2. **Inspect the exit code:**
+   [source,bash]
+   ----
+   oc get pod <pod-name> -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}'
+   ----
+   *If the result is `OOMKilled`, the kernel terminated the process because it exceeded the cgroup memory limit.*
+
+3. **Verify the limits:**
+   Check the deployment configuration to see the discrepancy between your `limit` and the JVM's `-Xmx` setting.
+
+4. **Remediate:**
+   Adjust the deployment YAML to either increase the container memory limit or update the JVM flags using the `JAVA_OPTS` environment variable to reflect a lower heap percentage:
+   [source,bash]
+   ----
+   env:
+     - name: JAVA_OPTS
+       value: "-XX:MaxRAMPercentage=50.0"
+   ----
+
+5. **Re-verify:**
+   After applying the change, use `jcmd` inside the pod to confirm the new `MaxHeapSize` is calculated correctly based on the updated container limit.

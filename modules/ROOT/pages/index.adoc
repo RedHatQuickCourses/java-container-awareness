@@ -1,22 +1,31 @@
-= An Example Quick Course
+=  Java Container Awareness
 :navtitle: Home
 
 == Introduction
 
-Course Title: Course title FIXME
+Course Title:  Java Container Awareness
 
 Description:
 Course description FIXME
 
-Duration: pass:[<span class="course-total-duration" aria-live="polite">…</span>]
+Duration: FIXME hours
 
-== Objectives
+== Topics covered in this course
 
-On completing this course, you should be able to:
 
-* Observable, measurable objective...
-* Observable, measurable objective...
-* Observable, measurable objective...
+*  Introduction to Containerized Java
+
+*  Container Resource Detection
+
+*  Risks and Memory Management
+
+*  OpenShift and Kubernetes Integration
+
+*  Troubleshooting and Tooling
+
+*  Hands-on Lab
+
+
 
 == Prerequisites
 

@@ -1,0 +1,12 @@
+#  Introduction to Containerized Java
+
+= Introduction to Containerized Java
+
+Containerized Java focuses on the evolution of the Java Virtual Machine (JVM) to operate efficiently within isolated environments like OpenShift and Kubernetes. Modern Java runtimes utilize container awareness to detect cgroup limits, allowing the JVM to automatically adjust its resource consumption based on container constraints rather than host hardware.
+
+Key aspects include:
+
+* **Evolution of Java:** Shifting from host-based resource perception to environment-aware detection.
+* **Container Awareness:** The ability of the JVM to recognize and respect memory and CPU limits imposed by the container runtime.
+* **Cgroup Detection:** Leveraging kernel-level control groups to monitor and manage resource availability accurately.
+* **Operational Efficiency:** Simplifying deployments by ensuring the JVM aligns its internal memory and thread management with defined container resource limits.

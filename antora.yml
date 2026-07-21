@@ -1,10 +1,20 @@
-name: REPLACEREPONAME
-title: FIXME Course Title
-version: 1
+name: java-container-awareness
+title:  Java Container Awareness
+version: 1.0.0
 nav:
 - modules/ROOT/nav.adoc
 - modules/LABENV/nav.adoc
-- modules/chapter1/nav.adoc
-- modules/chapter2/nav.adoc
-- modules/chapter3/nav.adoc
+
+- modules/introduction-to-containerized-java/nav.adoc
+
+- modules/container-resource-detection/nav.adoc
+
+- modules/risks-and-memory-management/nav.adoc
+
+- modules/openshift-and-kubernetes-integration/nav.adoc
+
+- modules/troubleshooting-and-tooling/nav.adoc
+
+- modules/hands-on-lab/nav.adoc
+
 - modules/appendix/nav.adoc

@@ -1,0 +1,4 @@
+* xref:risks-and-memory-management.adoc[]
+** xref:implications-of-decoupling-heap-memory-from-container-limits.adoc[]
+** xref:managing-off-heap-memory-in-containerized-environments.adoc[]
+** xref:best-practices-for-java-memory-configuration-in-containers.adoc[]

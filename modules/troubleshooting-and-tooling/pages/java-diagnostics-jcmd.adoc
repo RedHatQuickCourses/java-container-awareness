@@ -1,0 +1,86 @@
+#  Java Diagnostics: jcmd
+
+= Java Diagnostics: jcmd
+
+The `jcmd` utility is a versatile diagnostic tool included with the JDK. In containerized environments, it is indispensable for inspecting the internal state of a running Java Virtual Machine (JVM) without requiring external profilers or complex agent attachments.
+
+== Role of jcmd in Containerized Environments
+
+In a containerized world, `jcmd` allows developers and operators to bridge the gap between the container’s resource limits (cgroups) and the JVM’s internal resource allocation. When troubleshooting performance or memory issues in OpenShift or Kubernetes, `jcmd` provides a direct view into the JVM's view of the container.
+
+=== Key Capabilities
+*   **Process Identification:** List running Java processes within the container.
+*   **Performance Diagnostics:** Retrieve thread dumps, GC statistics, and class loading metadata.
+*   **Memory Management Analysis:** Inspect heap usage and native memory tracking (NMT).
+*   **Dynamic Configuration:** Adjust certain JVM flags at runtime (where supported).
+
+== Using jcmd for Resource Inspection
+
+When a container is suffering from `OutOfMemory` (OOM) errors or unexpected latency, you can execute `jcmd` directly inside the pod to gather data.
+
+[source,bash]
+----
+# List all running Java processes
+jcmd
+
+# Retrieve a thread dump for a specific PID
+jcmd <PID> Thread.print
+
+# Check GC performance statistics
+jcmd <PID> GC.run
+----
+
+=== Analyzing Native Memory
+One of the most critical aspects of containerized Java is distinguishing between the **Java Heap** and **Off-Heap memory**. If the container is being killed by the OOMKiller but the heap appears healthy, the issue often resides in native memory (e.g., Metaspace, code cache, or direct buffers).
+
+Enable Native Memory Tracking (NMT) via the JVM argument `-XX:NativeMemoryTracking=summary` to use `jcmd` to identify leaks:
+
+[source,bash]
+----
+# View native memory summary
+jcmd <PID> VM.native_memory summary
+----
+
+== Best Practices for Diagnostics in OpenShift
+
+1.  **Accessing the Pod:** Use `oc rsh <pod-name>` to gain shell access to the running container.
+2.  **Tooling Availability:** Ensure your container base image includes the `jcmd` binary (standard in most OpenJDK-based images).
+3.  **Non-intrusive Data Collection:** Use `jcmd` for point-in-time snapshots. Avoid high-frequency polling, as diagnostics can consume CPU cycles within the container's limited quota.
+4.  **Verification:** Compare the output of `GC.heap_info` against your pod's `resources.limits.memory` to verify if the JVM is respecting the container's memory boundaries.
+
+== Hands-on Lab: Inspecting JVM Resources
+
+In this exercise, we will verify the JVM's memory awareness.
+
+1. **Access the container terminal:**
++
+[source,bash]
+----
+oc rsh deployment/my-java-app
+----
+
+2. **Identify the PID of the Java process:**
++
+[source,bash]
+----
+jcmd -l
+----
+
+3. **Inspect the current heap configuration:**
+Use the following command to check how the JVM is interpreting the container memory limits:
++
+[source,bash]
+----
+jcmd <PID> VM.flags
+----
+*Look for `-XX:MaxHeapSize` or `-XX:InitialHeapSize`.*
+
+4. **Analyze GC performance:**
+Check if the Garbage Collector is struggling due to container constraints:
++
+[source,bash]
+----
+jcmd <PID> GC.class_histogram
+----
+
+*Troubleshooting Tip:* If `jcmd` reports a heap size significantly different from your OpenShift memory limits, check your deployment YAML to ensure you are not manually overriding the heap size with `-Xmx`, which might be conflicting with the container-aware auto-tuning.

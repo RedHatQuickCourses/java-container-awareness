@@ -1,0 +1,5 @@
+* xref:troubleshooting-and-tooling.adoc[]
+** xref:identifying-container-aware-versus-non-container-aware-tools.adoc[]
+** xref:analyzing-container-limits-and-resource-utilization.adoc[]
+** xref:diagnostic-strategies-for-java-deployments-in-openshift.adoc[]
+** xref:java-diagnostics-jcmd.adoc[]

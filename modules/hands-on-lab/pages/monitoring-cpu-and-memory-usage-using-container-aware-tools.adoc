@@ -1,0 +1,82 @@
+#  Monitoring CPU and memory usage using container-aware tools
+
+= Monitoring CPU and Memory Usage with Container-Aware Tools
+
+When deploying Java applications in containerized environments like Red Hat OpenShift or Kubernetes, traditional Linux diagnostic tools often fall short. Tools that are not "container-aware" report the physical or virtual resources of the entire host node rather than the specific constraints applied to your pod. 
+
+This section explores how to distinguish between container-aware and node-aware outputs and how to use them effectively for troubleshooting.
+
+== The Visibility Gap
+If you use standard Linux utilities such as `lscpu`, `nproc`, or `free -m` inside a container, you are likely seeing the resources of the underlying host node. Relying on these values for capacity planning can lead to "Out of Memory" (OOM) kills or CPU throttling because the JVM may attempt to allocate resources exceeding the container's cgroup limits.
+
+To monitor your Java application accurately, you must utilize tools and flags that interface directly with the **cgroups** filesystem.
+
+== Container-Aware Diagnostic Tools
+
+=== 1. JVM Flags: -XX:+UnlockDiagnosticVMOptions
+The JVM provides built-in mechanisms to report exactly what it sees regarding container limits. 
+
+*   **`--XshowSettings:system`**: This is the most critical flag for initial diagnosis. It displays the system information the JVM has detected, including cgroup-enforced memory limits and the active processor count.
+*   **`VM.info`**: When using `jcmd`, this command provides a comprehensive dump of the current JVM configuration, including container-specific constraints.
+
+=== 2. Interpreting Container-Aware Output
+When running a container-aware command (such as `java -XshowSettings:system -version`), look for the following key indicators:
+
+*   **`active_processor_count`**: Represents the number of CPUs available to the JVM based on the Kubernetes/OpenShift CPU limits.
+*   **`memory_limit_in_bytes`**: Reflects the specific cgroup memory limit. If this value does not match your expected Kubernetes resource limit, the JVM is not correctly detecting the container boundary.
+*   **`cpu_quota` and `cpu_period`**: These values dictate the CPU throttling behavior. A `cpu_quota` of `-1` suggests no limit is set, while specific values indicate restricted processing time.
+
+== Hands-on Activity: Verifying Container Limits
+
+In this activity, you will compare "Node-aware" vs "Container-aware" data to ensure your JVM is correctly bounded.
+
+[NOTE]
+====
+Ensure you have a running Java pod in your OpenShift/Kubernetes environment and access to `oc rsh` or `kubectl exec`.
+====
+
+=== Step 1: Compare Node vs. Container Visibility
+1. Log into your running Java pod:
++
+[source,bash]
+----
+oc rsh <pod-name>
+----
+
+2. Run a non-container-aware command to see the node's resources:
++
+[source,bash]
+----
+free -m
+nproc
+----
+*Observe: The output reflects the total RAM and CPUs of the entire OpenShift worker node.*
+
+3. Run the container-aware JVM setting command:
++
+[source,bash]
+----
+java -XX:+UnlockDiagnosticVMOptions -XshowSettings:system -version
+----
+
+=== Step 2: Analyze the JVM Output
+Locate the container information section in the output. You should see entries similar to:
+----
+container (cgroup) information:
+    container_type: cgroupv1
+    cpu_cpuset_cpus: 0-1
+    active_processor_count: 2
+    memory_limit_in_bytes: 536870912
+----
+
+*   **Verification:** Confirm that `memory_limit_in_bytes` aligns with the memory `limit` defined in your pod's YAML configuration. 
+*   **Action:** If these numbers differ from your configured limits, check if your JVM version is 8u191 or later, as older versions lack proper cgroup awareness.
+
+=== Step 3: Real-time Analysis with jcmd
+1. While the application is running, use `jcmd` to inspect the live process:
++
+[source,bash]
+----
+jcmd <pid> VM.info
+----
+2. Search for the `cgroup` section in the output. This provides a real-time snapshot of the container metrics, including `memory_usage_in_bytes`. Use this to determine if your heap size (typically a percentage of the limit) is appropriately leaving enough headroom for off-heap memory.

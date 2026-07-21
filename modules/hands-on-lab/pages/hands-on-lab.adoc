@@ -1,0 +1,9 @@
+#  Hands-on Lab
+
+= Hands-on Lab
+
+The hands-on lab focuses on practical application of container awareness principles within an OpenShift environment. Key activities include:
+
+* **Resource Tuning:** Adjusting Java heap settings using percentage-based configurations to align with container-imposed limits.
+* **Monitoring:** Utilizing container-aware diagnostic tools to track actual CPU and memory utilization rather than host-level metrics.
+* **Troubleshooting:** Applying diagnostic strategies—such as inspecting pod configurations and resource constraints—to resolve deployment issues within OpenShift.

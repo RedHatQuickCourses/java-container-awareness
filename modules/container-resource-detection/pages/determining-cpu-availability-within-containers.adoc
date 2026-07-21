@@ -1,0 +1,73 @@
+#  Determining CPU availability within containers
+
+= Determining CPU Availability Within Containers
+
+In a virtualized or bare-metal environment, the Java Virtual Machine (JVM) traditionally queries the operating system for the total number of physical CPUs available on the host. However, in containerized environments like Red Hat OpenShift or Kubernetes, a container is typically restricted to a subset of the host's compute resources.
+
+If the JVM is not container-aware, it may incorrectly identify the host's total CPU count rather than the container's allocated limit. This mismatch can lead to inefficient thread pool sizing (such as `ForkJoinPool` or parallel garbage collection threads), causing contention and performance degradation.
+
+== How Java Detects CPU Resources
+
+Modern JDKs (Java 8u191+ and all subsequent versions) use **cgroups (Control Groups)** to determine CPU availability. The JVM reads the cgroup filesystem to calculate the `ActiveProcessorCount`.
+
+### The Calculation Logic
+When running inside a container, the JVM inspects two primary metrics from the cgroup controller to determine how many processors it should use:
+
+1.  **CPU Shares (`cpu.shares`):** This represents the relative weight of the container. If the host has 64 cores and your container has a share weight that equates to 2 cores, the JVM uses this to influence its internal parallelism.
+2.  **CPU Quota and Period (`cpu.cfs_quota_us` and `cpu.cfs_period_us`):** These define a hard limit. For example, if the quota is 200,000 and the period is 100,000, the container is limited to 2 cores ($200,000 / 100,000 = 2$). 
+
+The JVM calculates the number of processors as the minimum of the host's processors and the calculated container limit.
+
+== Diagnostic Tools: Container-Aware vs. Non-Aware
+
+To verify how your Java application perceives CPU availability, you must distinguish between tools that see the "Host" view versus the "Container" view.
+
+[cols="1,3"]
+|===
+| Tool Category | Examples | Insight
+| **Non-Container Aware** | `lscpu`, `nproc` | Returns the total CPU count of the **underlying OpenShift Node**. This is often misleading for capacity planning.
+| **Container Aware** | `VM.info`, `-XX:+PrintFlagsFinal` | Returns the `active_processor_count` as perceived by the JVM based on cgroup limits.
+|===
+
+=== Verifying CPU Detection
+You can inspect the JVM's view of your container's resources by using the `jcmd` utility.
+
+1. Access your pod terminal:
+   `oc rsh <pod-name>`
+
+2. Run `jcmd` to print VM information:
+   `jcmd <pid> VM.info`
+
+Look for the `container` section in the output. A container-aware JVM will report output similar to this:
+
+[source,text]
+----
+container (cgroup) information:
+container_type: cgroupv1
+cpu_cpuset_cpus: 0-127
+cpu_memory_nodes: 0-7
+active_processor_count: 1  <-- JVM correctly sees 1 CPU limit
+cpu_quota: -1
+cpu_period: 100000
+cpu_shares: 51
+----
+
+== Best Practices for CPU Configuration
+* **Define Requests and Limits:** Always explicitly define `resources.limits.cpu` in your OpenShift deployment YAML. This ensures the cgroup values are populated correctly.
+* **Avoid Oversizing:** If you set a high CPU limit but your application is single-threaded, the JVM may spawn excessive GC threads, leading to context-switching overhead.
+* **Monitor `active_processor_count`:** If `active_processor_count` does not match your expectations, ensure you are running a supported OpenJDK version (8u191 or higher). If you are forced to use an older, non-aware version, you must manually set `-XX:ActiveProcessorCount` to match your container limit.
+
+== Hands-on Exercise: Inspecting CPU Awareness
+In this short task, you will verify the JVM's CPU detection.
+
+1. **Inspect current CPU perception:**
+   Inside your running container, identify the Java process ID:
+   `jps`
+
+2. **Query the VM metadata:**
+   Run the following command to see the active processor count:
+   `jcmd <pid> VM.info | grep active_processor_count`
+
+3. **Compare with OS-level tools:**
+   Run `nproc` in the same terminal.
+   *Note: If `nproc` returns the node's total CPUs (e.g., 64) but `active_processor_count` returns your container limit (e.g., 2), your application is correctly container-aware.*

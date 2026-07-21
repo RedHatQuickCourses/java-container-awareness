@@ -1,0 +1,96 @@
+#  Configuring limits and requests in Red Hat OpenShift
+
+= Configuring Limits and Requests in Red Hat OpenShift
+
+In the context of Red Hat OpenShift Container Platform (OCP), effectively managing resources is a balancing act between scheduling efficiency and runtime performance. To optimize Java applications, it is critical to distinguish how OCP handles resource definitions and how those definitions translate to the Linux kernel and the Java Virtual Machine (JVM).
+
+== The Relationship Between Requests and Limits
+
+OpenShift utilizes Kubernetes-native resource management, defined within the container specification of a Deployment or Pod YAML.
+
+*   **Requests:** These are used by the OpenShift scheduler to place a Pod on a node. They represent the minimum amount of CPU and memory guaranteed to the container. If a node does not have enough unallocated resources to satisfy the request, the scheduler will not place the Pod on that node.
+*   **Limits:** These define the hard ceiling for resource consumption. If a container exceeds its memory limit, it risks being terminated by the kernel (OOMKilled). CPU limits act as a throttling mechanism, restricting the execution time available to the container within a defined period.
+
+=== Resource Allocation Table
+
+[cols="1,2,2", options="header"]
+|===
+| Resource Type | Purpose | Calculation Method
+| **CPU Request** | Scheduling and node assignment. | Sets `cpu.share` in cgroups to prioritize usage.
+| **CPU Limit** | Binding execution allocation (throttling). | Sets quota and period (defaults to 100ms segments).
+|===
+
+== Perspectives on Resource Awareness
+
+It is vital to understand that different layers of your infrastructure interpret these settings differently:
+
+1.  **OpenShift/Kubernetes Layer:** The scheduler uses *requests* to manage cluster density and node capacity. It ignores *limits* for scheduling decisions.
+2.  **Kernel Layer:** The kernel enforces *limits* via Control Groups (cgroups). Quotas and periods derived from the container spec are translated into filesystem values in `/sys/fs/cgroup`.
+3.  **Java Layer (OpenJDK):** Modern versions of OpenJDK (post-8u191) are "container-aware." However, **Java only considers limits, not requests.** Even if you define CPU requests in your YAML, the JVM will ignore them for internal heap sizing and thread pool calculations.
+
+[IMPORTANT]
+====
+While Java workloads are burstable (threads dynamically demand kernel time), the JVM performs its cgroup reading at **startup**. Consequently, the JVM is "inelastic." If you change limits at runtime without restarting the Pod, the JVM will not automatically adjust its internal heuristics to match the new constraints.
+====
+
+== Best Practices for OCP Configurations
+
+*   **Avoid Overcommitting Critical Workloads:** For production-critical applications, consider "Guaranteed" Quality of Service (QoS). A pod is considered "Guaranteed" when both requests and limits are set and equal for all containers in the pod.
+*   **Limit vs. Request Parity:** If you are unsure of the application's baseline, start by setting requests lower than limits to allow for burstable performance, but ensure the limit is high enough to accommodate peak load to prevent CPU throttling.
+*   **Memory Awareness:** Always set memory limits to prevent a single Java container from consuming all available node memory, which would trigger the node-level OOM killer and impact other pods on the same node.
+
+== Hands-on Activity: Inspecting cgroup Resource Constraints
+
+In this activity, you will verify how OpenShift translates your YAML configuration into cgroup settings visible to the Java application.
+
+**Prerequisites:**
+*   An active OpenShift cluster.
+*   `oc` CLI authenticated with administrative or project-level access.
+
+**Steps:**
+
+1.  **Deploy a sample Java application** with defined limits and requests:
++
+[source,yaml]
+----
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-resource-demo
+spec:
+  template:
+    spec:
+      containers:
+      - name: java-app
+        image: registry.access.redhat.com/openjdk/openjdk-11-rhel8
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "500m"
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
+----
+
+2.  **Access the running Pod** to inspect the cgroup limits:
++
+[source,bash]
+----
+oc rsh <pod-name>
+----
+
+3.  **Check the CPU quota** enforced by the kernel:
++
+[source,bash]
+----
+cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us
+# This will return 100000 (100ms), confirming the 1000m CPU limit.
+----
+
+4.  **Observe Java's internal detection** of these limits:
++
+[source,bash]
+----
+java -XshowSettings:vm -version
+----
+*Look for the output related to `MaxHeapSize` and `ActiveProcessorCount`. You will notice these values are derived from the limits, not the requests.*

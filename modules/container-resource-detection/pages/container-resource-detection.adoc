@@ -1,0 +1,10 @@
+#  Container Resource Detection
+
+= Container Resource Detection
+
+Container resource detection enables the Java Virtual Machine (JVM) to accurately identify resource constraints imposed by the container environment rather than the underlying host node.
+
+*   **JVM Evolution:** Starting with Java 8u191 (via JDK8146115), the JVM gained the ability to parse control group (cgroup) files to determine resource boundaries.
+*   **Memory Limit Detection:** The JVM identifies the specific memory limit assigned to the container, allowing it to scale the heap size appropriately based on available container resources.
+*   **CPU Availability:** The JVM detects the number of CPU cores allocated to the container, preventing over-provisioning and ensuring efficient thread management within the containerized environment.
+*   **Operational Benefits:** Accurate detection prevents "out-of-memory" errors caused by the JVM incorrectly defaulting to host-level physical memory rather than container-specific limits.

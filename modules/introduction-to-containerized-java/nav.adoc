@@ -1,0 +1,4 @@
+* xref:introduction-to-containerized-java.adoc[]
+** xref:evolution-of-java-in-containerized-environments.adoc[]
+** xref:overview-of-container-aware-versus-non-container-aware-java.adoc[]
+** xref:importance-of-cgroup-detection-for-modern-deployments.adoc[]

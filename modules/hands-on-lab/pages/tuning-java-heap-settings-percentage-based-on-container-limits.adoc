@@ -1,0 +1,83 @@
+#  Tuning Java heap settings (percentage) based on container limits
+
+= Tuning Java Heap Settings Based on Container Limits
+
+In modern containerized environments like Red Hat OpenShift, the JVM no longer treats the host machine's total physical memory as its boundary. Instead, it respects the `cgroup` limits assigned to the container. Tuning the Java heap using percentages is the industry-standard approach to ensure the JVM remains "elastic" relative to the container’s resource allocation.
+
+== The Shift to Percentage-Based Memory Management
+
+Historically, developers used the `-Xmx` flag to set an absolute heap size (e.g., `-Xmx2g`). In a container, this creates a static configuration that ignores the actual memory limit of the pod. If the container limit is lowered, the JVM may attempt to exceed it, leading to a `cgroup` OOM-Kill.
+
+By using **RAM Percentage flags**, you decouple the specific memory limit from the application code, allowing the JVM to calculate its heap size dynamically based on the container's available memory.
+
+=== Key Configuration Flags
+*   `-XX:MaxRAMPercentage=N`: Sets the maximum heap size as a percentage of the container's memory limit. The default is typically 25%, though specialized container images (like Red Hat’s `run-java.sh` scripts) often default to 50% or 80%.
+*   `-XX:InitialRAMPercentage=N`: Sets the initial heap size as a percentage of the container limit.
+*   `-XX:MinRAMPercentage=N`: Defines the minimum heap size used when the container memory limit is small.
+
+[IMPORTANT]
+====
+When tuning these percentages, remember that the **total container memory** must accommodate more than just the heap. You must account for **off-heap memory**, which includes:
+*   Metaspace (Class metadata)
+*   Thread stacks
+*   Code Cache
+*   GC structures and internal JVM native memory
+*   Off-heap buffers (used by Netty, AMQ, or Data Grid)
+
+Setting `-XX:MaxRAMPercentage` too high (e.g., 95%) leaves insufficient room for native memory, inevitably leading to native memory pressure and `cgroups` OOM-Kill.
+====
+
+== Hands-on Lab: Tuning Heap for a Containerized Application
+
+In this lab, you will configure a Java application to use container-aware memory settings instead of hardcoded heap limits.
+
+### Prerequisites
+*   Access to an OpenShift cluster or a local Docker environment.
+*   A containerized Java application image.
+
+### Step 1: Inspect Current Configuration
+First, verify that your application is currently running without explicit `-Xmx` flags or is using percentage-based flags. Check the environment variables or the deployment configuration:
+
+[source,bash]
+----
+# Check the deployment environment
+oc set env deployment/<deployment-name> --list
+----
+
+### Step 2: Configure Percentage-Based Heap
+Update your deployment configuration to utilize `MaxRAMPercentage`. This ensures that if you increase the pod's memory limit in the future, the heap scales automatically without requiring a code or environment variable change.
+
+Apply the following environment variables to your deployment:
+
+[source,bash]
+----
+oc set env deployment/<deployment-name> \
+  JAVA_OPTIONS="-XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0"
+----
+
+### Step 3: Validate the Configuration
+After the deployment restarts, verify that the JVM has correctly calculated the heap size relative to your pod's memory limit.
+
+1.  Get the pod name:
++
+[source,bash]
+----
+oc get pods
+----
+
+2.  Run `jcmd` inside the container to inspect the VM arguments:
++
+[source,bash]
+----
+oc exec <pod-name> -- jcmd 1 VM.flags
+----
+
+*Observe the output:* You should see the `-XX:MaxRAMPercentage` flag active. If you check `VM.max_heap_size`, you will see an absolute byte value calculated based on the 75% ratio of your current container limit.
+
+### Step 4: Monitoring
+Use the OpenShift web console or CLI to monitor memory usage. Compare the "Memory Usage" metric against the "Container Limit." Ensure that the "Usage" remains below the total limit, accounting for the gap required for native off-heap memory.
+
+[TIP]
+====
+If you observe `java.lang.OutOfMemoryError: Metaspace` or native crashes, your `MaxRAMPercentage` is too aggressive. Lower the value by 5-10% and redeploy.
+====

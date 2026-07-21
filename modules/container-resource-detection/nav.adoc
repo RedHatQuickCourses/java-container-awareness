@@ -1,0 +1,4 @@
+* xref:container-resource-detection.adoc[]
+** xref:understanding-jdk8146115-and-java-8u191-updates.adoc[]
+** xref:detecting-container-memory-limits.adoc[]
+** xref:determining-cpu-availability-within-containers.adoc[]

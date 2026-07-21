@@ -1,0 +1,46 @@
+#  Navigating Kubernetes resource management for Java
+
+= Navigating Kubernetes resource management for Java
+
+In Kubernetes and OpenShift environments, resource management is governed by the orchestration layer, which enforces boundaries using Linux Control Groups (cgroups). For Java applications, the primary challenge lies in the abstraction gap: the JVM manages its own memory (heap, code cache, metaspace) and CPU (GC threads, JIT compiler threads), while Kubernetes manages the container’s total resource footprint.
+
+== Resource Requests vs. Limits
+
+Effective resource management requires a clear understanding of the difference between requests and limits:
+
+*   **Requests:** The guaranteed amount of resources (CPU/Memory) allocated to the container. The Kubernetes scheduler uses these values to place pods on nodes.
+*   **Limits:** The maximum threshold allowed for the container. If a Java application exceeds its memory limit, the Linux kernel OOM (Out of Memory) Killer will terminate the process.
+
+[IMPORTANT]
+====
+Setting `Limits` equal to `Requests` results in a **Guaranteed Quality of Service (QoS)** class. While this provides the highest priority, it does not prevent the OOM Killer from terminating the pod if the JVM heap plus off-heap memory usage exceeds the container limit.
+====
+
+== Cgroups and the Java JVM
+
+Since the introduction of JDK 8u191 (and the backport of `JDK8146115`), the JVM has become "container-aware." It reads cgroup filesystem metrics to determine available resources rather than querying the host OS kernel.
+
+When the JVM starts, it calculates heap ergonomics based on the container’s cgroup limits:
+*   **Memory:** If no `-Xmx` is explicitly set, the JVM defaults to a fraction of the container's memory limit (typically 1/4 of the available RAM).
+*   **CPU:** The JVM detects the number of available CPUs via cgroup shares/quotas and scales the number of Garbage Collection (GC) threads accordingly. 
+
+== The Impact of Dynamic Resizing
+
+While recent Kubernetes versions (1.27+) and OpenShift 4.4+ introduced features to resize pod resources without a restart, the JVM behavior remains tied to its initialization state. 
+
+1.  **Startup Snapshot:** The JVM performs its initial heap and thread pool calculations based on the resource values present when the process is invoked.
+2.  **Detection vs. Adaptation:** While the JVM can technically observe changes in the cgroup filesystem during runtime, it does not necessarily resize its internal heap boundaries or thread pools dynamically. 
+3.  **Risk:** If a container is vertically scaled (e.g., memory limit increased), the JVM will likely continue to respect the original heap size calculated at boot, potentially leaving the application under-provisioned despite the increase in available container resources.
+
+== Best Practices for Java on Kubernetes
+
+To ensure stability in a Kubernetes-managed environment, adhere to the following configurations:
+
+*   **Explicit Heap Definition:** Even with container awareness, it is best practice to define memory settings using percentages of the container limit (e.g., `-XX:MaxRAMPercentage=75.0`). This ensures the heap scales proportionally if the container limit is adjusted in the deployment manifest.
+*   **Account for Off-Heap Memory:** Remember that the total container memory limit must accommodate the Java heap, Metaspace, Code Cache, Thread stacks, and Native memory (NMT). Always set the `-XX:MaxRAMPercentage` conservatively (e.g., 60-75%) to prevent OOM events.
+*   **CPU Throttling:** Be aware that setting strict CPU limits can lead to "CPU throttling," where the kernel pauses threads when the quota is reached. Monitor `container_cpu_cfs_throttled_periods_total` in Prometheus to identify performance bottlenecks.
+
+[TIP]
+====
+Always use the latest stable version of Red Hat's OpenJDK, as it includes the most robust cgroup v2 support and the latest optimizations for container environment interactions.
+====

@@ -1,0 +1,4 @@
+* xref:openshift-and-kubernetes-integration.adoc[]
+** xref:configuring-limits-and-requests-in-red-hat-openshift.adoc[]
+** xref:understanding-cgroups-implications-for-java-applications.adoc[]
+** xref:navigating-kubernetes-resource-management-for-java.adoc[]

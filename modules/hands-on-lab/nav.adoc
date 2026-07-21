@@ -1,0 +1,4 @@
+* xref:hands-on-lab.adoc[]
+** xref:tuning-java-heap-settings-percentage-based-on-container-limits.adoc[]
+** xref:monitoring-cpu-and-memory-usage-using-container-aware-tools.adoc[]
+** xref:troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.adoc[]

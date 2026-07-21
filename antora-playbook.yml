@@ -1,14 +1,12 @@
 site:
-  title: FIXME Course Title
-  start_page: REPLACEREPONAME::index.adoc
+  title:  Java Container Awareness
+  start_page: java-container-awareness::index.adoc
 
 content:
   sources:
   - url: ./
 
 asciidoc:
-  extensions:
-  - '@asciidoctor/tabs'
   attributes:
     page-pagination: true
 

@@ -1,0 +1,13 @@
+#  Risks and Memory Management
+
+= Risks and Memory Management
+
+When deploying Java in containerized environments, improper memory configuration can lead to significant stability and performance issues. Understanding the balance between heap and off-heap memory is critical to preventing infrastructure-level failures.
+
+*   **Decoupling Risks:** Hard-coding heap sizes (e.g., via `-Xmx`) without considering container limits can lead to memory mismatches. If the JVM ignores container boundaries, it may trigger cgroups OOM-Kills, causing the kernel to terminate the application.
+*   **Off-Heap Considerations:** Container-aware Java calculates heap size as a percentage of available container memory. It is essential to account for off-heap usage (e.g., metaspace, thread stacks, native buffers) to ensure the total memory footprint does not exceed the container limit.
+*   **Resource Underutilization:** Inadequate configuration can lead to inefficient resource usage, where the JVM reserves significantly less memory than the container provides, leaving allocated infrastructure resources idle.
+*   **Best Practices:**
+    *   Prioritize container-aware JVM settings over manual heap overrides to allow for dynamic scaling.
+    *   Benchmark application memory usage to determine the optimal ratio between heap and off-heap requirements.
+    *   Avoid configurations that ignore cgroup limits, as these bypass the self-tuning capabilities of modern JDKs.

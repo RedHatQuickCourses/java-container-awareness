@@ -1,0 +1,87 @@
+#  Diagnostic strategies for Java deployments in OpenShift
+
+= Diagnostic strategies for Java deployments in OpenShift
+
+When managing Java applications in OpenShift, traditional diagnostic tools often fail because they lack "container awareness." Tools that look at the host operating system's total resources rather than the container's constrained cgroup limits can lead to misleading metrics. Effective diagnostics require tools and strategies that respect the isolation boundaries defined by Kubernetes.
+
+== Identifying Container-Aware Tools
+
+A critical diagnostic step is distinguishing between container-aware and legacy tools.
+
+*   **Legacy Tools:** Tools like `top`, `free`, or older JVM monitoring utilities may report the host's total RAM and CPU count. Relying on these leads to "false positives" where an administrator believes the application has more resources than it actually does.
+*   **Container-Aware Tools:** Modern JDKs (8u191+, 11+) and utilities like `jcmd`, `jstat`, and modern observability agents are cgroup-aware. They query the container's `/sys/fs/cgroup/` filesystem to report limits specifically applied to the pod.
+
+== Diagnostic Strategies
+
+To effectively diagnose resource constraints or performance issues, follow these strategies:
+
+=== 1. Validating Resource Visibility
+Always verify that the JVM sees the limits defined in your OpenShift `DeploymentConfig` or `Deployment`. You can inspect this by executing into the pod and checking the container's perceived memory and CPU:
+
+[source,bash]
+----
+# Check perceived max heap from within the pod
+oc exec <pod-name> -- java -XshowSettings:vm -version
+----
+
+Check if `MaxHeapSize` is calculated correctly based on the container memory limit rather than the worker node's total memory.
+
+=== 2. Utilizing `jcmd`
+`jcmd` is the gold standard for Java diagnostics within OpenShift. It allows you to perform heap dumps, thread dumps, and analyze VM flags without requiring a restart.
+
+*   **Thread Dumps:** Identify if the application is hitting thread limits or experiencing deadlocks.
+*   **GC Performance:** Use `jcmd <pid> GC.run` to trigger garbage collection or `jcmd <pid> VM.flags` to verify if `-XX:MaxRAMPercentage` is correctly configured.
+
+=== 3. Analyzing cgroup Constraints
+If a pod is frequently restarting, it may be hitting OOM (Out of Memory) kills. Since the OOM Killer is enforced at the cgroup level, standard Java `OutOfMemoryError` logs might not appear if the kernel terminates the process before the JVM can report it.
+
+*   **Inspect Pod Events:** Use `oc describe pod <pod-name>` to check for the `OOMKilled` state.
+*   **Check Exit Codes:** An exit code of `137` is a strong indicator that the container was terminated by the OOM killer because it exceeded the OpenShift memory limit.
+
+== Hands-on Lab: Analyzing Resource Constraints
+
+In this lab, we will use `jcmd` to inspect a running Java process and verify its awareness of container limits.
+
+=== Prerequisites
+*   An active OpenShift cluster with a running Java pod.
+*   `oc` CLI configured with cluster access.
+
+=== Step 1: Verify JVM resource settings
+Execute into the pod to check how the JVM views the memory limits.
+
+[source,bash]
+----
+# Run the VM settings check
+oc exec <pod-name> -- java -XX:+PrintFlagsFinal -version | grep MaxHeapSize
+----
+
+Observe the output. If you have defined a `memory` limit of 512Mi in your manifest, the `MaxHeapSize` should be a fraction of that limit (if using `MaxRAMPercentage`).
+
+=== Step 2: Use `jcmd` to analyze the process
+Access the container shell to utilize `jcmd`.
+
+[source,bash]
+----
+oc rsh <pod-name>
+
+# List running Java processes
+jcmd
+
+# Get a detailed report of the VM's perceived memory constraints
+jcmd <pid> VM.flags
+----
+
+=== Step 3: Troubleshooting a constraint
+If the application is slow, check if CPU throttling is occurring due to the Kubernetes `cpu` limit:
+
+1.  Check the `cpu.stat` file within the container:
+    [source,bash]
+    ----
+    cat /sys/fs/cgroup/cpu/cpu.stat
+    ----
+2.  Look for `nr_throttled`. If this number is increasing rapidly, your CPU `limit` is too low, and the kernel is throttling your application, causing latency.
+
+== Best Practices Summary
+*   **Never rely on `free` or `top`** inside a container for memory capacity planning.
+*   **Always use `-XX:MaxRAMPercentage`** instead of fixed `-Xmx` values to ensure the heap scales dynamically with the container limit.
+*   **Prioritize `jcmd`** for all runtime analysis, as it is native to the OpenJDK and fully supports container-cgroup awareness.

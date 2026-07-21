@@ -1,0 +1,78 @@
+#  Managing off-heap memory in containerized environments
+
+= Managing Off-Heap Memory in Containerized Environments
+
+In modern Java applications, memory management extends beyond the Java Heap. While the Heap is responsible for storing object instances, the *Off-Heap* memory—encompassing Metaspace, Code Cache, Thread stacks, and Direct ByteBuffers—is critical for the stability of containerized deployments.
+
+When a Java application runs in an OpenShift or Kubernetes container, it is subject to strict Linux Control Group (cgroup) memory limits. If the sum of the Heap and Off-Heap memory exceeds these container limits, the container runtime will trigger an `OOMKill` (Out of Memory Kill), regardless of how much space is left in the Java Heap.
+
+== The Decoupling Risk
+Historically, developers focused exclusively on `-Xmx` (maximum heap size). However, in a container, the JVM sees the container's memory limit. If you configure the Heap to consume too large a percentage of the container's limit, you leave insufficient headroom for Off-Heap requirements.
+
+Key Off-Heap components that must be accounted for include:
+* **Metaspace:** Stores class metadata.
+* **Code Cache:** Stores compiled native code by the JIT compiler.
+* **Thread Stacks:** Each thread requires native memory; in applications with high thread counts, this can lead to significant memory consumption.
+* **Direct Buffers:** Used by NIO libraries and netty-based frameworks.
+
+== Best Practices for Configuration
+To prevent `OOMKills`, you must treat the container's memory limit as the total capacity for both Heap and Off-Heap.
+
+1. **Calculate the Total Footprint:** Before setting heap percentages, perform load testing to determine the "baseline" Off-Heap usage of your application under peak load.
+2. **Use Relative Sizing:** Instead of fixed `-Xmx` values, leverage container-aware JVM flags that allow the heap to scale proportionally to the container limit.
++
+[source,bash]
+----
+-XX:MaxRAMPercentage=70.0
+----
++
+_Note: If your application is highly dependent on Off-Heap (e.g., uses large Direct Buffers or high thread counts), you should reduce this percentage to 50% or 60% to ensure enough "breathing room" for native memory allocations._
+
+3. **Monitor Native Memory:** Use the Native Memory Tracking (NMT) feature to gain visibility into non-heap memory usage.
++
+[source,bash]
+----
+# Enable NMT in the container
+-XX:NativeMemoryTracking=summary
+----
+
+== Hands-on Activity: Analyzing Off-Heap Requirements
+
+This activity guides you through identifying the native memory footprint of your Java process.
+
+=== Step 1: Enable NMT and Inspect Memory
+Use `jcmd` to inspect the memory distribution of your running containerized application.
+
+1. Access the terminal of your running pod:
++
+[source,bash]
+----
+oc rsh <pod-name>
+----
+
+2. Run the NMT summary command:
++
+[source,bash]
+----
+jcmd <pid> VM.native_memory summary
+----
+
+3. Analyze the output. Look specifically at:
+* **Internal:** Memory used by the JVM internal structures.
+* **Symbol:** Memory used for string interning.
+* **Thread:** Memory consumed by stack spaces.
+
+=== Step 2: Simulate Constraint Pressure
+To ensure your configuration is resilient, verify that your application does not exceed the container limit.
+
+1. View the current cgroup memory limit for your container:
++
+[source,bash]
+----
+cat /sys/fs/cgroup/memory/memory.limit_in_bytes
+----
+
+2. Compare this value against your calculated Heap + Off-Heap usage. If your application's `Total` committed memory (as seen in NMT) + `-Xmx` exceeds this limit, you must adjust your `MaxRAMPercentage` downward or increase the container's memory request/limit in your OpenShift `DeploymentConfig`.
+
+=== Troubleshooting Tip
+If you encounter `cgroup OOMKills` despite having a small Java Heap, use `jcmd` to identify if the **Thread** or **Internal** categories are consuming unexpected amounts of native memory. If so, investigate thread pool sizing or consider decreasing the `-Xss` (thread stack size) flag to reduce the memory footprint per thread.

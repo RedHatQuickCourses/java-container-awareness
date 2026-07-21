@@ -1,0 +1,80 @@
+#  Analyzing container limits and resource utilization
+
+= Analyzing Container Limits and Resource Utilization
+
+To ensure Java applications perform predictably within Red Hat OpenShift or Kubernetes, you must understand how the JVM interacts with the underlying control groups (cgroups). When an application is container-aware, the JVM can query the cgroup filesystem to determine its actual boundaries rather than defaulting to the physical host's resources.
+
+== Understanding Resource Visibility
+
+The primary challenge in containerized Java is the discrepancy between what the Operating System sees (physical host) and what the container runtime enforces (cgroup limits).
+
+### The Mechanics of Detection
+Container-aware JVMs (starting from Java 8u191 and newer) automatically inspect cgroup files—such as `memory.limit_in_bytes` and `cpu.cfs_quota_us`—to size the heap and determine the available processor count.
+
+When analyzing your application, you can extract this metadata using `jcmd`. If your JVM is properly detecting the container environment, the output will reveal specific cgroup configurations:
+
+[source,text]
+----
+# Example output from jcmd <pid> VM.check_commercial_features or custom diagnostic commands
+container_type: cgroupv1
+active_processor_count: 1
+cpu_quota: -1
+memory_limit_in_bytes: 536870912
+memory_usage_in_bytes: 125108224
+----
+
+*   **`active_processor_count`**: Essential for the JVM to size its internal thread pools (e.g., ForkJoinPool).
+*   **`memory_limit_in_bytes`**: Dictates the physical memory limit the JVM uses to calculate its initial heap size (typically 1/4 of the container limit by default).
+
+== Identifying Limitations and Misconfigurations
+
+Analyzing resource utilization requires verifying that your JVM heap plus off-heap requirements remain within the Kubernetes/OpenShift `limits`.
+
+=== The Decoupling Risk
+A common pitfall is ignoring the "off-heap" footprint. If you set your Java Heap (Xmx) to 80% of your container limit, but your application requires 30% for off-heap memory (Metaspace, Code Cache, Thread stacks, Direct Buffers), the container will exceed its memory limit. 
+
+This results in a **cgroup OOMKill**, which is distinct from a JVM `java.lang.OutOfMemoryError`. 
+
+=== Troubleshooting Checklist
+When analyzing resource constraints, follow these steps:
+
+1.  **Compare Requests vs. Limits:** Ensure your OpenShift `requests` are sufficient for startup, while `limits` accommodate peak load.
+2.  **Verify Cgroup Awareness:** Use `jcmd` to verify if the JVM identifies the correct `memory_limit_in_bytes`. If this shows `-1` or reflects host memory, the JVM is not container-aware, and you must explicitly configure `-XX:MaxRAMPercentage`.
+3.  **Monitor via Tools:** 
+    *   **Container-aware:** Use `kubectl top pod` or the OpenShift Web Console metrics.
+    *   **Non-container-aware:** Avoid using legacy `top` or `free` commands inside the container, as they often report host-level data rather than container-constrained data.
+
+== Hands-on Activity: Inspecting JVM Resource Awareness
+
+In this activity, you will verify if your currently running pod is correctly interpreting its cgroup limits.
+
+. **Access the running pod:**
++
+[source,bash]
+----
+oc rsh <pod-name>
+----
+
+. **Identify the PID of the Java process:**
++
+[source,bash]
+----
+jps
+# Output: 1234 AppMain
+----
+
+. **Run the diagnostic command to check resource visibility:**
++
+[source,bash]
+----
+jcmd 1234 VM.native_memory summary
+# Look for container-specific configuration in the JVM diagnostic output
+----
+
+. **Cross-reference with OpenShift limits:**
+Compare the `memory_limit_in_bytes` reported by the JVM with the memory limit defined in your OpenShift deployment YAML. If they do not align, adjust your `JAVA_TOOL_OPTIONS` using `-XX:MaxRAMPercentage` to force the JVM to align its heap to the container boundary.
+
+[NOTE]
+====
+If you observe `cgroup OOMKills` despite the JVM reporting correct memory usage, analyze your off-heap usage via `jcmd <pid> NativeMemoryTracking=summary`. You may need to decrease your `MaxRAMPercentage` to provide more "breathing room" for the native memory footprint.
+====

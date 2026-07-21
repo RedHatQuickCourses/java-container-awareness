@@ -1,0 +1,49 @@
+#  Identifying container-aware versus non-container-aware tools
+
+= Identifying Container-Aware versus Non-Container-Aware Tools
+
+When managing Java applications in Red Hat OpenShift or Kubernetes, understanding whether your diagnostic tools perceive the underlying host node or the isolated container environment is critical. Misinterpreting these outputs often leads to "out of memory" (OOM) kills or CPU throttling because the application may be configured based on node-level visibility rather than container-level constraints.
+
+== Distinguishing Tool Behavior
+
+To effectively troubleshoot Java in containers, you must categorize your diagnostic tools based on their ability to parse `cgroups` (control groups).
+
+=== Non-Container-Aware Tools
+Non-container-aware tools report information regarding the physical or virtual host (the OCP Node). Relying on these tools within a pod will provide a false sense of resource availability.
+
+*   **`lscpu`**: Reports the total CPU architecture and count of the physical worker node, not the specific CPU quota assigned to your pod.
+*   **`nproc`**: Returns the number of processors available to the host OS, ignoring the Kubernetes `resources.limits.cpu` defined in your pod specification.
+*   **`free -m`**: Displays the total RAM available to the node. If your pod has a 512MB limit but the node has 64GB, this command will inaccurately suggest you have 64GB available for your heap.
+
+=== Container-Aware Tools
+Container-aware tools interface with the Linux `cgroups` subsystem to identify the specific constraints imposed by the orchestrator. These are the "source of truth" for your application environment.
+
+*   **`-XX:+PrintFlagsFinal` / `-XshowSettings:system`**: These flags instruct the JVM to report the memory and CPU settings it has calculated based on container limits. Use these to verify if the JVM correctly identified the container memory boundary.
+*   **`VM.info` (via `jcmd`)**: Provides a snapshot of the JVM, including flags and internal settings that reflect whether the container-aware logic was successfully applied.
+*   **`run-java.sh`**: Often used in Red Hat-supported images, this script evaluates the container environment and environment variables to set optimal Java heap sizes automatically before the JVM starts.
+
+== Diagnostic Strategy
+
+To verify if your environment is correctly configured, compare the output of host-level tools against JVM-internal tools.
+
+[cols="1,1,1"]
+|===
+| Tool | Scope | Usage Case
+| `free -m` | Node | Use only to verify the underlying node capacity.
+| `nproc` | Node | Ignore when calculating thread pools or garbage collection threads.
+| `java -XshowSettings:system` | Container | Use to confirm the JVM sees the pod's `limits.memory`.
+| `jcmd <pid> VM.info` | Container | Use for deep runtime inspection of detected resource limits.
+|===
+
+=== Detecting Misconfiguration
+If your application is crashing with an `OOMKiller` signal, follow this diagnostic workflow:
+
+1.  **Check JVM visibility**: Run `java -XshowSettings:system` inside the running container.
+2.  **Compare limits**: Look at `MaxHeapSize` and `TotalPhysicalMemory` in the output.
+3.  **Evaluate OCP Manifests**: Compare these values against your OpenShift `Deployment` or `DeploymentConfig` resource requests and limits.
+4.  **Log Analysis**: Review the pod startup logs. If the logs show that the JVM is using a default (e.g., 25% of physical memory) rather than a percentage of the container limit, the JVM is likely not properly detecting the `cgroup` constraints.
+
+[TIP]
+====
+If your application logs indicate it is defaulting to 25% of the *node's* memory rather than the *container's* limit, verify that you are using a supported OpenJDK version (8u191+) and that the image is properly configured to handle `cgroups`.
+====
