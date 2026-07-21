@@ -1,14 +1,14 @@
-#  Evolution of Java in containerized environments
-
 = Evolution of Java in containerized environments
 
 The landscape of Java application deployment has shifted dramatically with the advent of containerization. Initially designed for virtual machines and bare-metal hardware, the Java Virtual Machine (JVM) faced significant architectural hurdles when introduced to the world of Linux containers.
 
 == The Early Challenges: "The Blind JVM"
 
-In traditional environments, the JVM identifies system resources by querying the underlying operating system (OS) kernel via `/proc/meminfo` and `/proc/stat`. When a Java process runs on a physical server, it sees the total memory and CPU cores of the host.
+In traditional environments, the JVM identifies system resources by querying the underlying operating system (OS) kernel via `/proc/meminfo` and `/proc/stat`. When a Java process runs on a physical server, it sees the total memory and CPU cores of the host. 
 
-However, containers achieve isolation through **Control Groups (cgroups)**—a Linux kernel feature that limits, accounts for, and isolates the resource usage of a collection of processes. Early versions of Java were not "cgroup-aware." When running inside a container, the JVM would still attempt to query the host's total resources rather than the container's restricted limits. This created a dangerous "mismatch" where the JVM believed it had access to gigabytes of host RAM, leading to:
+Java wasn't able to detect the container limits, therefore to solve this it was encapsulated inside an initialization script: run-java.sh, which would then detect the container limits and deploy Java with those limits (script -> container limits -> Java).
+
+However, from a pure Java perspective, containers achieve isolation through **Control Groups (cgroups)**—a Linux kernel feature that limits, accounts for, and isolates the resource usage of a collection of processes. Early versions of Java were not "cgroup-aware." When running inside a container, the JVM would still attempt to query the host's total resources rather than the container's restricted limits. This created a dangerous "mismatch" where the JVM believed it had access to gigabytes of host RAM, leading to:
 
 *   **OOMKills:** The JVM would attempt to allocate heap memory based on host capacity, triggering the container orchestrator to kill the process for exceeding its cgroup memory limit.
 *   **Performance Degradation:** The JVM would size its internal thread pools (e.g., ForkJoinPool) based on the total physical CPU cores of the host, leading to excessive context switching and performance bottlenecks in environments where the container was throttled to a single core.
