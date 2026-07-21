@@ -1,0 +1,7 @@
+In this hands-on lab, we will focus on the practical application of container awareness principles within an OpenShift environment. Through this session, you will work on three key areas.
+
+First, you will practice resource tuning. This involves adjusting Java heap settings using percentage-based configurations to ensure your applications align correctly with container-imposed limits.
+
+Second, you will engage in monitoring. You will learn to utilize container-aware diagnostic tools to track actual CPU and memory utilization, which is essential for getting accurate data instead of relying on host-level metrics.
+
+Finally, we will cover troubleshooting. You will apply specific diagnostic strategies, such as inspecting pod configurations and resource constraints, to effectively resolve common deployment issues within OpenShift.

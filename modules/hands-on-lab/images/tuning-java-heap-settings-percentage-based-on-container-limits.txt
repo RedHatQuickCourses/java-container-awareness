@@ -1,0 +1,21 @@
+In modern containerized environments like Red Hat OpenShift, the Java Virtual Machine no longer treats the host machine's total physical memory as its boundary. Instead, it respects the control group, or cgroup, limits assigned to the container. Tuning the Java heap using percentages is now the industry-standard approach to ensure the JVM remains elastic relative to the container’s resource allocation.
+
+Historically, developers used the dash-X-m-x flag to set an absolute heap size, such as two gigabytes. In a containerized environment, this creates a static configuration that ignores the actual memory limit of the pod. If that container limit is lowered, the JVM may attempt to exceed it, leading to a cgroup out-of-memory kill. By using RAM percentage flags, you decouple the specific memory limit from the application code, allowing the JVM to calculate its heap size dynamically based on the memory available to the container.
+
+Let's look at the key configuration flags you should know. The dash-X-X-colon-Max-R-A-M-Percentage flag sets the maximum heap size as a percentage of the container's memory limit. While the default is typically 25 percent, specialized container images often default to 50 or 80 percent. The dash-X-X-colon-Initial-R-A-M-Percentage flag sets the starting heap size, and the dash-X-X-colon-Min-R-A-M-Percentage flag defines the minimum heap size used when the container memory limit is small.
+
+It is important to remember that the total container memory must accommodate more than just the heap. You must account for off-heap memory, which includes metaspace for class metadata, thread stacks, the code cache, garbage collection structures, and internal native memory, as well as off-heap buffers used by components like Netty or AMQ. Setting the MaxRAMPercentage too high, for instance to 95 percent, leaves insufficient room for this native memory, which will inevitably lead to native memory pressure and a container-level out-of-memory kill.
+
+Now, let's move to our hands-on lab, where you will configure a Java application to use container-aware memory settings. 
+
+Before you begin, ensure you have access to an OpenShift cluster or a local Docker environment, along with a containerized Java application image.
+
+Step one is to inspect your current configuration. Verify that your application is running without hardcoded dash-X-m-x flags by checking your environment variables or deployment configuration. You can do this by running the command: `oc set env deployment/<deployment-name> --list`.
+
+Step two is to configure the percentage-based heap. Updating your deployment to use MaxRAMPercentage ensures that if you increase the pod's memory limit later, the heap scales automatically. Apply these environment variables to your deployment by running the command: `oc set env deployment/<deployment-name> JAVA_OPTIONS="-XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0"`.
+
+Step three is to validate your configuration. After the deployment restarts, confirm that the JVM has correctly calculated the heap size. First, get your pod name by running `oc get pods`. Next, run `jcmd` inside the container to inspect the VM arguments using the command: `oc exec <pod-name> -- jcmd 1 VM.flags`. When you observe the output, you should see your MaxRAMPercentage flag active. If you check the VM max heap size, you will see an absolute byte value that reflects 75 percent of your current container limit.
+
+Finally, for step four, use the OpenShift web console or CLI to monitor memory usage. Compare the memory usage metric against your container limit to ensure that usage remains below the total limit, leaving enough room for your native off-heap memory. 
+
+A useful tip for your monitoring: if you observe a java dot lang dot OutOfMemoryError for Metaspace, or if you encounter native crashes, your MaxRAMPercentage is likely too aggressive. If this happens, simply lower the value by 5 to 10 percent and redeploy.

@@ -1,0 +1,19 @@
+In modern Java deployments, it is critical that the Java Virtual Machine correctly identifies the memory boundaries imposed by your container orchestration platform. If the JVM fails to do this, you may experience performance degradation, inefficient resource utilization, or even unexpected pod terminations.
+
+Let’s look at why container awareness is so important. Prior to the integration of the JDK8146115 update in Java 8u191, the JVM relied on standard operating system utilities to detect available memory. In a containerized environment, these utilities often report the total memory of the underlying physical host node, rather than the restricted memory specifically assigned to your container. If the JVM perceives the node's total memory instead of your container’s limit, it might attempt to allocate a heap size that exceeds the container's allowed threshold. This usually leads to an OutOfMemoryException or, more commonly, a SIGKILL signal from the Linux kernel’s Out-Of-Memory killer.
+
+The JVM handles this by inspecting the control group, or cgroup, filesystem. By reading files under the `/sys/fs/cgroup/memory` directory, the JVM determines the hard limits imposed by the orchestrator.
+
+When you need to verify if your Java application is correctly seeing those limits, please keep this important caution in mind: avoid relying on standard Linux utilities like `free`, `top`, or `lscpu`. These tools are not container-aware and will report the resources of the host node, which will lead to incorrect diagnostic conclusions. Instead, you should utilize built-in JVM diagnostic flags.
+
+The most direct way to verify what the JVM has detected is to pass the `-XshowSettings:system` flag during application startup. When you do this, the output will include an Operating System Metrics section. If your JVM is correctly container-aware, you will see explicit lines reflecting the Memory Limit. If that value matches your OpenShift or Kubernetes configuration, then the JVM is successfully performing container detection.
+
+Now, what if you suspect your application is failing to respect those container limits? Look for these three symptoms:
+First, host-level reporting, where commands executed inside the container show memory values that match the physical node.
+Second, OOM Killer termination, where the pod restarts with an exit code indicating an Out-Of-Memory error, even if your heap settings look reasonable.
+And third, resource underutilization, where the application heap is significantly smaller than the container limit because it defaulted to a generic fraction of the host's massive memory footprint, causing frequent, unnecessary garbage collection pauses.
+
+To troubleshoot these issues, follow this diagnostic strategy:
+First, check your pod logs to confirm if startup scripts are being used, as they often contain logic to calculate heap sizes based on container limits.
+Next, use the `jcmd` command with the process ID and the `VM.info` argument to inspect the runtime configuration and ensure the JVM has correctly parsed the memory controller.
+Finally, always compare the Memory Limit reported by the JVM against the memory limits configured in your OpenShift or Kubernetes deployment files. By following these steps, you can ensure your Java applications are properly optimized for your containerized environment.

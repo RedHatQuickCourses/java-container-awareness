@@ -1,0 +1,24 @@
+To ensure Java applications perform predictably within Red Hat OpenShift or Kubernetes, it is essential to understand how the Java Virtual Machine, or JVM, interacts with underlying control groups, or cgroups. When an application is container-aware, the JVM can query the cgroup filesystem to determine its actual operational boundaries, rather than incorrectly defaulting to the resources of the physical host.
+
+The primary challenge in containerized Java environments is the discrepancy between what the operating system perceives as the physical host and what the container runtime actually enforces through cgroup limits.
+
+Let’s look at the mechanics of detection. Container-aware JVMs, specifically starting from Java 8u191 and newer, automatically inspect cgroup files—such as `memory.limit_in_bytes` and `cpu.cfs_quota_us`—to size the heap and determine the available processor count. You can extract this metadata using the `jcmd` command. When you run a diagnostic command, the output will reveal specific cgroup configurations, including the `active_processor_count`, which helps the JVM size its internal thread pools like the ForkJoinPool, and the `memory_limit_in_bytes`, which the JVM uses to calculate its initial heap size.
+
+When analyzing resource utilization, you must verify that your Java heap, plus any off-heap requirements, remains within the Kubernetes or OpenShift limits. A common pitfall is the decoupling risk, where you ignore the off-heap footprint. For example, if you set your Java Heap, or Xmx, to 80% of your container limit, but your application requires an additional 30% for off-heap memory—such as Metaspace, Code Cache, thread stacks, or Direct Buffers—the container will exceed its limit. This results in a cgroup OOMKill, or Out-Of-Memory Kill, which is quite different from a standard JVM `java.lang.OutOfMemoryError`.
+
+To troubleshoot resource constraints, follow these three steps:
+
+First, compare your Requests and Limits. Ensure that your OpenShift requests are sufficient for startup, while your limits are set to accommodate peak load.
+
+Second, verify cgroup awareness. Use `jcmd` to check if the JVM identifies the correct `memory_limit_in_bytes`. If the command returns negative one or reflects host memory, your JVM is not container-aware, and you must explicitly configure it using the `-XX:MaxRAMPercentage` flag.
+
+Third, monitor your application correctly. If your environment is container-aware, use standard tools like `kubectl top pod` or the OpenShift Web Console metrics. Importantly, avoid using legacy commands like `top` or `free` inside the container, as they often report host-level data rather than the data constrained by your container.
+
+Now, let’s walk through a hands-on activity to inspect your JVM’s resource awareness. 
+
+First, access your running pod by executing `oc rsh <pod-name>`. 
+Second, identify the process ID of your Java application by running the `jps` command. 
+Third, run the diagnostic command `jcmd <pid> VM.native_memory summary` to check your resource visibility and look for container-specific configuration in the output. 
+Finally, cross-reference this with your OpenShift limits. Compare the memory limit reported by the JVM with the limit defined in your OpenShift deployment YAML. If they do not align, you should adjust your `JAVA_TOOL_OPTIONS` using `-XX:MaxRAMPercentage` to force the JVM to align its heap to the container boundary.
+
+A final important note: If you observe cgroup OOMKills despite the JVM reporting correct memory usage, analyze your off-heap usage using the command `jcmd <pid> NativeMemoryTracking=summary`. You may find that you need to decrease your `MaxRAMPercentage` to provide more breathing room for the native memory footprint of your application.

@@ -1,0 +1,13 @@
+Welcome to this introduction to containerized Java. In this module, we will explore how the Java Virtual Machine, or JVM, has evolved to operate efficiently within isolated environments like OpenShift and Kubernetes.
+
+Modern Java runtimes are designed with container awareness. This means that instead of looking at the physical host hardware, the JVM can now detect cgroup limits and automatically adjust its resource consumption to match the specific constraints of the container it is running in.
+
+There are four key aspects to this evolution that you should understand:
+
+First is the shift in how Java perceives resources. Historically, Java relied on host-based resource perception, but it has evolved toward environment-aware detection, allowing it to behave more intelligently in modern infrastructure.
+
+Second is the core concept of container awareness itself. This is the ability of the JVM to recognize and respect the specific memory and CPU limits imposed by your container runtime.
+
+Third is cgroup detection. By leveraging kernel-level control groups, or cgroups, the JVM can accurately monitor and manage resource availability in real-time.
+
+Finally, all of this contributes to greater operational efficiency. By ensuring the JVM aligns its internal memory and thread management with the resource limits defined for your container, you can simplify your deployments and ensure your applications perform reliably in cloud-native environments.

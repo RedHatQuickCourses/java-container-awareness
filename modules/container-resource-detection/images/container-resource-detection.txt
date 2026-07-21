@@ -1,0 +1,13 @@
+In this module, we will explore container resource detection. This feature is essential for ensuring that the Java Virtual Machine, or JVM, accurately identifies resource constraints imposed by your container environment, rather than defaulting to the settings of the underlying host node.
+
+Let’s look at the key concepts behind this functionality.
+
+First, let’s consider the evolution of the JVM. Starting with Java 8 update 191, the JVM gained the ability to parse control group, or cgroup, files. This is a critical development because it allows the JVM to determine the specific resource boundaries set for a container.
+
+This capability provides two primary benefits: memory limit detection and CPU availability monitoring.
+
+Regarding memory, the JVM identifies the specific memory limit assigned to your container. This allows it to scale the heap size appropriately based on the resources actually available to the container. 
+
+Regarding CPU, the JVM detects the exact number of CPU cores allocated to the container. This prevents over-provisioning and ensures that thread management remains efficient within your containerized environment.
+
+These features offer significant operational benefits. Most importantly, accurate resource detection prevents those frustrating "out-of-memory" errors that occur when the JVM incorrectly defaults to the host’s physical memory instead of respecting the container-specific limits. By correctly identifying these constraints, you ensure your applications run more predictably and reliably in production.
