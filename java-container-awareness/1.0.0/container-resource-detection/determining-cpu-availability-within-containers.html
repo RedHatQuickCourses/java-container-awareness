@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Determining CPU availability within containers :: Java Container Awareness</title>
+    <link rel="prev" href="detecting-container-memory-limits.html">
+    <link rel="next" href="../risks-and-memory-management/risks-and-memory-management.html">
+    <meta name="generator" content="Antora 3.2.0-alpha.12">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Java Container Awareness</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="java-container-awareness" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Java Container Awareness</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../introduction-to-containerized-java/introduction-to-containerized-java.html">Introduction to Containerized Java</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../introduction-to-containerized-java/evolution-of-java-in-containerized-environments.html">Evolution of Java in containerized environments</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../introduction-to-containerized-java/overview-of-container-aware-versus-non-container-aware-java.html">Overview of container-aware versus non-container-aware Java</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../introduction-to-containerized-java/importance-of-cgroup-detection-for-modern-deployments.html">Importance of cgroup detection for modern deployments</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="container-resource-detection.html">Container Resource Detection</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="understanding-jdk8146115-and-java-8u191-updates.html">Understanding JDK8146115 and Java 8u191 updates</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="detecting-container-memory-limits.html">Detecting container memory limits</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="determining-cpu-availability-within-containers.html">Determining CPU availability within containers</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../risks-and-memory-management/risks-and-memory-management.html">Risks and Memory Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../risks-and-memory-management/implications-of-decoupling-heap-memory-from-container-limits.html">Implications of decoupling heap memory from container limits</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../risks-and-memory-management/managing-off-heap-memory-in-containerized-environments.html">Managing off-heap memory in containerized environments</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../risks-and-memory-management/best-practices-for-java-memory-configuration-in-containers.html">Best practices for Java memory configuration in containers</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/openshift-and-kubernetes-integration.html">OpenShift and Kubernetes Integration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/configuring-limits-and-requests-in-red-hat-openshift.html">Configuring limits and requests in Red Hat OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/understanding-cgroups-implications-for-java-applications.html">Understanding cgroups implications for Java applications</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/navigating-kubernetes-resource-management-for-java.html">Navigating Kubernetes resource management for Java</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-tooling/troubleshooting-and-tooling.html">Troubleshooting and Tooling</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/identifying-container-aware-versus-non-container-aware-tools.html">Identifying container-aware versus non-container-aware tools</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/analyzing-container-limits-and-resource-utilization.html">Analyzing container limits and resource utilization</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/diagnostic-strategies-for-java-deployments-in-openshift.html">Diagnostic strategies for Java deployments in OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/java-diagnostics-jcmd.html">Java Diagnostics: jcmd</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/tuning-java-heap-settings-percentage-based-on-container-limits.html">Tuning Java heap settings (percentage) based on container limits</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/monitoring-cpu-and-memory-usage-using-container-aware-tools.html">Monitoring CPU and memory usage using container-aware tools</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.html">Troubleshooting resource constraints in an OpenShift environment (e.g. inspect)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Java Container Awareness</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Java Container Awareness</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Java Container Awareness</a></li>
+    <li><a href="container-resource-detection.html">Container Resource Detection</a></li>
+    <li><a href="determining-cpu-availability-within-containers.html">Determining CPU availability within containers</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Determining CPU availability within containers</h1>
+<h1 id="_determining_cpu_availability_within_containers" class="sect0"><a class="anchor" href="#_determining_cpu_availability_within_containers"></a>Determining CPU Availability Within Containers</h1>
+<div class="paragraph">
+<p>In a virtualized or bare-metal environment, the Java Virtual Machine (JVM) traditionally queries the operating system for the total number of physical CPUs available on the host. However, in containerized environments like Red Hat OpenShift or Kubernetes, a container is typically restricted to a subset of the host&#8217;s compute resources.</p>
+</div>
+<div class="paragraph">
+<p>If the JVM is not container-aware, it may incorrectly identify the host&#8217;s total CPU count rather than the container&#8217;s allocated limit. This mismatch can lead to inefficient thread pool sizing (such as <code>ForkJoinPool</code> or parallel garbage collection threads), causing contention and performance degradation.</p>
+</div>
+<div class="sect1">
+<h2 id="_how_java_detects_cpu_resources"><a class="anchor" href="#_how_java_detects_cpu_resources"></a>How Java Detects CPU Resources</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Modern JDKs (Java 8u191+ and all subsequent versions) use <strong>cgroups (Control Groups)</strong> to determine CPU availability. The JVM reads the cgroup filesystem to calculate the <code>ActiveProcessorCount</code>.</p>
+</div>
+<div class="sect2">
+<h3 id="_the_calculation_logic"><a class="anchor" href="#_the_calculation_logic"></a>The Calculation Logic</h3>
+<div class="paragraph">
+<p>When running inside a container, the JVM inspects two primary metrics from the cgroup controller to determine how many processors it should use:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>CPU Shares (<code>cpu.shares</code>):</strong> This represents the relative weight of the container. If the host has 64 cores and your container has a share weight that equates to 2 cores, the JVM uses this to influence its internal parallelism.</p>
+</li>
+<li>
+<p><strong>CPU Quota and Period (<code>cpu.cfs_quota_us</code> and <code>cpu.cfs_period_us</code>):</strong> These define a hard limit. For example, if the quota is 200,000 and the period is 100,000, the container is limited to 2 cores ($200,000 / 100,000 = 2$).</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The JVM calculates the number of processors as the minimum of the host&#8217;s processors and the calculated container limit.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_diagnostic_tools_container_aware_vs_non_aware"><a class="anchor" href="#_diagnostic_tools_container_aware_vs_non_aware"></a>Diagnostic Tools: Container-Aware vs. Non-Aware</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To verify how your Java application perceives CPU availability, you must distinguish between tools that see the "Host" view versus the "Container" view.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tool Category</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Examples</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Insight</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Non-Container Aware</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>lscpu</code>, <code>nproc</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the total CPU count of the <strong>underlying OpenShift Node</strong>. This is often misleading for capacity planning.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Container Aware</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VM.info</code>, <code>-XX:+PrintFlagsFinal</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect2">
+<h3 id="_verifying_cpu_detection"><a class="anchor" href="#_verifying_cpu_detection"></a>Verifying CPU Detection</h3>
+<div class="paragraph">
+<p>You can inspect the JVM&#8217;s view of your container&#8217;s resources by using the <code>jcmd</code> utility.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Access your pod terminal:
+<code>oc rsh &lt;pod-name&gt;</code></p>
+</li>
+<li>
+<p>Run <code>jcmd</code> to print VM information:
+<code>jcmd &lt;pid&gt; VM.info</code></p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Look for the <code>container</code> section in the output. A container-aware JVM will report output similar to this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">container (cgroup) information:
+container_type: cgroupv1
+cpu_cpuset_cpus: 0-127
+cpu_memory_nodes: 0-7
+active_processor_count: 1  &lt;-- JVM correctly sees 1 CPU limit
+cpu_quota: -1
+cpu_period: 100000
+cpu_shares: 51</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_best_practices_for_cpu_configuration"><a class="anchor" href="#_best_practices_for_cpu_configuration"></a>Best Practices for CPU Configuration</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Define Requests and Limits:</strong> Always explicitly define <code>resources.limits.cpu</code> in your OpenShift deployment YAML. This ensures the cgroup values are populated correctly.</p>
+</li>
+<li>
+<p><strong>Avoid Oversizing:</strong> If you set a high CPU limit but your application is single-threaded, the JVM may spawn excessive GC threads, leading to context-switching overhead.</p>
+</li>
+<li>
+<p><strong>Monitor <code>active_processor_count</code>:</strong> If <code>active_processor_count</code> does not match your expectations, ensure you are running a supported OpenJDK version (8u191 or higher). If you are forced to use an older, non-aware version, you must manually set <code>-XX:ActiveProcessorCount</code> to match your container limit.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hands_on_exercise_inspecting_cpu_awareness"><a class="anchor" href="#_hands_on_exercise_inspecting_cpu_awareness"></a>Hands-on Exercise: Inspecting CPU Awareness</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this short task, you will verify the JVM&#8217;s CPU detection.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Inspect current CPU perception:</strong>
+Inside your running container, identify the Java process ID:
+<code>jps</code></p>
+</li>
+<li>
+<p><strong>Query the VM metadata:</strong>
+Run the following command to see the active processor count:
+<code>jcmd &lt;pid&gt; VM.info | grep active_processor_count</code></p>
+</li>
+<li>
+<p><strong>Compare with OS-level tools:</strong>
+Run <code>nproc</code> in the same terminal.
+<strong>Note: If <code>nproc</code> returns the node&#8217;s total CPUs (e.g., 64) but <code>active_processor_count</code> returns your container limit (e.g., 2), your application is correctly container-aware.</strong></p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="detecting-container-memory-limits.html">Detecting container memory limits</a></span>
+  <span class="next"><a href="../risks-and-memory-management/risks-and-memory-management.html">Risks and Memory Management</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>
