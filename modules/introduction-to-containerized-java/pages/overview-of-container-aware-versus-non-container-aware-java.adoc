@@ -1,6 +1,8 @@
 #  Overview of container-aware versus non-container-aware Java
 
 = Overview of container-aware versus non-container-aware Java
+:page-audio-src: overview-of-container-aware-versus-non-container-aware-java.wav
+:page-transcript-src: overview-of-container-aware-versus-non-container-aware-java.txt
 
 In the early days of containerization, Java applications often struggled to coexist with container runtimes like Docker and Kubernetes. This friction stemmed from a fundamental mismatch: the Java Virtual Machine (JVM) was designed to query the host operating system for resource availability, while containers rely on control groups (cgroups) to impose artificial resource constraints.
 

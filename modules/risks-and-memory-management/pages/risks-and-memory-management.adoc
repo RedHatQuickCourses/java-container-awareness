@@ -1,6 +1,8 @@
 #  Risks and Memory Management
 
 = Risks and Memory Management
+:page-audio-src: risks-and-memory-management.wav
+:page-transcript-src: risks-and-memory-management.txt
 
 When deploying Java in containerized environments, improper memory configuration can lead to significant stability and performance issues. Understanding the balance between heap and off-heap memory is critical to preventing infrastructure-level failures.
 

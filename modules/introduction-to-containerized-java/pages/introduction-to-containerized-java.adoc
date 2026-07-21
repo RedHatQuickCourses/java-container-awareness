@@ -1,6 +1,8 @@
 #  Introduction to Containerized Java
 
 = Introduction to Containerized Java
+:page-audio-src: introduction-to-containerized-java.wav
+:page-transcript-src: introduction-to-containerized-java.txt
 
 Containerized Java focuses on the evolution of the Java Virtual Machine (JVM) to operate efficiently within isolated environments like OpenShift and Kubernetes. Modern Java runtimes utilize container awareness to detect cgroup limits, allowing the JVM to automatically adjust its resource consumption based on container constraints rather than host hardware.
 

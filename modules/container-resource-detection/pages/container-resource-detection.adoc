@@ -1,6 +1,8 @@
 #  Container Resource Detection
 
 = Container Resource Detection
+:page-audio-src: container-resource-detection.wav
+:page-transcript-src: container-resource-detection.txt
 
 Container resource detection enables the Java Virtual Machine (JVM) to accurately identify resource constraints imposed by the container environment rather than the underlying host node.
 

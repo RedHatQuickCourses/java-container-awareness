@@ -1,6 +1,8 @@
 #  Monitoring CPU and memory usage using container-aware tools
 
 = Monitoring CPU and Memory Usage with Container-Aware Tools
+:page-audio-src: monitoring-cpu-and-memory-usage-using-container-aware-tools.wav
+:page-transcript-src: monitoring-cpu-and-memory-usage-using-container-aware-tools.txt
 
 When deploying Java applications in containerized environments like Red Hat OpenShift or Kubernetes, traditional Linux diagnostic tools often fall short. Tools that are not "container-aware" report the physical or virtual resources of the entire host node rather than the specific constraints applied to your pod. 
 

@@ -1,6 +1,8 @@
 #  Importance of cgroup detection for modern deployments
 
 = Importance of cgroup detection for modern deployments
+:page-audio-src: importance-of-cgroup-detection-for-modern-deployments.wav
+:page-transcript-src: importance-of-cgroup-detection-for-modern-deployments.txt
 
 In modern cloud-native architectures, the shift from virtual machines to containerized runtimes has fundamentally changed how applications interact with hardware. For Java, historically accustomed to seeing the "full capacity" of a host OS, the introduction of cgroups (control groups) represents a critical evolution in resource management.
 

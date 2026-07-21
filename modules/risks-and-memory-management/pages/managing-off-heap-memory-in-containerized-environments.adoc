@@ -1,6 +1,8 @@
 #  Managing off-heap memory in containerized environments
 
 = Managing Off-Heap Memory in Containerized Environments
+:page-audio-src: managing-off-heap-memory-in-containerized-environments.wav
+:page-transcript-src: managing-off-heap-memory-in-containerized-environments.txt
 
 In modern Java applications, memory management extends beyond the Java Heap. While the Heap is responsible for storing object instances, the *Off-Heap* memory—encompassing Metaspace, Code Cache, Thread stacks, and Direct ByteBuffers—is critical for the stability of containerized deployments.
 

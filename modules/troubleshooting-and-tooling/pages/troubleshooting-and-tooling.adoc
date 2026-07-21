@@ -1,6 +1,8 @@
 #  Troubleshooting and Tooling
 
 = Troubleshooting and Tooling
+:page-audio-src: troubleshooting-and-tooling.wav
+:page-transcript-src: troubleshooting-and-tooling.txt
 
 Troubleshooting Java in containerized environments requires distinguishing between tools that report host-level node metrics versus those that are container-aware. Improper resource visibility often leads to memory misconfiguration and `OOMKills`.
 

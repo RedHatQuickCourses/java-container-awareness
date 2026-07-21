@@ -1,6 +1,8 @@
 #  Troubleshooting resource constraints in an OpenShift environment (e.g. inspect)
 
 = Troubleshooting Resource Constraints in OpenShift
+:page-audio-src: troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.wav
+:page-transcript-src: troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.txt
 
 When Java applications run in OpenShift, they operate within the constraints defined by the Linux kernel's control groups (cgroups). If these constraints are misconfigured or if the Java Virtual Machine (JVM) is unaware of them, you may encounter performance degradation, unexpected `OutOfMemoryError` (OOM) exceptions, or even container restarts due to OOMKills.
 

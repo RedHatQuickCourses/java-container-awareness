@@ -1,6 +1,8 @@
 #  Java Diagnostics: jcmd
 
 = Java Diagnostics: jcmd
+:page-audio-src: java-diagnostics-jcmd.wav
+:page-transcript-src: java-diagnostics-jcmd.txt
 
 The `jcmd` utility is a versatile diagnostic tool included with the JDK. In containerized environments, it is indispensable for inspecting the internal state of a running Java Virtual Machine (JVM) without requiring external profilers or complex agent attachments.
 

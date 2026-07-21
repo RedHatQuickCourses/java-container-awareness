@@ -1,6 +1,8 @@
 #  Configuring limits and requests in Red Hat OpenShift
 
 = Configuring Limits and Requests in Red Hat OpenShift
+:page-audio-src: configuring-limits-and-requests-in-red-hat-openshift.wav
+:page-transcript-src: configuring-limits-and-requests-in-red-hat-openshift.txt
 
 In the context of Red Hat OpenShift Container Platform (OCP), effectively managing resources is a balancing act between scheduling efficiency and runtime performance. To optimize Java applications, it is critical to distinguish how OCP handles resource definitions and how those definitions translate to the Linux kernel and the Java Virtual Machine (JVM).
 

@@ -1,6 +1,8 @@
 #  Navigating Kubernetes resource management for Java
 
 = Navigating Kubernetes resource management for Java
+:page-audio-src: navigating-kubernetes-resource-management-for-java.wav
+:page-transcript-src: navigating-kubernetes-resource-management-for-java.txt
 
 In Kubernetes and OpenShift environments, resource management is governed by the orchestration layer, which enforces boundaries using Linux Control Groups (cgroups). For Java applications, the primary challenge lies in the abstraction gap: the JVM manages its own memory (heap, code cache, metaspace) and CPU (GC threads, JIT compiler threads), while Kubernetes manages the container’s total resource footprint.
 

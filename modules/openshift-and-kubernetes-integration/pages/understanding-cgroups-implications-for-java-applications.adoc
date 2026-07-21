@@ -1,6 +1,8 @@
 #  Understanding cgroups implications for Java applications
 
 = Understanding cgroups implications for Java applications
+:page-audio-src: understanding-cgroups-implications-for-java-applications.wav
+:page-transcript-src: understanding-cgroups-implications-for-java-applications.txt
 
 In the context of modern container orchestration, the Linux kernel's **control groups (cgroups)** feature acts as the fundamental mechanism for resource isolation. For Java applications running in OpenShift or Kubernetes, cgroups provide the enforcement boundaries for CPU and memory usage.
 

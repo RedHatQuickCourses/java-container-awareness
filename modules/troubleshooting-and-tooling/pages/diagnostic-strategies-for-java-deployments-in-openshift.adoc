@@ -1,6 +1,8 @@
 #  Diagnostic strategies for Java deployments in OpenShift
 
 = Diagnostic strategies for Java deployments in OpenShift
+:page-audio-src: diagnostic-strategies-for-java-deployments-in-openshift.wav
+:page-transcript-src: diagnostic-strategies-for-java-deployments-in-openshift.txt
 
 When managing Java applications in OpenShift, traditional diagnostic tools often fail because they lack "container awareness." Tools that look at the host operating system's total resources rather than the container's constrained cgroup limits can lead to misleading metrics. Effective diagnostics require tools and strategies that respect the isolation boundaries defined by Kubernetes.
 

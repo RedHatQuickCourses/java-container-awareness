@@ -1,6 +1,8 @@
 #  Analyzing container limits and resource utilization
 
 = Analyzing Container Limits and Resource Utilization
+:page-audio-src: analyzing-container-limits-and-resource-utilization.wav
+:page-transcript-src: analyzing-container-limits-and-resource-utilization.txt
 
 To ensure Java applications perform predictably within Red Hat OpenShift or Kubernetes, you must understand how the JVM interacts with the underlying control groups (cgroups). When an application is container-aware, the JVM can query the cgroup filesystem to determine its actual boundaries rather than defaulting to the physical host's resources.
 

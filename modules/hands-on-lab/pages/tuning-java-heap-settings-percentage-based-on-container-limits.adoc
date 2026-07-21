@@ -1,6 +1,8 @@
 #  Tuning Java heap settings (percentage) based on container limits
 
 = Tuning Java Heap Settings Based on Container Limits
+:page-audio-src: tuning-java-heap-settings-percentage-based-on-container-limits.wav
+:page-transcript-src: tuning-java-heap-settings-percentage-based-on-container-limits.txt
 
 In modern containerized environments like Red Hat OpenShift, the JVM no longer treats the host machine's total physical memory as its boundary. Instead, it respects the `cgroup` limits assigned to the container. Tuning the Java heap using percentages is the industry-standard approach to ensure the JVM remains "elastic" relative to the container’s resource allocation.
 

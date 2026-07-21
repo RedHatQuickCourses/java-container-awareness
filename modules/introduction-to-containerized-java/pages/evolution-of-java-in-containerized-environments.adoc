@@ -1,4 +1,6 @@
 = Evolution of Java in containerized environments
+:page-audio-src: evolution-of-java-in-containerized-environments.wav
+:page-transcript-src: evolution-of-java-in-containerized-environments.txt
 
 The landscape of Java application deployment has shifted dramatically with the advent of containerization. Initially designed for virtual machines and bare-metal hardware, the Java Virtual Machine (JVM) faced significant architectural hurdles when introduced to the world of Linux containers.
 

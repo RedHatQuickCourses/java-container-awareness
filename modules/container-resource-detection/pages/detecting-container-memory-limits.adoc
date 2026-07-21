@@ -1,6 +1,8 @@
 #  Detecting container memory limits
 
 = Detecting Container Memory Limits
+:page-audio-src: detecting-container-memory-limits.wav
+:page-transcript-src: detecting-container-memory-limits.txt
 
 In modern Java deployments, it is critical that the Java Virtual Machine (JVM) correctly identifies the memory boundaries imposed by the container orchestration platform. Failure to do so leads to performance degradation, inefficient resource utilization, or unexpected pod terminations.
 

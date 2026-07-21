@@ -1,6 +1,8 @@
 #  Determining CPU availability within containers
 
 = Determining CPU Availability Within Containers
+:page-audio-src: determining-cpu-availability-within-containers.wav
+:page-transcript-src: determining-cpu-availability-within-containers.txt
 
 In a virtualized or bare-metal environment, the Java Virtual Machine (JVM) traditionally queries the operating system for the total number of physical CPUs available on the host. However, in containerized environments like Red Hat OpenShift or Kubernetes, a container is typically restricted to a subset of the host's compute resources.
 

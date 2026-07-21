@@ -1,4 +1,6 @@
 =  Java Container Awareness
+:page-audio-src: index.wav
+:page-transcript-src: index.txt
 :navtitle: Home
 
 == Introduction

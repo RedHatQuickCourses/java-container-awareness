@@ -1,6 +1,8 @@
 #  Identifying container-aware versus non-container-aware tools
 
 = Identifying Container-Aware versus Non-Container-Aware Tools
+:page-audio-src: identifying-container-aware-versus-non-container-aware-tools.wav
+:page-transcript-src: identifying-container-aware-versus-non-container-aware-tools.txt
 
 When managing Java applications in Red Hat OpenShift or Kubernetes, understanding whether your diagnostic tools perceive the underlying host node or the isolated container environment is critical. Misinterpreting these outputs often leads to "out of memory" (OOM) kills or CPU throttling because the application may be configured based on node-level visibility rather than container-level constraints.
 

@@ -1,6 +1,8 @@
 #  OpenShift and Kubernetes Integration
 
 = OpenShift and Kubernetes Integration
+:page-audio-src: openshift-and-kubernetes-integration.wav
+:page-transcript-src: openshift-and-kubernetes-integration.txt
 
 In containerized environments, Java applications rely on integration with OpenShift and Kubernetes to manage resource allocation through cgroups. Understanding how these platforms govern resources is critical for stable deployments:
 

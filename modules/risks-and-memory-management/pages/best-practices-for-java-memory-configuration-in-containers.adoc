@@ -1,6 +1,8 @@
 #  Best practices for Java memory configuration in containers
 
 = Best Practices for Java Memory Configuration in Containers
+:page-audio-src: best-practices-for-java-memory-configuration-in-containers.wav
+:page-transcript-src: best-practices-for-java-memory-configuration-in-containers.txt
 
 As Java has evolved to be container-aware, the manual strategy of defining absolute heap sizes (e.g., `-Xmx2g`) has become an anti-pattern. When the JVM is unaware of its container boundaries, it often defaults to host-level metrics, leading to resource contention, poor performance, or premature `cgroups` OOM-Kills.
 

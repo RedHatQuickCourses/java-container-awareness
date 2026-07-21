@@ -1,6 +1,8 @@
 #  Understanding JDK8146115 and Java 8u191 updates
 
 = Understanding JDK8146115 and Java 8u191 Updates
+:page-audio-src: understanding-jdk8146115-and-java-8u191-updates.wav
+:page-transcript-src: understanding-jdk8146115-and-java-8u191-updates.txt
 
 Before the introduction of specific container-aware updates, the Java Virtual Machine (JVM) lacked the ability to natively "see" the resource boundaries imposed by container runtimes. This caused significant operational friction in cloud-native environments.
 
