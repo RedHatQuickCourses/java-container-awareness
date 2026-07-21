@@ -1,0 +1,27 @@
+In Red Hat OpenShift, managing resources effectively is a balancing act between scheduling efficiency and runtime performance. To optimize your Java applications, it is critical to understand how OpenShift handles resource definitions and how those settings translate to both the Linux kernel and the Java Virtual Machine.
+
+Let’s start by looking at the relationship between requests and limits. OpenShift manages resources using Kubernetes-native specifications defined within your Deployment or Pod YAML. 
+
+First, we have "Requests." These are used by the OpenShift scheduler to determine where to place a Pod on a node. They represent the minimum amount of CPU and memory guaranteed to the container. If a node does not have enough unallocated resources to satisfy the request, the scheduler will not place the Pod there.
+
+Second, we have "Limits," which define the hard ceiling for resource consumption. If a container exceeds its memory limit, it risks being terminated by the kernel—a process known as being OOMKilled. CPU limits act differently; they function as a throttling mechanism, restricting the total execution time available to the container within a defined period.
+
+To summarize how these are calculated, remember that CPU requests set the share of resources for node assignment, while CPU limits set a specific quota and period for execution, typically managed in one-hundred-millisecond segments.
+
+It is vital to understand that different layers of your infrastructure interpret these settings in unique ways. At the OpenShift and Kubernetes layer, the scheduler uses requests to manage cluster density, but it ignores limits for scheduling decisions. At the Linux kernel layer, the kernel enforces limits using Control Groups, or cgroups, which are reflected in the filesystem at `/sys/fs/cgroup`.
+
+Most importantly, consider the Java layer. Modern versions of OpenJDK are container-aware, but they only consider limits, not requests. Even if you define CPU requests in your YAML, the Java Virtual Machine will ignore them when calculating heap sizing and thread pools.
+
+Keep in mind that while Java workloads are burstable, the JVM performs its cgroup reading only at startup. This makes the JVM what we call "inelastic." If you change your limits at runtime without restarting the Pod, the JVM will not automatically adjust its internal heuristics to match the new constraints.
+
+To ensure your applications perform reliably, consider these best practices. First, for production-critical applications, aim for "Guaranteed" Quality of Service by setting requests and limits to the same value. If you are unsure of an application's baseline, you can start by setting requests lower than limits to allow for bursts, but always ensure your limit is high enough to handle peak loads. Furthermore, always set memory limits to prevent a single container from consuming all available node memory, which could otherwise trigger a node-level OOM killer and impact other pods.
+
+Now, let’s move to a hands-on activity where you can inspect these cgroup resource constraints. You will need an active OpenShift cluster and the `oc` CLI tool.
+
+Step one: Deploy a sample Java application using the provided YAML configuration. This manifest sets a memory request of 256 mebibytes and a CPU request of 500 millicores, with limits set to 512 mebibytes and 1000 millicores.
+
+Step two: Access the running Pod using the command `oc rsh` followed by your pod name.
+
+Step three: Once inside, check the CPU quota enforced by the kernel by running `cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us`. You should see a value of 100,000, which corresponds to 100 milliseconds, confirming your 1000 millicore CPU limit.
+
+Finally, step four: Observe how Java detects these limits by running the command `java -XshowSettings:vm -version`. When reviewing the output, look specifically at the `MaxHeapSize` and `ActiveProcessorCount`. You will notice that these values are derived directly from your defined limits, reinforcing the fact that the JVM ignores your request configurations.

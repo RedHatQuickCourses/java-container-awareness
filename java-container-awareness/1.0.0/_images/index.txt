@@ -1,0 +1,7 @@
+Welcome to the course on Java Container Awareness. 
+
+In this training, we will explore the critical relationship between Java applications and the container environments in which they run. This course is designed to provide you with a comprehensive understanding of how Java interacts with containerized infrastructure and how to optimize your applications for these environments.
+
+Throughout this course, we will cover several key topics. We’ll begin with an introduction to containerized Java and move into how containers perform resource detection. We will then examine the specific risks associated with containerized environments and best practices for memory management. You will also learn how to integrate Java with platforms like OpenShift and Kubernetes, explore effective troubleshooting techniques, and work through hands-on labs to solidify your skills.
+
+Before we begin, please ensure you have the necessary prerequisite experience as outlined in your course materials. Once you have confirmed your background knowledge, you will be ready to dive into the technical details of Java container optimization. Let's get started.

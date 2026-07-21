@@ -1,0 +1,11 @@
+In this module, we will cover how to incorporate various media—including images, audio, and video—into your training pages. All media files should be stored within the designated `modules/chapter1/images/` directory.
+
+When planning your content, keep in mind that the estimated time displayed for each page automatically accounts for the reading time of the text, plus the duration of any embedded media. When you add an image using the standard macro, the system automatically adds 15 seconds to the estimated viewing time.
+
+To manage your media effectively, you can manually override these time settings. For example, if you have a complex diagram that requires more than the default time for a learner to digest, or if you have a decorative image that shouldn't impact the estimated time, you can use the `media-seconds` role attribute to set a custom duration or set it to zero. If you are using raw HTML to embed diagrams via a passthrough block, you can declare the duration directly within the image tag using the `data-media-duration` attribute.
+
+Including audio and video files is straightforward. Simply place the files in your chapter images directory, and the system will automatically detect the duration for locally hosted files.
+
+For external media—such as content hosted on a third-party site or embedded from YouTube or Vimeo—the browser may not be able to automatically calculate the duration. In these cases, you must manually specify the length in seconds using the `role` attribute on the media macro. This ensures the estimated training time remains accurate. Additionally, if you only need a portion of an audio clip, you can use the `end` attribute to define the playback stop point in seconds from the start of the file.
+
+Finally, when you need to embed media using raw HTML via an iframe, you can ensure the estimated time is tracked correctly by setting the duration on the iframe tag itself, or by wrapping the iframe in a div element and applying the `media-seconds` class. This approach provides the flexibility to embed custom video players while maintaining the integrity of your course's estimated completion time.

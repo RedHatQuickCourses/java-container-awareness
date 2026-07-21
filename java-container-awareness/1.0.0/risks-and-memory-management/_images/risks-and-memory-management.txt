@@ -1,0 +1,13 @@
+When deploying Java in containerized environments, managing memory effectively is essential to ensure both stability and performance. Improper configuration can lead to significant issues, so it is critical to understand the balance between heap and off-heap memory to prevent infrastructure-level failures.
+
+There are three primary risks you should be aware of when configuring your environment. 
+
+First is the risk of decoupling. If you hard-code heap sizes using flags like `-Xmx` without considering the limits of your container, you create a memory mismatch. If the JVM ignores these container boundaries, it may trigger an OOM-Kill, which forces the kernel to terminate your application unexpectedly.
+
+Second, you must account for off-heap memory. Modern container-aware Java calculates heap size as a percentage of available container memory; however, you must also consider off-heap usage, such as metaspace, thread stacks, and native buffers. If you don't account for these, your total memory footprint may exceed the container's limit, leading to instability.
+
+Third, consider the risk of resource underutilization. If your configuration is inadequate, the JVM might reserve significantly less memory than the container actually provides, which leaves your allocated infrastructure resources idle and wasted.
+
+To address these challenges, follow these best practices for your deployments. 
+
+Always prioritize container-aware JVM settings over manual heap overrides. This allows the system to utilize its self-tuning capabilities and supports dynamic scaling. It is also important to benchmark your application’s actual memory usage to determine the optimal ratio between heap and off-heap requirements. Finally, avoid any configurations that intentionally ignore cgroup limits, as doing so bypasses the sophisticated management features built into modern JDKs.

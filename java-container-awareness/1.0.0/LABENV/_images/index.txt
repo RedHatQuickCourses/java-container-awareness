@@ -1,0 +1,1 @@
+To begin your hands-on training, you will need to access the lab environment. Please follow the provided instructions to log in and connect to your dedicated workspace. If you encounter any issues during the setup process, consult the troubleshooting section or reach out to your instructor for further assistance.

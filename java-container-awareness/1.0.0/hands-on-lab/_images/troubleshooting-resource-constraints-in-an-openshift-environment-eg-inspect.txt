@@ -1,0 +1,25 @@
+When running Java applications within OpenShift, it is critical to understand that they operate under Linux kernel control groups, or cgroups. If these resource constraints are misconfigured, or if the Java Virtual Machine is not correctly aware of them, you may experience performance issues, unexpected Out of Memory errors, or even sudden container restarts known as OOMKills. In this session, we will cover the diagnostic strategies and tools needed to inspect and troubleshoot these resource constraints.
+
+To effectively troubleshoot, you must correlate three distinct layers. First is the OpenShift or Kubernetes layer, which covers the resource requests and limits defined in your Pod specification. Second is the kernel and cgroup layer, which enforces actual hardware quotas. And third is the JVM layer, which represents the memory and CPU settings perceived by the Java process itself.
+
+A common pitfall is a misalignment between these layers. For instance, if your container limit is set to one gigabyte, but the JVM is configured with a maximum heap size of two gigabytes, the process will either fail to start, or be killed by the kernel as soon as it attempts to exceed that cgroup boundary.
+
+Now, let's look at the tools you can use for inspection.
+
+The first step in any troubleshooting process is to verify the resource configuration of your pod using the command `oc describe pod` followed by your pod name. When you run this, examine the Limits and Requests sections. It is vital to ensure that your limits are explicitly defined. If they are missing, the JVM might default to host-level visibility rather than container-level, which often leads to incorrect heap sizing.
+
+If an application is behaving unexpectedly, you can use the `oc debug` command to inspect the environment from inside the pod’s namespace. Once you have access, you can inspect the cgroup limits directly by reading the memory limit file. On most systems, you can check `/sys/fs/cgroup/memory/memory.limit_in_bytes`. Keep in mind that in cgroup version two environments, this path may instead be located under `/sys/fs/cgroup/memory.max`.
+
+Another essential utility is `jcmd`, the standard diagnostic tool for Java. Since Java 8 update 191, the JVM is container-aware. You can run `jcmd` inside your container using `oc exec` to see the virtual machine flags. Specifically, look for the `MaxHeapSize` and `UseContainerSupport` flags. You want to ensure `UseContainerSupport` is set to true. If the `MaxHeapSize` is disproportionately large compared to your container limit, your application is at high risk of being killed by the kernel.
+
+To put this into practice, let’s walk through a hands-on lab where you diagnose a pod experiencing memory constraints. Before you begin, ensure you have an active OpenShift cluster and that your `oc` command-line tool is properly authenticated.
+
+First, simulate a crash by deploying a pod with a very low memory limit, such as 64 megabytes, while providing a JVM heap requirement that exceeds it. Run `oc get pods` and look for a status of OOMKilled.
+
+Second, confirm the cause by inspecting the exit code. Run the command `oc get pod` followed by your pod name and use the JSON path to look for the terminated reason. If the result is OOMKilled, it confirms that the kernel terminated the process because it exceeded the cgroup memory limit.
+
+Third, verify your limits by checking the deployment configuration to identify the discrepancy between your defined limit and the JVM's maximum heap setting.
+
+Fourth, remediate the issue. You can do this by either increasing the container memory limit in your deployment YAML, or by updating the JVM flags using the `JAVA_OPTS` environment variable. A common best practice is to set `JAVA_OPTS` to use `-XX:MaxRAMPercentage=50.0`.
+
+Finally, re-verify your fix. After applying the changes, use `jcmd` inside the pod once more to confirm that the new `MaxHeapSize` is calculated correctly based on your updated container limit.
