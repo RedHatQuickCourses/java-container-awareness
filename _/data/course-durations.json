@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 2879,
+  "totalSeconds": 2837,
   "pageCount": 28,
   "pages": [
     {
@@ -15,7 +15,7 @@
     {
       "module": "introduction-to-containerized-java",
       "page": "introduction-to-containerized-java.adoc",
-      "seconds": 36
+      "seconds": 35
     },
     {
       "module": "introduction-to-containerized-java",
@@ -25,117 +25,117 @@
     {
       "module": "introduction-to-containerized-java",
       "page": "overview-of-container-aware-versus-non-container-aware-java.adoc",
-      "seconds": 144
+      "seconds": 142
     },
     {
       "module": "introduction-to-containerized-java",
       "page": "importance-of-cgroup-detection-for-modern-deployments.adoc",
-      "seconds": 129
+      "seconds": 127
     },
     {
       "module": "container-resource-detection",
       "page": "container-resource-detection.adoc",
-      "seconds": 37
+      "seconds": 36
     },
     {
       "module": "container-resource-detection",
       "page": "understanding-jdk8146115-and-java-8u191-updates.adoc",
-      "seconds": 134
+      "seconds": 133
     },
     {
       "module": "container-resource-detection",
       "page": "detecting-container-memory-limits.adoc",
-      "seconds": 140
+      "seconds": 139
     },
     {
       "module": "container-resource-detection",
       "page": "determining-cpu-availability-within-containers.adoc",
-      "seconds": 176
+      "seconds": 174
     },
     {
       "module": "risks-and-memory-management",
       "page": "risks-and-memory-management.adoc",
-      "seconds": 54
+      "seconds": 53
     },
     {
       "module": "risks-and-memory-management",
       "page": "implications-of-decoupling-heap-memory-from-container-limits.adoc",
-      "seconds": 145
+      "seconds": 143
     },
     {
       "module": "risks-and-memory-management",
       "page": "managing-off-heap-memory-in-containerized-environments.adoc",
-      "seconds": 135
+      "seconds": 133
     },
     {
       "module": "risks-and-memory-management",
       "page": "best-practices-for-java-memory-configuration-in-containers.adoc",
-      "seconds": 174
+      "seconds": 172
     },
     {
       "module": "openshift-and-kubernetes-integration",
       "page": "openshift-and-kubernetes-integration.adoc",
-      "seconds": 48
+      "seconds": 47
     },
     {
       "module": "openshift-and-kubernetes-integration",
       "page": "configuring-limits-and-requests-in-red-hat-openshift.adoc",
-      "seconds": 160
+      "seconds": 157
     },
     {
       "module": "openshift-and-kubernetes-integration",
       "page": "understanding-cgroups-implications-for-java-applications.adoc",
-      "seconds": 156
+      "seconds": 154
     },
     {
       "module": "openshift-and-kubernetes-integration",
       "page": "navigating-kubernetes-resource-management-for-java.adoc",
-      "seconds": 140
+      "seconds": 138
     },
     {
       "module": "troubleshooting-and-tooling",
       "page": "troubleshooting-and-tooling.adoc",
-      "seconds": 49
+      "seconds": 48
     },
     {
       "module": "troubleshooting-and-tooling",
       "page": "identifying-container-aware-versus-non-container-aware-tools.adoc",
-      "seconds": 143
+      "seconds": 141
     },
     {
       "module": "troubleshooting-and-tooling",
       "page": "analyzing-container-limits-and-resource-utilization.adoc",
-      "seconds": 67
+      "seconds": 65
     },
     {
       "module": "troubleshooting-and-tooling",
       "page": "diagnostic-strategies-for-java-deployments-in-openshift.adoc",
-      "seconds": 111
+      "seconds": 109
     },
     {
       "module": "troubleshooting-and-tooling",
       "page": "java-diagnostics-jcmd.adoc",
-      "seconds": 101
+      "seconds": 100
     },
     {
       "module": "hands-on-lab",
       "page": "hands-on-lab.adoc",
-      "seconds": 20
+      "seconds": 19
     },
     {
       "module": "hands-on-lab",
       "page": "tuning-java-heap-settings-percentage-based-on-container-limits.adoc",
-      "seconds": 131
+      "seconds": 128
     },
     {
       "module": "hands-on-lab",
       "page": "monitoring-cpu-and-memory-usage-using-container-aware-tools.adoc",
-      "seconds": 129
+      "seconds": 127
     },
     {
       "module": "hands-on-lab",
       "page": "troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.adoc",
-      "seconds": 142
+      "seconds": 139
     },
     {
       "module": "appendix",
