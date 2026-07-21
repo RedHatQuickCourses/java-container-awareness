@@ -1,9 +1,0 @@
-This training module demonstrates how to use tabbed code blocks in Antora to present multiple language options or to separate exercise instructions from their solutions. Using tabs allows you to keep your documentation clean and organized when providing different ways to accomplish a task.
-
-Let's look at how to use language tabs. This feature is particularly useful when you need to provide the same code example in different programming languages. For instance, if you are showing how to print "Hello" to the console, you can provide a Java implementation and a Python implementation side-by-side. The Java tab contains the standard class structure with a main method, while the Python tab shows a concise function definition using the standard main block. By grouping these under one section, you allow the learner to easily toggle between the syntax they are most familiar with.
-
-Next, let's explore using tabs to separate exercises from their solutions. This approach is an excellent way to engage learners by giving them space to practice before seeing the answer. 
-
-In this example, the Exercise tab presents a challenge: write a function that returns the sum of two integers, using your language's usual entry point to test your code. Once you have attempted the exercise, you can switch to the Solution tab. There, you will find a JavaScript implementation of the sum function, which demonstrates the addition logic and includes a console log statement to verify the result of adding two and three. 
-
-By utilizing these tabbed structures, you can provide a more interactive and flexible learning experience for your audience.

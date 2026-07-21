@@ -1,5 +1,0 @@
-To get started with your training documentation, there are a few important guidelines to keep in mind. 
-
-First, feel free to create as many copies of this section as you need to build out your course. If you find that a particular chapter page or section isn't necessary for your specific training goal, go ahead and remove it. 
-
-As you develop the content, remember to customize each section so it is relevant to your audience, and always try to ensure that every page contains a manageable amount of information. This helps keep the training clear and keeps your learners focused on the core objectives.
