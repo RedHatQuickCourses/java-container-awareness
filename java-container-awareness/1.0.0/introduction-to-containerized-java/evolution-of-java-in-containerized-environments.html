@@ -219,9 +219,12 @@
 </aside>
 <article class="doc">
 <h1 class="page">Evolution of Java in containerized environments</h1>
-<h1 id="_evolution_of_java_in_containerized_environments" class="sect0"><a class="anchor" href="#_evolution_of_java_in_containerized_environments"></a>Evolution of Java in containerized environments</h1>
+<div id="preamble">
+<div class="sectionbody">
 <div class="paragraph">
 <p>The landscape of Java application deployment has shifted dramatically with the advent of containerization. Initially designed for virtual machines and bare-metal hardware, the Java Virtual Machine (JVM) faced significant architectural hurdles when introduced to the world of Linux containers.</p>
+</div>
+</div>
 </div>
 <div class="sect1">
 <h2 id="_the_early_challenges_the_blind_jvm"><a class="anchor" href="#_the_early_challenges_the_blind_jvm"></a>The Early Challenges: "The Blind JVM"</h2>
@@ -230,7 +233,10 @@
 <p>In traditional environments, the JVM identifies system resources by querying the underlying operating system (OS) kernel via <code>/proc/meminfo</code> and <code>/proc/stat</code>. When a Java process runs on a physical server, it sees the total memory and CPU cores of the host.</p>
 </div>
 <div class="paragraph">
-<p>However, containers achieve isolation through <strong>Control Groups (cgroups)</strong>—a Linux kernel feature that limits, accounts for, and isolates the resource usage of a collection of processes. Early versions of Java were not "cgroup-aware." When running inside a container, the JVM would still attempt to query the host&#8217;s total resources rather than the container&#8217;s restricted limits. This created a dangerous "mismatch" where the JVM believed it had access to gigabytes of host RAM, leading to:</p>
+<p>Java wasn&#8217;t able to detect the container limits, therefore to solve this it was encapsulated inside an initialization script: run-java.sh, which would then detect the container limits and deploy Java with those limits (script &#8594; container limits &#8594; Java).</p>
+</div>
+<div class="paragraph">
+<p>However, from a pure Java perspective, containers achieve isolation through <strong>Control Groups (cgroups)</strong>—a Linux kernel feature that limits, accounts for, and isolates the resource usage of a collection of processes. Early versions of Java were not "cgroup-aware." When running inside a container, the JVM would still attempt to query the host&#8217;s total resources rather than the container&#8217;s restricted limits. This created a dangerous "mismatch" where the JVM believed it had access to gigabytes of host RAM, leading to:</p>
 </div>
 <div class="ulist">
 <ul>
