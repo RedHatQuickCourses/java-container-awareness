@@ -227,16 +227,32 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_the_early_challenges_the_blind_jvm"><a class="anchor" href="#_the_early_challenges_the_blind_jvm"></a>The Early Challenges: "The Blind JVM"</h2>
+<h2 id="_non_container_aware_java"><a class="anchor" href="#_non_container_aware_java"></a>Non-container-aware Java</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>In traditional environments, the JVM identifies system resources by querying the underlying operating system (OS) kernel via <code>/proc/meminfo</code> and <code>/proc/stat</code>. When a Java process runs on a physical server, it sees the total memory and CPU cores of the host.</p>
+<p>Before 2019, Java (its JVM) would identify the system resources by querying the underlying operating system (OS) kernel via <code>/proc/meminfo</code> and <code>/proc/stat</code>. When a Java process runs on a physical server, it sees the total memory and CPU cores of the host.</p>
 </div>
 <div class="paragraph">
-<p>Java wasn&#8217;t able to detect the container limits, therefore to solve this it was encapsulated inside an initialization script: run-java.sh, which would then detect the container limits and deploy Java with those limits (script &#8594; container limits &#8594; Java).</p>
+<p>In other words, despite running inside a container, Java was unable to detect the container&#8217;s limits. It would only detect the host limits regardless of the deployment. Consequently, the user needed to set the heap limits (Xmx) manually as a size.</p>
 </div>
 <div class="paragraph">
-<p>However, from a pure Java perspective, containers achieve isolation through <strong>Control Groups (cgroups)</strong>—a Linux kernel feature that limits, accounts for, and isolates the resource usage of a collection of processes. Early versions of Java were not "cgroup-aware." When running inside a container, the JVM would still attempt to query the host&#8217;s total resources rather than the container&#8217;s restricted limits. This created a dangerous "mismatch" where the JVM believed it had access to gigabytes of host RAM, leading to:</p>
+<p>Therefore, to solve this scenario, it was encapsulated inside an initialization script: run-java.sh, which would then detect the container limits and deploy Java with those limits (script &#8594; container limits &#8594; Java). Java didn&#8217;t know about cgroups. It would just start, and someone would provide its max heap, Xmx.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_jdk8146115"><a class="anchor" href="#_jdk8146115"></a>JDK8146115</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The evolution toward true container awareness reached a milestone with <strong>JDK8146115</strong>. This critical enhancement, backported to Java 8 (starting with 8u191) and native to all newer versions (Java 11, 17, 21+), fundamentally changed how the JVM initializes.</p>
+</div>
+<div class="paragraph">
+<p>Instead of looking at the host&#8217;s total resources, the JVM was updated to inspect the cgroup hierarchy directly. This allows the JVM to:
+1.  <strong>Read Container Memory Limits:</strong> Automatically calculate appropriate initial and maximum heap sizes (<code>-Xmx</code> and <code>-Xms</code>) based on the specific container memory constraints.
+2.  <strong>Detect CPU Availability:</strong> Properly identify the number of CPU shares or quotas allocated to the container, allowing the garbage collector and internal thread pools to scale their concurrency appropriately.</p>
+</div>
+<div class="paragraph">
+<p>Containers achieve isolation through <strong>Control Groups (cgroups)</strong>, which is a Linux kernel feature that limits, accounts for, and isolates the resource usage of a collection of processes. Before 2019, Java was not cgroup-aware when running inside a container, so the JVM would still attempt to query the host&#8217;s total resources rather than the container&#8217;s restricted limits. This created a dangerous "mismatch" where the JVM believed it had access to gigabytes of host RAM, leading to:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -244,46 +260,34 @@
 <p><strong>OOMKills:</strong> The JVM would attempt to allocate heap memory based on host capacity, triggering the container orchestrator to kill the process for exceeding its cgroup memory limit.</p>
 </li>
 <li>
-<p><strong>Performance Degradation:</strong> The JVM would size its internal thread pools (e.g., ForkJoinPool) based on the total physical CPU cores of the host, leading to excessive context switching and performance bottlenecks in environments where the container was throttled to a single core.</p>
+<p><strong>Performance Degradation:</strong> The JVM would size its internal thread pools (e.g., ForkJoinPool) based on the total physical CPU cores of the host, leading to excessive context switching and performance bottlenecks in environments where the container was throttled, given the container likely has different CPU limits.</p>
 </li>
 </ul>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_the_turning_point_jdk8146115_and_beyond"><a class="anchor" href="#_the_turning_point_jdk8146115_and_beyond"></a>The Turning Point: JDK8146115 and Beyond</h2>
+<h2 id="_current_fully_container_aware_java"><a class="anchor" href="#_current_fully_container_aware_java"></a>Current Fully Container-Aware Java</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The evolution toward true container awareness reached a milestone with <strong>JDK8146115</strong>. This critical enhancement, backported to Java 8 (starting with 8u191) and native to all newer versions (Java 11, 17, 21+), fundamentally changed how the JVM initializes.</p>
-</div>
-<div class="paragraph">
-<p>Instead of looking at the host&#8217;s total resources, the JVM was updated to inspect the cgroup filesystem directly. This allows the JVM to:
-1.  <strong>Read Container Memory Limits:</strong> Automatically calculate appropriate initial and maximum heap sizes (<code>-Xmx</code> and <code>-Xms</code>) based on the specific container memory constraints.
-2.  <strong>Detect CPU Availability:</strong> Properly identify the number of CPU shares or quotas allocated to the container, allowing the garbage collector and internal thread pools to scale their concurrency appropriately.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_modern_container_aware_java"><a class="anchor" href="#_modern_container_aware_java"></a>Modern Container-Aware Java</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Today, container awareness is a standard expectation for cloud-native Java development. The transition from "blind" to "container-aware" has simplified the DevOps workflow significantly:</p>
+<p>Today, container awareness is the standard expectation for cloud-native Java development for Java 8, 11, 17, 21, and 25. The transition from unaware to fully container-aware has considerably streamlined the DevOps workflow:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Self-Tuning:</strong> Applications can now adjust their memory footprint dynamically to fit within Kubernetes/OpenShift resource requests and limits without manual intervention for every environment change.</p>
+<p><strong>Self-Tuning:</strong> Applications can now adjust their memory footprint dynamically to fit within Kubernetes/OpenShift resource requests and limits without manual intervention.</p>
 </li>
 <li>
 <p><strong>Improved Stability:</strong> By aligning the JVM&#8217;s view of resources with the kernel-enforced limits, the frequency of container restarts due to resource exhaustion is drastically reduced.</p>
 </li>
 <li>
-<p><strong>Reduced Configuration Overhead:</strong> Developers spend less time tuning <code>-Xmx</code> values manually, as the JVM can now effectively derive sensible defaults from the container environment.</p>
+<p><strong>Reduced Configuration Overhead:</strong> Developers do not spend time tuning CPU values and <code>-Xmx</code> limits, as the JVM can now effectively derive them from the container environment.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>Understanding this evolution is crucial for any team moving toward microservices architectures. While container awareness provides a robust foundation, it requires engineers to carefully manage the relationship between JVM heap memory, off-heap memory, and the container&#8217;s hard limits—a topic that remains a critical consideration for production-grade deployments.</p>
+<p>Understanding this evolution is crucial for any team moving toward microservices architectures. Container awareness provides a robust foundation that requires the development team (who handles the Java settings) and the Deployment team (who handles the container size) to
+between JVM heap memory, off-heap memory, and the container&#8217;s hard limits—a topic that remains a critical consideration for production-grade deployments.</p>
 </div>
 </div>
 </div>
