@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 2879,
+  "totalSeconds": 2891,
   "pageCount": 28,
   "pages": [
     {
@@ -70,7 +70,7 @@
     {
       "module": "risks-and-memory-management",
       "page": "best-practices-for-java-memory-configuration-in-containers.adoc",
-      "seconds": 193
+      "seconds": 205
     },
     {
       "module": "openshift-and-kubernetes-integration",

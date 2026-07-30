@@ -222,9 +222,17 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>As Java has evolved to be container-aware, the manual strategy of defining absolute heap sizes (e.g., <code>-Xmx2g</code>) has become a deployment anti-pattern:
-*   Xmx direct usage: in most cases, it is an anti-pattern.
-*   JVM arguments directly at build time, rather than runtime.</p>
+<p>As Java has evolved to be flexible and container-aware, some practices could be considered anti-patterns, such as:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Xmx</code> direct usage: in most cases, it is an anti-pattern. In other words, the manual strategy of defining absolute heap sizes (e.g., <code>-Xmx2g</code>) has become a deployment anti-pattern, because it decouples from the container size.</p>
+</li>
+<li>
+<p>JVM arguments directly at build time, rather than runtime. For example, the usage of JVM arguments hardcoded in a Containerfile (Dockerfile), rather than customizable in a deployment resource (YAML).</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
 <p>When the JVM is unaware of its container boundaries, it will default to host-level metrics, leading to resource contention, poor performance, or premature <code>cgroups</code> OOM-Kills.</p>
