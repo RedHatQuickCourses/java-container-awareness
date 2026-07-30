@@ -2,9 +2,10 @@
 :page-audio-src: best-practices-for-java-memory-configuration-in-containers.wav
 :page-transcript-src: best-practices-for-java-memory-configuration-in-containers.txt
 
-As Java has evolved to be container-aware, the manual strategy of defining absolute heap sizes (e.g., `-Xmx2g`) has become a deployment anti-pattern:
-*   Xmx direct usage: in most cases, it is an anti-pattern.
-*   JVM arguments directly at build time, rather than runtime.
+As Java has evolved to be flexible and container-aware, some practices could be considered anti-patterns, such as:
+
+*   `Xmx` direct usage: in most cases, it is an anti-pattern. In other words, the manual strategy of defining absolute heap sizes (e.g., `-Xmx2g`) has become a deployment anti-pattern, because it decouples from the container size.
+*   JVM arguments directly at build time, rather than runtime. For example, the usage of JVM arguments hardcoded in a Containerfile (Dockerfile), rather than customizable in a deployment resource (YAML).
 
 When the JVM is unaware of its container boundaries, it will default to host-level metrics, leading to resource contention, poor performance, or premature `cgroups` OOM-Kills.
 
