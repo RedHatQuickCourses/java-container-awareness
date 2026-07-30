@@ -222,10 +222,15 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>As Java has evolved to be container-aware, the manual strategy of defining absolute heap sizes (e.g., <code>-Xmx2g</code>) has become an anti-pattern. When the JVM is unaware of its container boundaries, it often defaults to host-level metrics, leading to resource contention, poor performance, or premature <code>cgroups</code> OOM-Kills.</p>
+<p>As Java has evolved to be container-aware, the manual strategy of defining absolute heap sizes (e.g., <code>-Xmx2g</code>) has become a deployment anti-pattern:
+*   Xmx direct usage: in most cases, it is an anti-pattern.
+*   JVM arguments directly at build time, rather than runtime.</p>
 </div>
 <div class="paragraph">
-<p>The modern approach focuses on <strong>relative configuration</strong> to maintain a healthy balance between the JVM heap and the native (off-heap) memory required by the container environment.</p>
+<p>When the JVM is unaware of its container boundaries, it will default to host-level metrics, leading to resource contention, poor performance, or premature <code>cgroups</code> OOM-Kills.</p>
+</div>
+<div class="paragraph">
+<p>The modern approach focuses on <strong>relative size configuration</strong> to maintain a healthy balance between the JVM heap and the native (off-heap) memory required by the container environment, so the size of Java&#8217;s heap changes based on the container size (dynamically).</p>
 </div>
 </div>
 </div>
@@ -340,7 +345,8 @@
 </td>
 <td class="content">
 <div class="paragraph">
-<p>When using Red Hat OpenJDK images, the provided <code>run-java.sh</code> initialization script is pre-tuned to intelligently calculate heap versus off-heap memory based on container limits. In most production environments, sticking to these defaults or simply overriding the <code>MaxRAMPercentage</code> is sufficient.</p>
+<p>When using Red Hat OpenJDK images, the provided <code>run-java.sh</code> initialization script sets a specific <code>MaxRAMPercentage</code> percentage, currently at 80%. Previously, the MaxRAMPercentage was 50%. This value sets the Max Heap at 80% of the container size. The remainder goes to off-heap.
+Overriding the <code>MaxRAMPercentage</code> with a custom value is sufficient to customize the deployment, considering that 80% heap may not be adequate.</p>
 </div>
 </td>
 </tr>
@@ -357,6 +363,9 @@
 </div>
 <div class="olist arabic">
 <ol class="arabic">
+<li>
+<p>**Check <code>VM.info</code>: Use Java Diagnostics (jcmd) to print all details of Java concerning containers.</p>
+</li>
 <li>
 <p><strong>Check <code>cgroups</code> usage</strong>: Use <code>cat /sys/fs/cgroup/memory/memory.stat</code> inside the container to see if the container is hitting its hard limit.</p>
 </li>
