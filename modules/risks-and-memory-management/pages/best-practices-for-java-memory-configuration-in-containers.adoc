@@ -62,7 +62,7 @@ Overriding the `MaxRAMPercentage` with a custom value is sufficient to customize
 
 If your application is experiencing `OutOfMemoryException` or being killed by the container orchestrator, analyze the environment with the following diagnostic flow:
 
-1.  **Check `VM.info`: Use Java Diagnostics (jcmd) to print all details of Java concerning containers. 
+1.  **Check `VM.info` file**: Use Java Diagnostics (jcmd) to print all details of Java concerning containers. 
 2.  **Check `cgroups` usage**: Use `cat /sys/fs/cgroup/memory/memory.stat` inside the container to see if the container is hitting its hard limit.
 3.  **Analyze Native Memory Tracking (NMT)**: Enable `-XX:NativeMemoryTracking=summary` to identify if the memory leak is occurring in the heap or in native memory segments (e.g., excessive thread allocation).
 4.  **Benchmark**: Always performance-test with a memory profiler before finalizing your percentage values to ensure the off-heap headroom is sufficient for peak load.
