@@ -11,4 +11,4 @@ Key aspects include:
 * **Cgroup Detection:** Leveraging kernel-level control groups to monitor and manage resource availability accurately.
 * **Operational Efficiency:** Simplifying deployments by ensuring the JVM aligns its internal memory and thread management with defined container resource limits.
 
-This course is fully based on the current OpenJDK implementation and the article [How to use Java container awareness in OpenShift 4](https://developers.redhat.com/articles/2024/03/14/how-use-java-container-awareness-openshift-4).
+This course is fully based on the current OpenJDK implementation and the article [https://developers.redhat.com/articles/2024/03/14/how-use-java-container-awareness-openshift-4]How to use Java container awareness in OpenShift 4.
