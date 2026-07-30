@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 2898,
+  "totalSeconds": 2899,
   "pageCount": 28,
   "pages": [
     {
@@ -15,7 +15,7 @@
     {
       "module": "introduction-to-containerized-java",
       "page": "introduction-to-containerized-java.adoc",
-      "seconds": 41
+      "seconds": 42
     },
     {
       "module": "introduction-to-containerized-java",
