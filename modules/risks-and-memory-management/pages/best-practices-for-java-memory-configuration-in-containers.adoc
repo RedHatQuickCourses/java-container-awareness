@@ -19,6 +19,7 @@ Instead of hardcoding memory values, utilize percentage-based flags. These ensur
 
 === 2. Understanding the Off-Heap "Gap"
 The memory not occupied by the JVM heap is not "wasted"—it is critical for the stability of the container. When you configure your heap, you must leave sufficient headroom for:
+
 *   **Metaspace**: Stores class metadata.
 *   **Code Cache**: Stores JIT-compiled native code.
 *   **Thread Stacks**: Each thread requires native memory; a large number of threads can lead to unexpected native memory pressure.
