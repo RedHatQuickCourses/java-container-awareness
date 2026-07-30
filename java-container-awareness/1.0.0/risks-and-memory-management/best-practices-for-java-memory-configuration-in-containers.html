@@ -257,12 +257,26 @@
 <div class="sect2">
 <h3 id="_2_understanding_the_off_heap_gap"><a class="anchor" href="#_2_understanding_the_off_heap_gap"></a>2. Understanding the Off-Heap "Gap"</h3>
 <div class="paragraph">
-<p>The memory not occupied by the JVM heap is not "wasted"—it is critical for the stability of the container. When you configure your heap, you must leave sufficient headroom for:
-*   <strong>Metaspace</strong>: Stores class metadata.
-*   <strong>Code Cache</strong>: Stores JIT-compiled native code.
-*   <strong>Thread Stacks</strong>: Each thread requires native memory; a large number of threads can lead to unexpected native memory pressure.
-*   <strong>Direct Byte Buffers</strong>: Often used by frameworks like Netty, AMQ, or Data Grid.
-*   <strong>Garbage Collector Metadata</strong>: The structures required by G1GC or ZGC to track object references.</p>
+<p>The memory not occupied by the JVM heap is not "wasted"—it is critical for the stability of the container. When you configure your heap, you must leave sufficient headroom for:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Metaspace</strong>: Stores class metadata.</p>
+</li>
+<li>
+<p><strong>Code Cache</strong>: Stores JIT-compiled native code.</p>
+</li>
+<li>
+<p><strong>Thread Stacks</strong>: Each thread requires native memory; a large number of threads can lead to unexpected native memory pressure.</p>
+</li>
+<li>
+<p><strong>Direct Byte Buffers</strong>: Often used by frameworks like Netty, AMQ, or Data Grid.</p>
+</li>
+<li>
+<p><strong>Garbage Collector Metadata</strong>: The structures required by G1GC or ZGC to track object references.</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
 <p><strong>Best Practice:</strong> If your application relies heavily on off-heap memory (e.g., streaming or high-throughput messaging), use a lower <code>MaxRAMPercentage</code> (e.g., 50%) to prevent the total container usage from hitting the <code>cgroups</code> limit.</p>
