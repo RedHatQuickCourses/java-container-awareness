@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Importance of cgroup detection for modern deployments :: Java Container Awareness</title>
+    <title>Importance of cgroup detection for deployments :: Java Container Awareness</title>
     <link rel="prev" href="overview-of-container-aware-versus-non-container-aware-java.html">
     <link rel="next" href="../container-resource-detection/container-resource-detection.html">
     <meta name="generator" content="Antora 3.2.0-alpha.12">
@@ -68,7 +68,7 @@
     <a class="nav-link" href="overview-of-container-aware-versus-non-container-aware-java.html">Overview of container-aware versus non-container-aware Java</a>
   </li>
   <li class="nav-item is-current-page" data-depth="2">
-    <a class="nav-link" href="importance-of-cgroup-detection-for-modern-deployments.html">Importance of cgroup detection for modern deployments</a>
+    <a class="nav-link" href="importance-of-cgroup-detection-for-modern-deployments.html">Importance of cgroup detection for deployments</a>
   </li>
 </ul>
   </li>
@@ -209,7 +209,7 @@
   <ul>
     <li><a href="../index.html">Java Container Awareness</a></li>
     <li><a href="introduction-to-containerized-java.html">Introduction to Containerized Java</a></li>
-    <li><a href="importance-of-cgroup-detection-for-modern-deployments.html">Importance of cgroup detection for modern deployments</a></li>
+    <li><a href="importance-of-cgroup-detection-for-modern-deployments.html">Importance of cgroup detection for deployments</a></li>
   </ul>
 </nav>
 </div>
@@ -218,11 +218,11 @@
   <div class="toc-menu"></div>
 </aside>
 <article class="doc" data-audio-src="importance-of-cgroup-detection-for-modern-deployments.wav" data-transcript-src="importance-of-cgroup-detection-for-modern-deployments.txt">
-<h1 class="page">Importance of cgroup detection for modern deployments</h1>
+<h1 class="page">Importance of cgroup detection for deployments</h1>
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>In modern cloud-native architectures, the shift from virtual machines to containerized runtimes has fundamentally changed how applications interact with hardware. For Java, historically accustomed to seeing the "full capacity" of a host OS, the introduction of cgroups (control groups) represents a critical evolution in resource management.</p>
+<p>In cloud-native architectures, the shift from virtual machines to containerized runtimes has fundamentally changed how applications interact with hardware. For Java, historically accustomed to seeing the "full capacity" of a host OS, the introduction of cgroups (control groups) represents a critical evolution in resource management.</p>
 </div>
 </div>
 </div>
@@ -248,7 +248,7 @@
 <h2 id="_why_cgroup_detection_is_critical"><a class="anchor" href="#_why_cgroup_detection_is_critical"></a>Why cgroup Detection is Critical</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Cgroup detection is the mechanism by which the JVM "understands" the boundaries imposed by the container runtime. Its importance for modern deployments cannot be overstated for the following reasons:</p>
+<p>Cgroup detection is the mechanism by which the JVM "understands" the boundaries imposed by the container runtime. Its importance for deployments cannot be overstated for the following reasons:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -259,14 +259,14 @@
 <p><strong>Preventing "Silent" Failures:</strong> With proper cgroup detection, the JVM aligns its garbage collection triggers and heap allocation thresholds with the container’s memory limit. This prevents the scenario where the application performs perfectly under light load but crashes instantly when the memory pressure hits the cgroup ceiling.</p>
 </li>
 <li>
-<p><strong>Orchestration Alignment:</strong> Modern orchestrators like OpenShift and Kubernetes use cgroups to enforce Resource Limits and Requests. Java’s ability to "see" these limits allows it to cooperate with the scheduler. When the JVM is container-aware, it can effectively use flags like <code>-XX:MaxRAMPercentage</code>, ensuring the heap scales dynamically with the pod&#8217;s assigned limit.</p>
+<p><strong>Orchestration Alignment:</strong> Orchestrators like OpenShift and Kubernetes use cgroups to enforce Resource Limits and Requests. Java’s ability to "see" these limits allows it to cooperate with the scheduler. When the JVM is container-aware, it can effectively use flags like <code>-XX:MaxRAMPercentage</code>, ensuring the heap scales dynamically with the pod&#8217;s assigned limit.</p>
 </li>
 </ul>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_implications_for_modern_devops"><a class="anchor" href="#_implications_for_modern_devops"></a>Implications for Modern DevOps</h2>
+<h2 id="_implications_for_devops_teams"><a class="anchor" href="#_implications_for_devops_teams"></a>Implications for DevOps teams</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>For a DevOps team, relying on container-aware Java simplifies the deployment pipeline. You no longer need to hardcode <code>-Xmx</code> values for every environment. By allowing the JVM to detect the cgroup limit, you can:</p>
@@ -296,7 +296,7 @@
 </table>
 </div>
 <div class="paragraph">
-<p>By ensuring your deployments utilize container-aware Java versions (such as Java 8u191+ or any modern LTS version), you bridge the gap between the application&#8217;s runtime needs and the platform&#8217;s enforcement mechanisms, leading to more resilient and stable microservices.</p>
+<p>By ensuring your deployments utilize container-aware Java versions (such as Java 8u191+ or any later LTS version), you bridge the gap between the application&#8217;s runtime needs and the platform&#8217;s enforcement mechanisms, leading to more resilient and stable microservices.</p>
 </div>
 </div>
 </div>
