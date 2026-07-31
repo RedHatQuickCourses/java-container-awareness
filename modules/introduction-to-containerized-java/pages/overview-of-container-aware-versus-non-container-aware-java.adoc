@@ -38,5 +38,5 @@ Transitioning to container-aware Java is not merely a technical optimization; it
 
 [IMPORTANT]
 ====
-While container awareness resolves the initial "visibility" issue, it does not account for *off-heap* memory (e.g., metaspace, code cache, direct buffers, or native memory). Even with container awareness, you must benchmark your application to ensure that the ratio of heap to off-heap memory is sufficient to avoid container-level OOM events.
+While container awareness resolves around JVM limits association with the container size, such as heap and threads, it does not necessarily account for *off-heap* memory (e.g., metaspace, code cache, direct buffers, or native memory). Therefore, even with container aware Java, one must benchmark your application to ensure that the ratio of heap to off-heap memory is sufficient resources are allocated to avoid container-level OOMkills events.
 ====
