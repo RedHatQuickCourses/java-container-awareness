@@ -236,11 +236,23 @@
 <p>Historically, developers focused exclusively on <code>-Xmx</code> (maximum heap size). However, in a container, the JVM sees the container&#8217;s memory limit. If you configure the Heap to consume too large a percentage of the container&#8217;s limit, you leave insufficient headroom for Off-Heap requirements.</p>
 </div>
 <div class="paragraph">
-<p>Key Off-Heap components that must be accounted for include:
-* <strong>Metaspace:</strong> Stores class metadata.
-* <strong>Code Cache:</strong> Stores compiled native code by the JIT compiler.
-* <strong>Thread Stacks:</strong> Each thread requires native memory; in applications with high thread counts, this can lead to significant memory consumption.
-* <strong>Direct Buffers:</strong> Used by NIO libraries and netty-based frameworks.</p>
+<p>Key Off-Heap components that must be accounted for include:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Metaspace:</strong> Stores class metadata.</p>
+</li>
+<li>
+<p><strong>Code Cache:</strong> Stores compiled native code by the JIT compiler.</p>
+</li>
+<li>
+<p><strong>Thread Stacks:</strong> Each thread requires native memory; in applications with high thread counts, this can lead to significant memory consumption.</p>
+</li>
+<li>
+<p><strong>Direct Buffers:</strong> Used by NIO libraries and netty-based frameworks.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
