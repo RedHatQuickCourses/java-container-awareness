@@ -10,7 +10,7 @@ Before the introduction of container awareness, the JVM would query the host mac
 
 [cols="1,1", options="header"]
 |===
-| Feature | Non-Container-Aware (Legacy) | Container-Aware (Modern)
+| Feature | Non-Container-Aware (Legacy) | Fully Container-Aware (Current)
 | Memory Detection | Sees total host RAM | Sees cgroup-defined memory limit
 | CPU Detection | Sees total host CPU cores | Sees cgroup-defined CPU quota
 | Heap Sizing | Based on total host memory | Based on container memory limit
