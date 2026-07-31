@@ -10,6 +10,7 @@ When a Java application runs in an OpenShift or Kubernetes container, it is subj
 Historically, developers focused exclusively on `-Xmx` (maximum heap size). However, in a container, the JVM sees the container's memory limit. If you configure the Heap to consume too large a percentage of the container's limit, you leave insufficient headroom for Off-Heap requirements.
 
 Key Off-Heap components that must be accounted for include:
+
 * **Metaspace:** Stores class metadata.
 * **Code Cache:** Stores compiled native code by the JIT compiler.
 * **Thread Stacks:** Each thread requires native memory; in applications with high thread counts, this can lead to significant memory consumption.
