@@ -227,7 +227,7 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_role_of_jcmd_in_containerized_environments"><a class="anchor" href="#_role_of_jcmd_in_containerized_environments"></a>Role of jcmd in Containerized Environments</h2>
+<h2 id="_role_of_java_diagnostics_jcmd_in_containerized_environments"><a class="anchor" href="#_role_of_java_diagnostics_jcmd_in_containerized_environments"></a>Role of Java Diagnostics (jcmd) in Containerized Environments</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>In a containerized world, <code>jcmd</code> allows developers and operators to bridge the gap between the container’s resource limits (cgroups) and the JVM’s internal resource allocation. When troubleshooting performance or memory issues in OpenShift or Kubernetes, <code>jcmd</code> provides a direct view into the JVM&#8217;s view of the container.</p>
@@ -257,12 +257,20 @@
 <h2 id="_using_jcmd_for_resource_inspection"><a class="anchor" href="#_using_jcmd_for_resource_inspection"></a>Using jcmd for Resource Inspection</h2>
 <div class="sectionbody">
 <div class="paragraph">
+<p>The main tool for Java investigations inside a container is VM.info, which is avaliable in JDK 11+.
+It prints several details on the Java process itself, from the JVM perspective.
+See full review on <a href="https://access.redhat.com/solutions/6973111">Interpreting VM.info file in OpenJDK/OracleJDK</a>.</p>
+</div>
+<div class="paragraph">
 <p>When a container is suffering from <code>OutOfMemory</code> (OOM) errors or unexpected latency, you can execute <code>jcmd</code> directly inside the pod to gather data.</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># List all running Java processes
 jcmd
+
+# Java full dump  (JDK 11+)
+jcmd &lt;PID&gt; VM.info
 
 # Retrieve a thread dump for a specific PID
 jcmd &lt;PID&gt; Thread.print
