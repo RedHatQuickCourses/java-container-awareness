@@ -4,9 +4,10 @@
 
 The `jcmd` utility is a versatile diagnostic tool included with the JDK. In containerized environments, it is indispensable for inspecting the internal state of a running Java Virtual Machine (JVM) without requiring external profilers or complex agent attachments.
 
-== Role of jcmd in Containerized Environments
+== Role of Java Diagnostics (jcmd) in Containerized Environments
 
 In a containerized world, `jcmd` allows developers and operators to bridge the gap between the container’s resource limits (cgroups) and the JVM’s internal resource allocation. When troubleshooting performance or memory issues in OpenShift or Kubernetes, `jcmd` provides a direct view into the JVM's view of the container.
+
 
 === Key Capabilities
 *   **Process Identification:** List running Java processes within the container.
@@ -16,12 +17,19 @@ In a containerized world, `jcmd` allows developers and operators to bridge the g
 
 == Using jcmd for Resource Inspection
 
+The main tool for Java investigations inside a container is VM.info, which is avaliable in JDK 11+. 
+It prints several details on the Java process itself, from the JVM perspective.
+See full review on https://access.redhat.com/solutions/6973111[Interpreting VM.info file in OpenJDK/OracleJDK].
+
 When a container is suffering from `OutOfMemory` (OOM) errors or unexpected latency, you can execute `jcmd` directly inside the pod to gather data.
 
 [source,bash]
 ----
 # List all running Java processes
 jcmd
+
+# Java full dump  (JDK 11+)
+jcmd <PID> VM.info 
 
 # Retrieve a thread dump for a specific PID
 jcmd <PID> Thread.print
