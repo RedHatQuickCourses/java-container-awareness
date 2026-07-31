@@ -8,9 +8,9 @@
 Course Title:  Java Container Awareness
 
 Description:
-Course description FIXME
+Course description: this course focus in Java Container details and explanations.
 
-Duration: FIXME hours
+Duration: this couse can be finished in 1 to 2 hours
 
 == Topics covered in this course
 
