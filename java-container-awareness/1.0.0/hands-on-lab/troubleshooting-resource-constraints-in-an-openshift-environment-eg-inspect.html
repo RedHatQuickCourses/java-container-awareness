@@ -233,10 +233,20 @@
 <h2 id="_diagnostic_strategy"><a class="anchor" href="#_diagnostic_strategy"></a>Diagnostic Strategy</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>To effectively troubleshoot resource constraints, you must correlate three distinct layers:
-1.  <strong>OpenShift/Kubernetes Layer:</strong> The resource requests and limits defined in your <code>Deployment</code> or <code>Pod</code> specification.
-2.  <strong>Kernel/Cgroup Layer:</strong> The actual hardware quotas enforced by the container runtime.
-3.  <strong>JVM Layer:</strong> The memory and CPU settings perceived by the Java process.</p>
+<p>To effectively troubleshoot resource constraints, you must correlate three distinct layers:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>OpenShift/Kubernetes Layer:</strong> The resource requests and limits defined in your <code>Deployment</code> or <code>Pod</code> specification.</p>
+</li>
+<li>
+<p><strong>Kernel/Cgroup Layer:</strong> The actual hardware quotas enforced by the container runtime.</p>
+</li>
+<li>
+<p><strong>JVM Layer:</strong> The memory and CPU settings perceived by the Java process.</p>
+</li>
+</ol>
 </div>
 <div class="sect2">
 <h3 id="_identifying_misalignment"><a class="anchor" href="#_identifying_misalignment"></a>Identifying Misalignment</h3>
@@ -338,7 +348,7 @@ oc exec &lt;pod-name&gt; -- jcmd 1 VM.flags</code></pre>
 <ol class="arabic">
 <li>
 <p><strong>Simulate a kill:</strong>
-Deploy a pod with a very low memory limit (e.g., 64Mi) and a JVM heap requirement that exceeds directly set via Xmx. Observe the crash:</p>
+Deploy a pod with a very low memory limit (e.g., 64Mi) and a JVM heap requirement that exceeds directly set via Xmx. Observe the kill:</p>
 <div class="literalblock">
 <div class="content">
 <pre>[source,bash]
