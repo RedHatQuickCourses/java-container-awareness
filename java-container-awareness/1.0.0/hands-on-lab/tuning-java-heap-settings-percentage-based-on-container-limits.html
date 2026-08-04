@@ -258,12 +258,26 @@
 </td>
 <td class="content">
 <div class="paragraph">
-<p>When tuning these percentages, remember that the <strong>total container memory</strong> must accommodate more than just the heap. You must account for <strong>off-heap memory</strong>, which includes:
-*   Metaspace (Class metadata)
-*   Thread stacks
-*   Code Cache
-*   GC structures and internal JVM native memory
-*   Off-heap buffers (used by Netty, AMQ, or Data Grid)</p>
+<p>When tuning these percentages, remember that the <strong>total container memory</strong> must accommodate more than just the heap. You must account for <strong>off-heap memory</strong>, which includes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Metaspace (Class metadata)</p>
+</li>
+<li>
+<p>Thread stacks</p>
+</li>
+<li>
+<p>Code Cache</p>
+</li>
+<li>
+<p>GC structures and internal JVM native memory</p>
+</li>
+<li>
+<p>Off-heap buffers (used by Netty, AMQ, or Data Grid)</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
 <p>Setting <code>-XX:MaxRAMPercentage</code> too high (e.g., 95%) leaves insufficient room for native memory, inevitably leading to native memory pressure and <code>cgroups</code> OOM-Kill.</p>
