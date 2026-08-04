@@ -60,6 +60,7 @@ oc exec <pod-name> -- jcmd 1 VM.flags
 In this exercise, you will diagnose a pod experiencing memory constraints.
 
 **Prerequisites:**
+
 *   An active OpenShift cluster.
 *   The `oc` CLI tool authenticated to your cluster.
 
