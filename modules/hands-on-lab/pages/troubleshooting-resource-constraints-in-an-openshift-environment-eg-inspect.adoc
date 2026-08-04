@@ -65,8 +65,9 @@ In this exercise, you will diagnose a pod experiencing memory constraints.
 
 **Steps:**
 
-1. **Simulate a crash:** 
-   Deploy a pod with a very low memory limit (e.g., 64Mi) and a JVM heap requirement that exceeds it. Observe the crash:
+1. **Simulate a kill:** 
+   Deploy a pod with a very low memory limit (e.g., 64Mi) and a JVM heap requirement that exceeds directly set via Xmx. Observe the crash:
+
    [source,bash]
    ----
    oc get pods
@@ -74,6 +75,7 @@ In this exercise, you will diagnose a pod experiencing memory constraints.
    ----
 
 2. **Inspect the exit code:**
+
    [source,bash]
    ----
    oc get pod <pod-name> -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}'
@@ -85,6 +87,7 @@ In this exercise, you will diagnose a pod experiencing memory constraints.
 
 4. **Remediate:**
    Adjust the deployment YAML to either increase the container memory limit or update the JVM flags using the `JAVA_OPTS` environment variable to reflect a lower heap percentage:
+
    [source,bash]
    ----
    env:
