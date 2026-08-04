@@ -18,6 +18,7 @@ By using **RAM Percentage flags**, you decouple the specific memory limit from t
 [IMPORTANT]
 ====
 When tuning these percentages, remember that the **total container memory** must accommodate more than just the heap. You must account for **off-heap memory**, which includes:
+
 *   Metaspace (Class metadata)
 *   Thread stacks
 *   Code Cache
