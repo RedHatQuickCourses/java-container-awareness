@@ -241,7 +241,7 @@
 <div class="sect2">
 <h3 id="_identifying_misalignment"><a class="anchor" href="#_identifying_misalignment"></a>Identifying Misalignment</h3>
 <div class="paragraph">
-<p>A common pitfall is the misalignment between the container limit and the JVM heap size. If your container limit is 1Gi but the JVM is configured with <code>-Xmx2G</code>, the process will either fail to start or be killed by the kernel when it attempts to allocate memory beyond the cgroup boundary.</p>
+<p>A common pitfall is the misalignment between the container limit and the JVM heap size. If your container limit is 1Gi but the JVM is configured with <code>-Xmx2G</code>, the process will likely fail immediately or fail shortly after starting, being killed by the kernel when it attempts to allocate memory beyond the cgroup boundary.</p>
 </div>
 </div>
 </div>
