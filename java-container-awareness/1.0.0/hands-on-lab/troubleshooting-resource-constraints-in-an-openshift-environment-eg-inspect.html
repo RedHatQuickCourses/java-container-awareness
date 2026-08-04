@@ -302,10 +302,10 @@ oc exec &lt;pod-name&gt; -- jcmd 1 VM.flags</code></pre>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Look for:</strong> <code>MaxHeapSize</code> and <code>UseContainerSupport</code>.</p>
+<p><strong>Look for:</strong> <code>MaxHeapSize</code></p>
 </li>
 <li>
-<p><strong>Verification:</strong> Ensure <code>UseContainerSupport</code> is <code>true</code>. If <code>MaxHeapSize</code> is disproportionately large compared to your container limit, your application is at risk of being killed by the kernel.</p>
+<p><strong>Verification:</strong> If <code>MaxHeapSize</code> is disproportionately large compared to your container limit, your application is at risk of being killed by the kernel.</p>
 </li>
 </ul>
 </div>
