@@ -14,7 +14,7 @@ To effectively troubleshoot resource constraints, you must correlate three disti
 3.  **JVM Layer:** The memory and CPU settings perceived by the Java process.
 
 === Identifying Misalignment
-A common pitfall is the misalignment between the container limit and the JVM heap size. If your container limit is 1Gi but the JVM is configured with `-Xmx2G`, the process will either fail to start or be killed by the kernel when it attempts to allocate memory beyond the cgroup boundary.
+A common pitfall is the misalignment between the container limit and the JVM heap size. If your container limit is 1Gi but the JVM is configured with `-Xmx2G`, the process will likely fail immediately or fail shortly after starting, being killed by the kernel when it attempts to allocate memory beyond the cgroup boundary.
 
 == Tools for Inspection
 
