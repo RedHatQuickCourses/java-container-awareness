@@ -9,6 +9,7 @@ This section focuses on diagnostic strategies and using tools to inspect resourc
 == Diagnostic Strategy
 
 To effectively troubleshoot resource constraints, you must correlate three distinct layers:
+
 1.  **OpenShift/Kubernetes Layer:** The resource requests and limits defined in your `Deployment` or `Pod` specification.
 2.  **Kernel/Cgroup Layer:** The actual hardware quotas enforced by the container runtime.
 3.  **JVM Layer:** The memory and CPU settings perceived by the Java process.
@@ -67,7 +68,7 @@ In this exercise, you will diagnose a pod experiencing memory constraints.
 **Steps:**
 
 1. **Simulate a kill:** 
-   Deploy a pod with a very low memory limit (e.g., 64Mi) and a JVM heap requirement that exceeds directly set via Xmx. Observe the crash:
+   Deploy a pod with a very low memory limit (e.g., 64Mi) and a JVM heap requirement that exceeds directly set via Xmx. Observe the kill:
 
    [source,bash]
    ----
