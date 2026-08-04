@@ -329,21 +329,29 @@ oc exec &lt;pod-name&gt; -- jcmd 1 VM.flags</code></pre>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>Simulate a crash:</strong>
-Deploy a pod with a very low memory limit (e.g., 64Mi) and a JVM heap requirement that exceeds it. Observe the crash:
-[source,bash]
+<p><strong>Simulate a kill:</strong>
+Deploy a pod with a very low memory limit (e.g., 64Mi) and a JVM heap requirement that exceeds directly set via Xmx. Observe the crash:</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
 ----
 oc get pods
 # Look for OOMKilled status
-----</p>
+----</pre>
+</div>
+</div>
 </li>
 <li>
-<p><strong>Inspect the exit code:</strong>
-[source,bash]
+<p><strong>Inspect the exit code:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
 ----
 oc get pod &lt;pod-name&gt; -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}'
 ----
-<strong>If the result is <code>OOMKilled</code>, the kernel terminated the process because it exceeded the cgroup memory limit.</strong></p>
+*If the result is `OOMKilled`, the kernel terminated the process because it exceeded the cgroup memory limit.*</pre>
+</div>
+</div>
 </li>
 <li>
 <p><strong>Verify the limits:</strong>
@@ -351,18 +359,16 @@ Check the deployment configuration to see the discrepancy between your <code>lim
 </li>
 <li>
 <p><strong>Remediate:</strong>
-Adjust the deployment YAML to either increase the container memory limit or update the JVM flags using the <code>JAVA_OPTS</code> environment variable to reflect a lower heap percentage:
-[source,bash]
+Adjust the deployment YAML to either increase the container memory limit or update the JVM flags using the <code>JAVA_OPTS</code> environment variable to reflect a lower heap percentage:</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
 ----
-env:</p>
-<div class="ulist">
-<ul>
-<li>
-<p>name: JAVA_OPTS
+env:
+  - name: JAVA_OPTS
     value: "-XX:MaxRAMPercentage=50.0"
-----</p>
-</li>
-</ul>
+----</pre>
+</div>
 </div>
 </li>
 <li>
