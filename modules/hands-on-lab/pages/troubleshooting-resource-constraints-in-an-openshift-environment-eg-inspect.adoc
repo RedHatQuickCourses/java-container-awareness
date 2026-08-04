@@ -52,8 +52,8 @@ The `jcmd` utility is the standard diagnostic tool for Java. Since Java 8u191+, 
 oc exec <pod-name> -- jcmd 1 VM.flags
 ----
 
-*   **Look for:** `MaxHeapSize` and `UseContainerSupport`. 
-*   **Verification:** Ensure `UseContainerSupport` is `true`. If `MaxHeapSize` is disproportionately large compared to your container limit, your application is at risk of being killed by the kernel.
+*   **Look for:** `MaxHeapSize`
+*   **Verification:** If `MaxHeapSize` is disproportionately large compared to your container limit, your application is at risk of being killed by the kernel.
 
 == Hands-on Lab: Troubleshooting a Resource-Constrained Pod
 
