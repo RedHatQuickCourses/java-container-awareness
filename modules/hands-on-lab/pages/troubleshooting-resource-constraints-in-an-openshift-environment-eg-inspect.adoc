@@ -70,6 +70,7 @@ In this exercise, you will diagnose a pod experiencing memory constraints.
 1. **Simulate a kill:** 
    Deploy a pod with a very low memory limit (e.g., 64Mi) and a JVM heap requirement that exceeds directly set via Xmx. Observe the kill:
 
+   [source,bash]
    ----
    oc get pods
    # Look for OOMKilled status
@@ -77,9 +78,11 @@ In this exercise, you will diagnose a pod experiencing memory constraints.
 
 2. **Inspect the exit code:**
 
+   [source,bash]
    ----
    oc get pod <pod-name> -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}'
    ----
+   
    *If the result is `OOMKilled`, the kernel terminated the process because it exceeded the cgroup memory limit.*
 
 3. **Verify the limits:**
@@ -88,6 +91,7 @@ In this exercise, you will diagnose a pod experiencing memory constraints.
 4. **Remediate:**
    Adjust the deployment YAML to either increase the container memory limit or update the JVM flags using the `JAVA_OPTS` environment variable to reflect a lower heap percentage:
 
+   [source,bash]
    ----
    env:
      - name: JAVA_OPTS
