@@ -222,7 +222,7 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>In modern containerized environments, the JVM’s ability to "see" container resource boundaries is a critical feature. When developers manually specify heap sizes using traditional flags like <code>-Xmx</code> without regard for the container&#8217;s cgroup limits, they risk decoupling the JVM memory footprint from the orchestration layer. This decoupling often leads to significant operational instability.</p>
+<p>Inside a containerized environment, the JVM’s ability to detect container resource boundaries is a critical feature. When developers manually specify heap sizes using the traditional heap limit: <code>-Xmx</code> without regard for the container&#8217;s cgroup limits, they risk decoupling the JVM memory footprint from the orchestration layer. This decoupling often leads to significant operational instability and an inherited risk of OOMKill.</p>
 </div>
 </div>
 </div>
@@ -230,7 +230,7 @@
 <h2 id="_the_risks_of_manual_overrides"><a class="anchor" href="#_the_risks_of_manual_overrides"></a>The Risks of Manual Overrides</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Before Java became fully container-aware, it was common practice to explicitly define <code>-Xmx</code> (maximum heap size) to ensure the JVM did not attempt to consume all available memory on a physical host. In a containerized world, this approach creates several hazards:</p>
+<p>Before Java became fully container-aware, it was common practice to explicitly define <code>-Xmx</code> (maximum heap size) to ensure the JVM did not attempt to consume all available memory on a physical host. For example, on a straight VM deployment. However, in a containerized world, this approach creates several hazards:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -241,7 +241,7 @@
 <p><strong>Resource Underutilization:</strong> If the <code>-Xmx</code> is set significantly lower than the container limit, the application cannot scale its memory usage to handle increased load, even if the container has plenty of headroom. This results in inefficient resource allocation and potential <code>OutOfMemoryException</code> (OOME) errors within the JVM, despite the container appearing to have available memory.</p>
 </li>
 <li>
-<p><strong>The "Shadow" Memory Problem:</strong> Developers often focus exclusively on the heap. However, native memory (off-heap) usage is not governed by <code>-Xmx</code>. When the heap is "fixed" by a flag, the JVM acts as if it is independent of the container, potentially causing the combined memory pressure to breach the container&#8217;s hard limit.</p>
+<p><strong>Off-heap limits:</strong> DevOps teams/developers may often focus exclusively on the heap. However, native memory (off-heap) usage is not governed by <code>Xmx</code>, although <code>Xmx</code> caps the heap limit. The JVM is a combination of both heap and off-heap, and both segments together potentially cause the combined memory pressure to breach the container&#8217;s hard limit.</p>
 </li>
 </ul>
 </div>
