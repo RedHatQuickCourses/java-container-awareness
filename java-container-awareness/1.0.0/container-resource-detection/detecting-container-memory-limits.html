@@ -256,7 +256,7 @@
 </td>
 <td class="content">
 <div class="paragraph">
-<p>Standard utilities like <code>free</code>, <code>top</code>, or <code>lscpu</code> are <strong>not container-aware</strong>. They will report the resources of the host node, leading to incorrect diagnostic conclusions.</p>
+<p>Standard utilities like <code>free</code>, <code>top</code>, or <code>lscpu</code> are <strong>not container-aware</strong>. They will report the resources of the host node, leading to incorrect diagnostic conclusions. Use container-aware tools, such as jcmd VM.info, and -XshowSettings:system.</p>
 </div>
 </td>
 </tr>
@@ -293,12 +293,12 @@
 <h2 id="_troubleshooting_memory_misalignment"><a class="anchor" href="#_troubleshooting_memory_misalignment"></a>Troubleshooting Memory Misalignment</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>If your application exhibits the following symptoms, it is likely that the JVM is failing to respect container limits:</p>
+<p>If your application exhibits the following symptoms, the JVM is likely failing to respect container limits:</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>Host-level reporting:</strong> Commands executed inside the container (e.g., <code>free -m</code>) show memory values matching the physical node rather than the pod limit.</p>
+<p><strong>Host-level reporting:</strong> Non-container-aware commands executed inside the container (e.g., <code>free -m</code>) show memory values matching the physical node rather than the pod limit.</p>
 </li>
 <li>
 <p><strong>OOM Killer termination:</strong> The pod restarts with an exit code indicating OOM, despite the <code>-Xmx</code> setting appearing reasonable for the application&#8217;s perceived workload.</p>
