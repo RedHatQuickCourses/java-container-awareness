@@ -9,7 +9,7 @@ In the context of Red Hat OpenShift Container Platform (OCP), effectively managi
 OpenShift utilizes Kubernetes-native resource management, defined within the container specification of a Deployment or Pod YAML.
 
 *   **Requests:** These are used by the OpenShift scheduler to place a Pod on a node. They represent the minimum amount of CPU and memory guaranteed to the container. If a node does not have enough unallocated resources to satisfy the request, the scheduler will not place the Pod on that node.
-*   **Limits:** These define the hard ceiling for resource consumption. If a container exceeds its memory limit, it risks being terminated by the kernel (OOMKilled). CPU limits act as a throttling mechanism, restricting the execution time available to the container within a defined period.
+*   **Limits:** These define the hard ceiling for resource consumption. If a container exceeds its memory limit, it risks being terminated by the kernel (OOMKilled). CPU limits act as a throttling mechanism, restricting the container's execution time within a defined period.
 
 === Resource Allocation Table
 
@@ -35,7 +35,7 @@ While Java workloads are burstable (threads dynamically demand kernel time), the
 
 == Best Practices for OCP Configurations
 
-*   **Avoid Overcommitting Critical Workloads:** For production-critical applications, consider "Guaranteed" Quality of Service (QoS). A pod is considered "Guaranteed" when both requests and limits are set and equal for all containers in the pod.
+*   **Avoid Overcommitting Critical Workloads:** For production-critical applications, consider "Guaranteed" Quality of Service (QoS). A pod is considered "Guaranteed" when both requests and limits are set to the same value for all containers in the pod.
 *   **Limit vs. Request Parity:** If you are unsure of the application's baseline, start by setting requests lower than limits to allow for burstable performance, but ensure the limit is high enough to accommodate peak load to prevent CPU throttling.
 *   **Memory Awareness:** Always set memory limits to prevent a single Java container from consuming all available node memory, which would trigger the node-level OOM killer and impact other pods on the same node.
 
@@ -48,7 +48,7 @@ In this activity, you will verify how OpenShift translates your YAML configurati
 *   An active OpenShift cluster (OCP 4 for Openshift Operators deployments).
 *   `oc` CLI authenticated with administrative or project-level access.
 
-Note: When deploying with an Operator, the Operator will control the deployment directly, the user needs to modify the settings via the respective Custom Resource.
+Note: When deploying with an Operator, the Operator will control the deployment directly, therfore the user needs to modify the settings via the respective Custom Resource.
 
 **Steps:**
 
