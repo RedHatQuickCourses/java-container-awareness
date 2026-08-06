@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 2940,
+  "totalSeconds": 2942,
   "pageCount": 28,
   "pages": [
     {
@@ -60,7 +60,7 @@
     {
       "module": "risks-and-memory-management",
       "page": "implications-of-decoupling-heap-memory-from-container-limits.adoc",
-      "seconds": 155
+      "seconds": 157
     },
     {
       "module": "risks-and-memory-management",
