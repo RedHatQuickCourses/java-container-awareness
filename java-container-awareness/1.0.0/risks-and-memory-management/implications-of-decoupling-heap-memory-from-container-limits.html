@@ -267,7 +267,7 @@
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Dynamic Scaling:</strong> As you increase the memory limit of your OpenShift or Kubernetes pod, the JVM heap automatically adjusts to maintain the defined percentage.</p>
+<p><strong>Dynamic Changes:</strong> As you increase the memory limit of your OpenShift or Kubernetes pod, the JVM heap will not automatically adjust to maintain the defined percentage. That&#8217;s because the JVM only detects the limits once when it starts and therefore needs to fully restart to detect its limits.</p>
 </li>
 <li>
 <p><strong>Safety Margin:</strong> Leaving a percentage of the container memory free (i.e., not allocating 100% to the heap) provides the necessary space for off-heap components—such as Netty buffers, thread stacks, and Metaspace—preventing cgroup-level OOMKills.</p>
