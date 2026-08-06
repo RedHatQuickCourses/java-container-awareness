@@ -300,7 +300,7 @@
 </td>
 <td class="content">
 <div class="paragraph">
-<p>While Java workloads are burstable (threads dynamically demand kernel time), the JVM performs its cgroup reading at <strong>startup</strong>. Consequently, the JVM is "inelastic." If you change limits at runtime without restarting the Pod, the JVM will not automatically adjust its internal heuristics to match the new constraints.</p>
+<p>While Java workloads are burstable (threads dynamically demand kernel time), the JVM performs its cgroup reading at <strong>startup</strong>. Consequently, the JVM is inelastic. If the user changes limits at runtime without restarting the Pod, the JVM will <strong>not</strong> automatically adjust its internal heuristics to match the new constraints.</p>
 </div>
 </td>
 </tr>
