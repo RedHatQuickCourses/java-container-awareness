@@ -8,8 +8,9 @@ Before the introduction of specific container-aware updates, the Java Virtual Ma
 In early containerized environments, the JVM would query the underlying host operating system for available resources (such as total system memory and available CPU cores) rather than the specific cgroup limits applied to the container. 
 
 This behavior led to a critical disconnect:
+
 * **Memory Miscalculation:** The JVM would attempt to size its heap based on the host's physical RAM, often exceeding the container's hard memory limit set by Kubernetes or OpenShift.
-* **OOM Killer Intervention:** Once the Java process exceeded the container's cgroup memory limit, the Linux kernel's Out-Of-Memory (OOM) Killer would terminate the process, leading to unexpected pod restarts.
+* **OOM Killer Intervention:** Once the Java process exceeded the container's cgroup memory limit, the OCP node kernel's Out-Of-Memory (OOM) Killer would terminate the process, leading to unexpected pod restarts.
 * **CPU Throttling:** Similar issues occurred with CPU calculation, where the JVM would perceive all host cores as available, leading to inefficient thread pool sizing and potential context-switching overhead.
 
 == The Turning Point: JDK8146115
@@ -21,6 +22,7 @@ Instead of querying `/proc/meminfo` or `/proc/stat`—which reflect host-level r
 While JDK8146115 provided the foundational logic, the release of **Java 8u191** served as the catalyst for widespread adoption. This update backported the container-awareness features, effectively bringing modern cloud-native capabilities to long-standing Java 8 applications.
 
 Key changes introduced in 8u191 include:
+
 * **Native Cgroup Awareness:** The JVM now automatically detects container limits at startup.
 * **Default Ergonomics:** The default heap size calculation logic was updated to use a fraction of the container’s memory limit instead of the host's physical memory.
 * **New JVM Flags:** Introduction of flags such as `-XX:MaxRAMPercentage`, `-XX:MinRAMPercentage`, and `-XX:InitialRAMPercentage`, allowing developers to define heap sizes as a ratio of the container limit rather than hard-coded values.
