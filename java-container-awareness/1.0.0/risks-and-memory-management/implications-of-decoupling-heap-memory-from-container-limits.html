@@ -293,13 +293,37 @@
 <div class="sect1">
 <h2 id="_summary_of_implications"><a class="anchor" href="#_summary_of_implications"></a>Summary of Implications</h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p>| Risk Factor | Consequence | Impact |
-| :--- | :--- | :--- |
-| <strong>Fixed -Xmx</strong> | Decoupling from cgroups | Unexpected OOMKills |
-| <strong>Ignored Off-Heap</strong> | Native memory starvation | JVM instability / Crashes |
-| <strong>Manual Constraints</strong> | Operational rigidity | Need for manual tuning during scaling |</p>
-</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Risk Factor</th>
+<th class="tableblock halign-left valign-top">Consequence</th>
+<th class="tableblock halign-left valign-top">Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Fixed -Xmx</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Decoupling from cgroups</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unexpected OOMKills</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Ignored Off-Heap</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Native memory starvation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">JVM instability / Crashes</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Manual Constraints</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Operational rigidity</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Need for manual tuning during scaling</p></td>
+</tr>
+</tbody>
+</table>
 <div class="paragraph">
 <p>By allowing the JVM to detect container limits automatically, i.e. by utilizing percentage-based configurations, the DevOps teams ensure the Java application remains dynamic, resilient, portable, and correctly scaled within your cluster limits and boundaries.</p>
 </div>
