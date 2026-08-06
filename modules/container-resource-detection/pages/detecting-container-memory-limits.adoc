@@ -51,6 +51,7 @@ If your application exhibits the following symptoms, the JVM is likely failing t
 
 === Diagnostic Strategy
 To analyze resource constraints effectively:
+
 * **Check the logs:** Inspect your pod logs to confirm if `run-java.sh` or the standard OpenJDK startup scripts are being utilized, as these often contain logic to calculate heap sizes based on container limits.
 * **Verify `jcmd` output:** Use `jcmd <pid> VM.info` to inspect the runtime configuration and ensure the JVM has correctly parsed the `cgroup` memory controller.
 * **Compare with OCP Metadata:** Always compare the JVM's reported `Memory Limit` against the `resources.limits.memory` configured in your OpenShift `DeploymentConfig` or `Deployment` YAML.
