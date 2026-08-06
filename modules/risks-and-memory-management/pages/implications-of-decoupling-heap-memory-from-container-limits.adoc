@@ -19,7 +19,7 @@ Modern Java versions (Java 8u191+, Java 11+) are designed to be container-aware,
 == Best Practices: The Percentage-Based Approach
 To avoid decoupling, the recommendation is to shift from absolute values (`-Xmx`) to relative values. By using flags like `-XX:MaxRAMPercentage`, the JVM maintains a "coupled" relationship with the container:
 
-*   **Dynamic Scaling:** As you increase the memory limit of your OpenShift or Kubernetes pod, the JVM heap automatically adjusts to maintain the defined percentage.
+*   **Dynamic Changes:** As you increase the memory limit of your OpenShift or Kubernetes pod, the JVM heap will not automatically adjust to maintain the defined percentage. That's because the JVM only detects the limits once when it starts and therefore needs to fully restart to detect its limits.
 *   **Safety Margin:** Leaving a percentage of the container memory free (i.e., not allocating 100% to the heap) provides the necessary space for off-heap components—such as Netty buffers, thread stacks, and Metaspace—preventing cgroup-level OOMKills.
 
 [TIP]
