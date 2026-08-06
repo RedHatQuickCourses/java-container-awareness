@@ -17,7 +17,7 @@ To determine if your Java application is correctly "seeing" the container limits
 
 [IMPORTANT]
 ====
-Standard utilities like `free`, `top`, or `lscpu` are **not container-aware**. They will report the resources of the host node, leading to incorrect diagnostic conclusions.
+Standard utilities like `free`, `top`, or `lscpu` are **not container-aware**. They will report the resources of the host node, leading to incorrect diagnostic conclusions. Use container-aware tools, such as jcmd VM.info, and -XshowSettings:system. 
 ====
 
 === Using `-XshowSettings:system`
@@ -39,9 +39,9 @@ Operating System Metrics:
 When the JVM is container-aware, you will see explicit lines reflecting the `Memory Limit`. If this value matches your OpenShift/Kubernetes request/limit configuration, the JVM is successfully performing container detection.
 
 == Troubleshooting Memory Misalignment
-If your application exhibits the following symptoms, it is likely that the JVM is failing to respect container limits:
+If your application exhibits the following symptoms, the JVM is likely failing to respect container limits:
 
-1. **Host-level reporting:** Commands executed inside the container (e.g., `free -m`) show memory values matching the physical node rather than the pod limit.
+1. **Host-level reporting:** Non-container-aware commands executed inside the container (e.g., `free -m`) show memory values matching the physical node rather than the pod limit.
 2. **OOM Killer termination:** The pod restarts with an exit code indicating OOM, despite the `-Xmx` setting appearing reasonable for the application's perceived workload.
 
 == Two main scenarios:
