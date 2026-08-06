@@ -30,7 +30,7 @@ It is vital to understand that different layers of your infrastructure interpret
 
 [IMPORTANT]
 ====
-While Java workloads are burstable (threads dynamically demand kernel time), the JVM performs its cgroup reading at **startup**. Consequently, the JVM is "inelastic." If you change limits at runtime without restarting the Pod, the JVM will not automatically adjust its internal heuristics to match the new constraints.
+While Java workloads are burstable (threads dynamically demand kernel time), the JVM performs its cgroup reading at **startup**. Consequently, the JVM is inelastic. If the user changes limits at runtime without restarting the Pod, the JVM will **not** automatically adjust its internal heuristics to match the new constraints.
 ====
 
 == Best Practices for OCP Configurations
