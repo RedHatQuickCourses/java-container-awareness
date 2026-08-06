@@ -21,6 +21,7 @@ Setting `Limits` equal to `Requests` results in a **Guaranteed Quality of Servic
 Since the introduction of JDK 8u191 (and the backport of `JDK8146115`), the JVM has become "container-aware." It reads cgroup filesystem metrics to determine available resources rather than querying the host OS kernel.
 
 When the JVM starts, it calculates heap ergonomics based on the container’s cgroup limits:
+
 *   **Memory:** If no `-Xmx` is explicitly set, the JVM defaults to a fraction of the container's memory limit (typically 1/4 of the available RAM).
 *   **CPU:** The JVM detects the number of available CPUs via cgroup shares/quotas and scales the number of Garbage Collection (GC) threads accordingly. 
 
