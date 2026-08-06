@@ -26,7 +26,7 @@ It is vital to understand that different layers of your infrastructure interpret
 
 1.  **OpenShift/Kubernetes Layer:** The scheduler uses *requests* to manage cluster density and node capacity. It ignores *limits* for scheduling decisions.
 2.  **Kernel Layer:** The kernel enforces *limits* via Control Groups (cgroups). Quotas and periods derived from the container spec are translated into filesystem values in `/sys/fs/cgroup`.
-3.  **Java Layer (OpenJDK):** Modern versions of OpenJDK (post-8u191) are "container-aware." However, **Java only considers limits, not requests.** Even if you define CPU requests in your YAML, the JVM will ignore them for internal heap sizing and thread pool calculations.
+3.  **Java Layer (OpenJDK):** Modern versions of OpenJDK (post-8u191) are container-aware. However, **Java only considers limits, not requests.** Even if you define CPU requests in your YAML, the JVM will ignore them for internal heap sizing and thread pool calculations.
 
 [IMPORTANT]
 ====
@@ -35,7 +35,7 @@ While Java workloads are burstable (threads dynamically demand kernel time), the
 
 == Best Practices for OCP Configurations
 
-*   **Avoid Overcommitting Critical Workloads:** For production-critical applications, consider "Guaranteed" Quality of Service (QoS). A pod is considered "Guaranteed" when both requests and limits are set to the same value for all containers in the pod.
+*   **Avoid Overcommitting Critical Workloads:** For production-critical applications, consider Guaranteed Quality of Service (QoS). A pod is considered Guaranteed when both requests and limits are set to the same value for all containers in the pod.
 *   **Limit vs. Request Parity:** If you are unsure of the application's baseline, start by setting requests lower than limits to allow for burstable performance, but ensure the limit is high enough to accommodate peak load to prevent CPU throttling.
 *   **Memory Awareness:** Always set memory limits to prevent a single Java container from consuming all available node memory, which would trigger the node-level OOM killer and impact other pods on the same node.
 
