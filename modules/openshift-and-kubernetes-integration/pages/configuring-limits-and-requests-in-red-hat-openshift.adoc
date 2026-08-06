@@ -44,8 +44,11 @@ While Java workloads are burstable (threads dynamically demand kernel time), the
 In this activity, you will verify how OpenShift translates your YAML configuration into cgroup settings visible to the Java application.
 
 **Prerequisites:**
-*   An active OpenShift cluster.
+
+*   An active OpenShift cluster (OCP 4 for Openshift Operators deployments).
 *   `oc` CLI authenticated with administrative or project-level access.
+
+Note: When deploying with an Operator, the Operator will control the deployment directly, the user needs to modify the settings via the respective Custom Resource.
 
 **Steps:**
 
