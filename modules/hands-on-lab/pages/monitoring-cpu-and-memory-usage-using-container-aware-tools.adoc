@@ -7,7 +7,7 @@ When deploying Java applications in containerized environments like Red Hat Open
 This section explores how to distinguish between container-aware and node-aware outputs and how to use them effectively for troubleshooting.
 
 == The Visibility Gap
-If you use standard Linux utilities such as `lscpu`, `nproc`, or `free -m` inside a container, you are likely seeing the resources of the underlying host node. Relying on these values for capacity planning can lead to "Out of Memory" (OOM) kills or CPU throttling because the JVM may attempt to allocate resources exceeding the container's cgroup limits.
+If you use standard Linux utilities such as `lscpu`, `nproc`, or `free -m` inside a container, you are likely seeing the resources of the underlying host node. Relying on these values for capacity planning and testing likely will lead to OOMExceptions (OOMException), Out of Memory (OOM) kills or CPU throttling because the JVM may attempt to allocate resources exceeding the container's cgroup limits.
 
 To monitor your Java application accurately, you must utilize tools and flags that interface directly with the **cgroups** filesystem.
 
