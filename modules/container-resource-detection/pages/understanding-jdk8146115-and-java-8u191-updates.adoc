@@ -11,7 +11,7 @@ This behavior led to a critical disconnect:
 
 * **Memory Miscalculation:** The JVM would attempt to size its heap based on the host's physical RAM, often exceeding the container's hard memory limit set by Kubernetes or OpenShift.
 * **OOM Killer Intervention:** Once the Java process exceeded the container's cgroup memory limit, the OCP node kernel's Out-Of-Memory (OOM) Killer would terminate the process, leading to unexpected pod restarts.
-* **CPU Throttling:** Similar issues occurred with CPU calculation, where the JVM would perceive all host cores as available, leading to inefficient thread pool sizing and potential context-switching overhead.
+* **CPU Throttling:** Similar issues occurred with CPU calculation, where the JVM would perceive all host cores as available, leading to inefficient thread pool sizing and potential overhead, such as context-switching and multiple threads competing for resources.
 
 == The Turning Point: JDK8146115
 To address these issues, the OpenJDK community introduced **JDK8146115**. This enhancement provided the necessary infrastructure for the JVM to correctly read and respect cgroup memory and CPU limits.
