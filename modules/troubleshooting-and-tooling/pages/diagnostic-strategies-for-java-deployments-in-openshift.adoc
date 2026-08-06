@@ -75,13 +75,17 @@ jcmd <pid> VM.flags
 If the application is slow, check if CPU throttling is occurring due to the Kubernetes `cpu` limit:
 
 1.  Check the `cpu.stat` file within the container:
+
     [source,bash]
     ----
     cat /sys/fs/cgroup/cpu/cpu.stat
     ----
+
+
 2.  Look for `nr_throttled`. If this number is increasing rapidly, your CPU `limit` is too low, and the kernel is throttling your application, causing latency.
 
 == Best Practices Summary
+
 *   **Never rely on `free` or `top`** inside a container for memory capacity planning.
 *   **Always use `-XX:MaxRAMPercentage`** instead of fixed `-Xmx` values to ensure the heap scales dynamically with the container limit.
 *   **Prioritize `jcmd`** for all runtime analysis, as it is native to the OpenJDK and fully supports container-cgroup awareness.
