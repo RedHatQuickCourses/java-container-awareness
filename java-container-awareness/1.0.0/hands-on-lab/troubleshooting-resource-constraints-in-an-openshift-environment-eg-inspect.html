@@ -351,8 +351,7 @@ oc exec &lt;pod-name&gt; -- jcmd 1 VM.flags</code></pre>
 Deploy a pod with a very low memory limit (e.g., 64Mi) and a JVM heap requirement that exceeds directly set via Xmx. Observe the kill:</p>
 <div class="literalblock">
 <div class="content">
-<pre>[source,bash]
-----
+<pre>----
 oc get pods
 # Look for OOMKilled status
 ----</pre>
@@ -363,8 +362,7 @@ oc get pods
 <p><strong>Inspect the exit code:</strong></p>
 <div class="literalblock">
 <div class="content">
-<pre>[source,bash]
-----
+<pre>----
 oc get pod &lt;pod-name&gt; -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}'
 ----
 *If the result is `OOMKilled`, the kernel terminated the process because it exceeded the cgroup memory limit.*</pre>
@@ -380,8 +378,7 @@ Check the deployment configuration to see the discrepancy between your <code>lim
 Adjust the deployment YAML to either increase the container memory limit or update the JVM flags using the <code>JAVA_OPTS</code> environment variable to reflect a lower heap percentage:</p>
 <div class="literalblock">
 <div class="content">
-<pre>[source,bash]
-----
+<pre>----
 env:
   - name: JAVA_OPTS
     value: "-XX:MaxRAMPercentage=50.0"

@@ -233,7 +233,7 @@
 <h2 id="_the_visibility_gap"><a class="anchor" href="#_the_visibility_gap"></a>The Visibility Gap</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>If you use standard Linux utilities such as <code>lscpu</code>, <code>nproc</code>, or <code>free -m</code> inside a container, you are likely seeing the resources of the underlying host node. Relying on these values for capacity planning can lead to "Out of Memory" (OOM) kills or CPU throttling because the JVM may attempt to allocate resources exceeding the container&#8217;s cgroup limits.</p>
+<p>If you use standard Linux utilities such as <code>lscpu</code>, <code>nproc</code>, or <code>free -m</code> inside a container, you are likely seeing the resources of the underlying host node. Relying on these values for capacity planning and testing likely will lead to OOMExceptions (OOMException), Out of Memory (OOM) kills or CPU throttling because the JVM may attempt to allocate resources exceeding the container&#8217;s cgroup limits.</p>
 </div>
 <div class="paragraph">
 <p>To monitor your Java application accurately, you must utilize tools and flags that interface directly with the <strong>cgroups</strong> filesystem.</p>

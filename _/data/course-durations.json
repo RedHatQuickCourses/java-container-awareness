@@ -130,12 +130,12 @@
     {
       "module": "hands-on-lab",
       "page": "monitoring-cpu-and-memory-usage-using-container-aware-tools.adoc",
-      "seconds": 127
+      "seconds": 128
     },
     {
       "module": "hands-on-lab",
       "page": "troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.adoc",
-      "seconds": 138
+      "seconds": 137
     },
     {
       "module": "appendix",
