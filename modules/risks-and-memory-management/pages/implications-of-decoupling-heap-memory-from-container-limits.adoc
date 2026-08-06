@@ -29,10 +29,21 @@ If you must explicitly define memory, use `-XX:MaxRAMPercentage=N`. This ensures
 
 == Summary of Implications
 
-| Risk Factor | Consequence | Impact |
-| :--- | :--- | :--- |
-| **Fixed -Xmx** | Decoupling from cgroups | Unexpected OOMKills |
-| **Ignored Off-Heap** | Native memory starvation | JVM instability / Crashes |
-| **Manual Constraints** | Operational rigidity | Need for manual tuning during scaling |
+[cols="1,1,1", options="header"]
+|===
+| Risk Factor | Consequence | Impact
+
+| *Fixed -Xmx*
+| Decoupling from cgroups
+| Unexpected OOMKills
+
+| *Ignored Off-Heap*
+| Native memory starvation
+| JVM instability / Crashes
+
+| *Manual Constraints*
+| Operational rigidity
+| Need for manual tuning during scaling
+|===
 
 By allowing the JVM to detect container limits automatically, i.e. by utilizing percentage-based configurations, the DevOps teams ensure the Java application remains dynamic, resilient, portable, and correctly scaled within your cluster limits and boundaries.
