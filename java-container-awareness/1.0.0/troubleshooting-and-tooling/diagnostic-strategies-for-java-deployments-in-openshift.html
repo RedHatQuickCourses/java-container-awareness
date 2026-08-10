@@ -358,11 +358,15 @@ jcmd &lt;pid&gt; VM.flags</code></pre>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Check the <code>cpu.stat</code> file within the container:
-[source,bash]
+<p>Check the <code>cpu.stat</code> file within the container:</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
 ----
 cat /sys/fs/cgroup/cpu/cpu.stat
-----</p>
+----</pre>
+</div>
+</div>
 </li>
 <li>
 <p>Look for <code>nr_throttled</code>. If this number is increasing rapidly, your CPU <code>limit</code> is too low, and the kernel is throttling your application, causing latency.</p>

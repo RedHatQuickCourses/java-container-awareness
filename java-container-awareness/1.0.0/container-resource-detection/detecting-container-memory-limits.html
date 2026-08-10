@@ -323,10 +323,20 @@
 <div class="sect2">
 <h3 id="_diagnostic_strategy"><a class="anchor" href="#_diagnostic_strategy"></a>Diagnostic Strategy</h3>
 <div class="paragraph">
-<p>To analyze resource constraints effectively:
-* <strong>Check the logs:</strong> Inspect your pod logs to confirm if <code>run-java.sh</code> or the standard OpenJDK startup scripts are being utilized, as these often contain logic to calculate heap sizes based on container limits.
-* <strong>Verify <code>jcmd</code> output:</strong> Use <code>jcmd &lt;pid&gt; VM.info</code> to inspect the runtime configuration and ensure the JVM has correctly parsed the <code>cgroup</code> memory controller.
-* <strong>Compare with OCP Metadata:</strong> Always compare the JVM&#8217;s reported <code>Memory Limit</code> against the <code>resources.limits.memory</code> configured in your OpenShift <code>DeploymentConfig</code> or <code>Deployment</code> YAML.</p>
+<p>To analyze resource constraints effectively:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Check the logs:</strong> Inspect your pod logs to confirm if <code>run-java.sh</code> or the standard OpenJDK startup scripts are being utilized, as these often contain logic to calculate heap sizes based on container limits.</p>
+</li>
+<li>
+<p><strong>Verify <code>jcmd</code> output:</strong> Use <code>jcmd &lt;pid&gt; VM.info</code> to inspect the runtime configuration and ensure the JVM has correctly parsed the <code>cgroup</code> memory controller.</p>
+</li>
+<li>
+<p><strong>Compare with OCP Metadata:</strong> Always compare the JVM&#8217;s reported <code>Memory Limit</code> against the <code>resources.limits.memory</code> configured in your OpenShift <code>DeploymentConfig</code> or <code>Deployment</code> YAML.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>

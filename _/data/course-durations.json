@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 2942,
+  "totalSeconds": 2955,
   "pageCount": 28,
   "pages": [
     {
@@ -40,7 +40,7 @@
     {
       "module": "container-resource-detection",
       "page": "understanding-jdk8146115-and-java-8u191-updates.adoc",
-      "seconds": 133
+      "seconds": 135
     },
     {
       "module": "container-resource-detection",
@@ -80,7 +80,7 @@
     {
       "module": "openshift-and-kubernetes-integration",
       "page": "configuring-limits-and-requests-in-red-hat-openshift.adoc",
-      "seconds": 157
+      "seconds": 167
     },
     {
       "module": "openshift-and-kubernetes-integration",
@@ -135,7 +135,7 @@
     {
       "module": "hands-on-lab",
       "page": "troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.adoc",
-      "seconds": 137
+      "seconds": 138
     },
     {
       "module": "appendix",

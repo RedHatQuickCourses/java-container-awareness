@@ -238,7 +238,7 @@
 <p><strong>Requests:</strong> These are used by the OpenShift scheduler to place a Pod on a node. They represent the minimum amount of CPU and memory guaranteed to the container. If a node does not have enough unallocated resources to satisfy the request, the scheduler will not place the Pod on that node.</p>
 </li>
 <li>
-<p><strong>Limits:</strong> These define the hard ceiling for resource consumption. If a container exceeds its memory limit, it risks being terminated by the kernel (OOMKilled). CPU limits act as a throttling mechanism, restricting the execution time available to the container within a defined period.</p>
+<p><strong>Limits:</strong> These define the hard ceiling for resource consumption. If a container exceeds its memory limit, it risks being terminated by the kernel (OOMKilled). CPU limits act as a throttling mechanism, restricting the container&#8217;s execution time within a defined period.</p>
 </li>
 </ul>
 </div>
@@ -288,7 +288,7 @@
 <p><strong>Kernel Layer:</strong> The kernel enforces <strong>limits</strong> via Control Groups (cgroups). Quotas and periods derived from the container spec are translated into filesystem values in <code>/sys/fs/cgroup</code>.</p>
 </li>
 <li>
-<p><strong>Java Layer (OpenJDK):</strong> Modern versions of OpenJDK (post-8u191) are "container-aware." However, <strong>Java only considers limits, not requests.</strong> Even if you define CPU requests in your YAML, the JVM will ignore them for internal heap sizing and thread pool calculations.</p>
+<p><strong>Java Layer (OpenJDK):</strong> Modern versions of OpenJDK (post-8u191) are container-aware. However, <strong>Java only considers limits, not requests.</strong> Even if you define CPU requests in your YAML, the JVM will ignore them for internal heap sizing and thread pool calculations.</p>
 </li>
 </ol>
 </div>
@@ -314,7 +314,7 @@
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Avoid Overcommitting Critical Workloads:</strong> For production-critical applications, consider "Guaranteed" Quality of Service (QoS). A pod is considered "Guaranteed" when both requests and limits are set and equal for all containers in the pod.</p>
+<p><strong>Avoid Overcommitting Critical Workloads:</strong> For production-critical applications, consider Guaranteed Quality of Service (QoS). A pod is considered Guaranteed when both requests and limits are set to the same value for all containers in the pod.</p>
 </li>
 <li>
 <p><strong>Limit vs. Request Parity:</strong> If you are unsure of the application&#8217;s baseline, start by setting requests lower than limits to allow for burstable performance, but ensure the limit is high enough to accommodate peak load to prevent CPU throttling.</p>
@@ -333,9 +333,20 @@
 <p>In this activity, you will verify how OpenShift translates your YAML configuration into cgroup settings visible to the Java application.</p>
 </div>
 <div class="paragraph">
-<p><strong>Prerequisites:</strong>
-*   An active OpenShift cluster.
-*   <code>oc</code> CLI authenticated with administrative or project-level access.</p>
+<p><strong>Prerequisites:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>An active OpenShift cluster (OCP 4 for Openshift Operators deployments).</p>
+</li>
+<li>
+<p><code>oc</code> CLI authenticated with administrative or project-level access.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Note: When deploying with an Operator, the Operator will control the deployment directly, therfore the user needs to modify the settings via the respective Custom Resource.</p>
 </div>
 <div class="paragraph">
 <p><strong>Steps:</strong></p>

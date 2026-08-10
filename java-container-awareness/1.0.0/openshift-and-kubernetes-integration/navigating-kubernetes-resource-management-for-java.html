@@ -265,9 +265,17 @@
 <p>Since the introduction of JDK 8u191 (and the backport of <code>JDK8146115</code>), the JVM has become "container-aware." It reads cgroup filesystem metrics to determine available resources rather than querying the host OS kernel.</p>
 </div>
 <div class="paragraph">
-<p>When the JVM starts, it calculates heap ergonomics based on the container’s cgroup limits:
-*   <strong>Memory:</strong> If no <code>-Xmx</code> is explicitly set, the JVM defaults to a fraction of the container&#8217;s memory limit (typically 1/4 of the available RAM).
-*   <strong>CPU:</strong> The JVM detects the number of available CPUs via cgroup shares/quotas and scales the number of Garbage Collection (GC) threads accordingly.</p>
+<p>When the JVM starts, it calculates heap ergonomics based on the container’s cgroup limits:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Memory:</strong> If no <code>-Xmx</code> is explicitly set, the JVM defaults to a fraction of the container&#8217;s memory limit (typically 1/4 of the available RAM).</p>
+</li>
+<li>
+<p><strong>CPU:</strong> The JVM detects the number of available CPUs via cgroup shares/quotas and scales the number of Garbage Collection (GC) threads accordingly.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>

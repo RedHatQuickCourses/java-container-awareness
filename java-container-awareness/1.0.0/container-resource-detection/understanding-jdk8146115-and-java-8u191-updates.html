@@ -233,10 +233,20 @@
 <p>In early containerized environments, the JVM would query the underlying host operating system for available resources (such as total system memory and available CPU cores) rather than the specific cgroup limits applied to the container.</p>
 </div>
 <div class="paragraph">
-<p>This behavior led to a critical disconnect:
-* <strong>Memory Miscalculation:</strong> The JVM would attempt to size its heap based on the host&#8217;s physical RAM, often exceeding the container&#8217;s hard memory limit set by Kubernetes or OpenShift.
-* <strong>OOM Killer Intervention:</strong> Once the Java process exceeded the container&#8217;s cgroup memory limit, the Linux kernel&#8217;s Out-Of-Memory (OOM) Killer would terminate the process, leading to unexpected pod restarts.
-* <strong>CPU Throttling:</strong> Similar issues occurred with CPU calculation, where the JVM would perceive all host cores as available, leading to inefficient thread pool sizing and potential context-switching overhead.</p>
+<p>This behavior led to a critical disconnect:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Memory Miscalculation:</strong> The JVM would attempt to size its heap based on the host&#8217;s physical RAM, often exceeding the container&#8217;s hard memory limit set by Kubernetes or OpenShift.</p>
+</li>
+<li>
+<p><strong>OOM Killer Intervention:</strong> Once the Java process exceeded the container&#8217;s cgroup memory limit, the OCP node kernel&#8217;s Out-Of-Memory (OOM) Killer would terminate the process, leading to unexpected pod restarts.</p>
+</li>
+<li>
+<p><strong>CPU Throttling:</strong> Similar issues occurred with CPU calculation, where the JVM would perceive all host cores as available, leading to inefficient thread pool sizing and potential overhead, such as context-switching and multiple threads competing for resources.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -258,10 +268,20 @@
 <p>While JDK8146115 provided the foundational logic, the release of <strong>Java 8u191</strong> served as the catalyst for widespread adoption. This update backported the container-awareness features, effectively bringing modern cloud-native capabilities to long-standing Java 8 applications.</p>
 </div>
 <div class="paragraph">
-<p>Key changes introduced in 8u191 include:
-* <strong>Native Cgroup Awareness:</strong> The JVM now automatically detects container limits at startup.
-* <strong>Default Ergonomics:</strong> The default heap size calculation logic was updated to use a fraction of the container’s memory limit instead of the host&#8217;s physical memory.
-* <strong>New JVM Flags:</strong> Introduction of flags such as <code>-XX:MaxRAMPercentage</code>, <code>-XX:MinRAMPercentage</code>, and <code>-XX:InitialRAMPercentage</code>, allowing developers to define heap sizes as a ratio of the container limit rather than hard-coded values.</p>
+<p>Key changes introduced in 8u191 include:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Native Cgroup Awareness:</strong> The JVM now automatically detects container limits at startup.</p>
+</li>
+<li>
+<p><strong>Default Ergonomics:</strong> The default heap size calculation logic was updated to use a fraction of the container’s memory limit instead of the host&#8217;s physical memory.</p>
+</li>
+<li>
+<p><strong>New JVM Flags:</strong> Introduction of flags such as <code>-XX:MaxRAMPercentage</code>, <code>-XX:MinRAMPercentage</code>, and <code>-XX:InitialRAMPercentage</code>, allowing developers to define heap sizes as a ratio of the container limit rather than hard-coded values.</p>
+</li>
+</ul>
 </div>
 <div class="sect2">
 <h3 id="_impact_on_modern_deployments"><a class="anchor" href="#_impact_on_modern_deployments"></a>Impact on Modern Deployments</h3>
