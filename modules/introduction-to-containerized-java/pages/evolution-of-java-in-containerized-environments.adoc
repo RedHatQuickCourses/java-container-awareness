@@ -12,11 +12,12 @@ In other words, despite running inside a container, Java was unable to detect th
 
 Therefore, to solve this scenario, it was encapsulated inside an initialization script: run-java.sh, which would then detect the container limits and deploy Java with those limits (script -> container limits -> Java). Java didn't know about cgroups. It would just start, and someone would provide its max heap, Xmx.
 
-== JDK8146115
+== JDK-8146115
 
 The evolution toward true container awareness reached a milestone with **JDK8146115**. This critical enhancement, backported to Java 8 (starting with 8u191) and native to all newer versions (Java 11, 17, 21+), fundamentally changed how the JVM initializes.
 
 Instead of looking at the host's total resources, the JVM was updated to inspect the cgroup hierarchy directly. This allows the JVM to:
+
 1.  **Read Container Memory Limits:** Automatically calculate appropriate initial and maximum heap sizes (`-Xmx` and `-Xms`) based on the specific container memory constraints.
 2.  **Detect CPU Availability:** Properly identify the number of CPU shares or quotas allocated to the container, allowing the garbage collector and internal thread pools to scale their concurrency appropriately.
 
