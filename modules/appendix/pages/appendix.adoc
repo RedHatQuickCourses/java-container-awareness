@@ -4,6 +4,33 @@
 
 FIXME: Content for Appendix...
 
+== Complementary materials
+
+[cols="1,3,2", options="header"]
+|===
+| Date | Title | Link
+
+| Mar 14, 2024
+| How to use Java container awareness in OpenShift 4
+| https://developers.redhat.com/articles/2024/03/14/how-use-java-container-awareness-openshift-4[Read Article]
+
+| May 16, 2024
+| Using OpenShift 4's inspect for middleware troubleshooting
+| https://developers.redhat.com/articles/2024/05/16/using-openshift-4s-inspect-middleware-troubleshooting[Read Article]
+
+| Mar 05, 2025
+| How to troubleshoot Spring Boot in OpenShift
+| https://developers.redhat.com/articles/2025/03/05/how-troubleshoot-spring-boot-openshift[Read Article]
+
+| Nov 27, 2025
+| How does cgroups v2 impact Java, .NET, and Node.js in OpenShift 4?
+| https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-net-and-nodejs-openshift-4[Read Article]
+
+| Jun 18, 2026
+| Troubleshoot application misbehavior after an OpenShift upgrade
+| https://developers.redhat.com/articles/2026/06/18/troubleshoot-application-misbehavior-after-openshift-upgrade[Read Article]
+|===
+
 == Resources
 
 link:{attachmentsdir}/{page-component-name}.pdf[Download Course PDF]
