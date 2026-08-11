@@ -22,10 +22,11 @@ In a non-container-aware environment, if you deploy a Java application with a de
 
 When the application tries to consume this memory, the container runtime’s kernel-level cgroup enforcement triggers an **Out-of-Memory (OOM) Kill**. The process is terminated abruptly because it breached the container's allowed boundary, despite the JVM "thinking" it had plenty of memory available.
 
-=== Container-Aware Java: The Shift with JDK8146115
-The industry shift occurred with the implementation of **JDK8146115**, starting with Java 8u191 and continuing through all modern LTS releases (e.g., Java 11, 17, 21). This update enabled the JVM to "read" the `cgroup` filesystem directly.
+=== Container-Aware Java: The Shift with JDK-8146115
+The industry shift occurred with the implementation of **JDK-8146115**, starting with Java 8u191 and continuing through all modern LTS releases (e.g., Java 11, 17, 21). This update enabled the JVM to "read" the `cgroup` filesystem directly.
 
 When running a container-aware JVM, the process performs the following:
+
 * **Memory Sensing:** Instead of asking the OS for total physical RAM, the JVM reads the `memory.limit_in_bytes` file from the container's cgroup. It then calculates the default heap size as a percentage of this limit, rather than a percentage of the host's total RAM.
 * **CPU Awareness:** The JVM queries the `cpu.shares` or `cpu.cfs_quota_us` files to determine how many CPU cycles are available to the container. This prevents the JVM from spawning an excessive number of Garbage Collection (GC) threads that would otherwise lead to performance degradation via context switching.
 
