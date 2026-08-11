@@ -2,4 +2,7 @@
 :page-audio-src: index.wav
 :page-transcript-src: index.txt
 
-FIXME: Instructions for accessing the lab environment for this hands-on based training.
+Instructions for accessing the lab environment for this hands-on based training.
+
+This lab does not require many specific or especial Openshift cluster feature, just an standard OCP environment with permissions to deploy an application (via statefulset, pod yaml, or deployment).
+That is enough to test Java container awareness and its features, as well as its limitations.
