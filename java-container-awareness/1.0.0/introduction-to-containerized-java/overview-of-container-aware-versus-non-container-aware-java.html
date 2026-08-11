@@ -280,14 +280,22 @@
 </div>
 </div>
 <div class="sect2">
-<h3 id="_container_aware_java_the_shift_with_jdk8146115"><a class="anchor" href="#_container_aware_java_the_shift_with_jdk8146115"></a>Container-Aware Java: The Shift with JDK8146115</h3>
+<h3 id="_container_aware_java_the_shift_with_jdk_8146115"><a class="anchor" href="#_container_aware_java_the_shift_with_jdk_8146115"></a>Container-Aware Java: The Shift with JDK-8146115</h3>
 <div class="paragraph">
-<p>The industry shift occurred with the implementation of <strong>JDK8146115</strong>, starting with Java 8u191 and continuing through all modern LTS releases (e.g., Java 11, 17, 21). This update enabled the JVM to "read" the <code>cgroup</code> filesystem directly.</p>
+<p>The industry shift occurred with the implementation of <strong>JDK-8146115</strong>, starting with Java 8u191 and continuing through all modern LTS releases (e.g., Java 11, 17, 21). This update enabled the JVM to "read" the <code>cgroup</code> filesystem directly.</p>
 </div>
 <div class="paragraph">
-<p>When running a container-aware JVM, the process performs the following:
-* <strong>Memory Sensing:</strong> Instead of asking the OS for total physical RAM, the JVM reads the <code>memory.limit_in_bytes</code> file from the container&#8217;s cgroup. It then calculates the default heap size as a percentage of this limit, rather than a percentage of the host&#8217;s total RAM.
-* <strong>CPU Awareness:</strong> The JVM queries the <code>cpu.shares</code> or <code>cpu.cfs_quota_us</code> files to determine how many CPU cycles are available to the container. This prevents the JVM from spawning an excessive number of Garbage Collection (GC) threads that would otherwise lead to performance degradation via context switching.</p>
+<p>When running a container-aware JVM, the process performs the following:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Memory Sensing:</strong> Instead of asking the OS for total physical RAM, the JVM reads the <code>memory.limit_in_bytes</code> file from the container&#8217;s cgroup. It then calculates the default heap size as a percentage of this limit, rather than a percentage of the host&#8217;s total RAM.</p>
+</li>
+<li>
+<p><strong>CPU Awareness:</strong> The JVM queries the <code>cpu.shares</code> or <code>cpu.cfs_quota_us</code> files to determine how many CPU cycles are available to the container. This prevents the JVM from spawning an excessive number of Garbage Collection (GC) threads that would otherwise lead to performance degradation via context switching.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
