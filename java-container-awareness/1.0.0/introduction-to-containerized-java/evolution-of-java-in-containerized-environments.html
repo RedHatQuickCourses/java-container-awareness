@@ -241,15 +241,23 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_jdk8146115"><a class="anchor" href="#_jdk8146115"></a>JDK8146115</h2>
+<h2 id="_jdk_8146115"><a class="anchor" href="#_jdk_8146115"></a>JDK-8146115</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The evolution toward true container awareness reached a milestone with <strong>JDK8146115</strong>. This critical enhancement, backported to Java 8 (starting with 8u191) and native to all newer versions (Java 11, 17, 21+), fundamentally changed how the JVM initializes.</p>
 </div>
 <div class="paragraph">
-<p>Instead of looking at the host&#8217;s total resources, the JVM was updated to inspect the cgroup hierarchy directly. This allows the JVM to:
-1.  <strong>Read Container Memory Limits:</strong> Automatically calculate appropriate initial and maximum heap sizes (<code>-Xmx</code> and <code>-Xms</code>) based on the specific container memory constraints.
-2.  <strong>Detect CPU Availability:</strong> Properly identify the number of CPU shares or quotas allocated to the container, allowing the garbage collector and internal thread pools to scale their concurrency appropriately.</p>
+<p>Instead of looking at the host&#8217;s total resources, the JVM was updated to inspect the cgroup hierarchy directly. This allows the JVM to:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Read Container Memory Limits:</strong> Automatically calculate appropriate initial and maximum heap sizes (<code>-Xmx</code> and <code>-Xms</code>) based on the specific container memory constraints.</p>
+</li>
+<li>
+<p><strong>Detect CPU Availability:</strong> Properly identify the number of CPU shares or quotas allocated to the container, allowing the garbage collector and internal thread pools to scale their concurrency appropriately.</p>
+</li>
+</ol>
 </div>
 <div class="paragraph">
 <p>Containers achieve isolation through <strong>Control Groups (cgroups)</strong>, which is a Linux kernel feature that limits, accounts for, and isolates the resource usage of a collection of processes. Before 2019, Java was not cgroup-aware when running inside a container, so the JVM would still attempt to query the host&#8217;s total resources rather than the container&#8217;s restricted limits. This created a dangerous "mismatch" where the JVM believed it had access to gigabytes of host RAM, leading to:</p>
