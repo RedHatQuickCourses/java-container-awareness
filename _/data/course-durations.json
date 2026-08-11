@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 2955,
+  "totalSeconds": 2968,
   "pageCount": 28,
   "pages": [
     {
@@ -10,7 +10,7 @@
     {
       "module": "LABENV",
       "page": "index.adoc",
-      "seconds": 4
+      "seconds": 17
     },
     {
       "module": "introduction-to-containerized-java",
