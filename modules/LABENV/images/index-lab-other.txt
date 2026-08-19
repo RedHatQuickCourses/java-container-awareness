@@ -1,0 +1,1 @@
+To begin this training, you will need to access your lab environment. Please follow the instructions provided for your specific platform to ensure you are properly set up for these hands-on exercises.

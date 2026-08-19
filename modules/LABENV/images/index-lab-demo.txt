@@ -1,0 +1,11 @@
+In this module, we will cover how to launch and access your lab environment using the Red Hat Demo Platform, or RHDP.
+
+To get started with your lab, first log in to the RHDP portal. Once logged in, search for the specific lab catalog entry by name. Select that entry from the search results, and on the catalog page, click the "Order" button. You will be prompted to fill out the required details in the order form. 
+
+Before completing your request, please carefully review the warning at the bottom of the form, and then check the box labeled, “I confirm that I understand the above warnings.” Finally, click the "Order" button to place your request.
+
+There are a few important details to keep in mind. First, please note that the lab may take a few minutes to provision and become ready for use. Once it is prepared, you will receive an email containing your access details. You can also retrieve these access details directly from the RHDP portal at any time.
+
+To access your lab through the portal, simply click on the "Services" option located in the left-hand menu. From there, select your lab from the list on the right side of the page to view your specific access information.
+
+If you need to revisit the portal, Red Hat associates can navigate to demo dot red hat dot com, while Red Hat partners should visit partner dot demo dot red hat dot com. You can find these links in the referenced documentation.
