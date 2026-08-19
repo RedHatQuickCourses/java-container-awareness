@@ -1,1 +1,3 @@
-To begin your hands-on training, you will need to access the lab environment. Please follow the provided instructions to log in and connect to your dedicated workspace. If you encounter any issues during the setup process, consult the troubleshooting section or reach out to your instructor for further assistance.
+Welcome to the lab environment. In this section, we will cover the instructions for accessing the environment you will use for this hands-on training.
+
+To complete these exercises, you do not need any special or highly specific OpenShift cluster features. A standard OpenShift Container Platform environment is perfectly sufficient, provided you have the necessary permissions to deploy an application. Whether you choose to deploy via a StatefulSet, a pod YAML file, or a standard deployment, you will have everything you need to successfully test Java container awareness, as well as its associated features and limitations.

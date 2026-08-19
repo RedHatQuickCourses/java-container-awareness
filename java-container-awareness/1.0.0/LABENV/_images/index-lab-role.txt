@@ -1,7 +1,11 @@
-To begin your lab, you will need to access the Red Hat Online Learning, or ROLE, platform. Please follow these steps to launch your environment.
+To get started with your training, you will need to set up your lab environment using the Red Hat Online Learning, or ROLE, platform. Please follow these steps to launch your lab:
 
-First, log in to the ROLE platform. You can find the appropriate portal links in the supporting documentation—use the Red Hat associates link if you are an internal employee, or the Red Hat partners link if you are participating through our partner program.
+First, log in to the ROLE platform. You can find the appropriate portal links for Red Hat associates and partners in the resource section of this course.
 
-Once you are logged in, search the catalog for the specific lab entry you need, which is titled "FIXME Lab Catalog Name." When you find it in the search results, click the Launch button.
+Once you are logged in, search the catalog for the entry labeled "FIXME Lab Catalog Name." When you see it in your search results, click the "Launch" button.
 
-From the course page, navigate to the Lab Environment tab. Here, click the Create button to begin the provisioning process. Please wait a few moments for the lab creation to finish. Once the process is complete, refer to the SSH Private Key and instructions provided on that page to successfully access and begin your lab.
+From the course page, select the "Lab Environment" tab, and then click the "Create" button to begin the launch process. 
+
+Please wait a few moments for the system to complete the lab creation. Once it is ready, refer to the "SSH Private Key & Instructions" section provided on the page. These details contain everything you need to access your lab environment. 
+
+If you need to access the portal again, remember that Red Hat associates should use the internal role dot r-h-u dot red hat dot com address, while Red Hat partners should use the standard role dot red hat dot com portal.
