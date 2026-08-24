@@ -1,8 +1,36 @@
 = Lab Environment
-:page-audio-src: index.wav
-:page-transcript-src: index.txt
+:page-audio-src: index-lab-demo.wav
+:page-transcript-src: index-lab-demo.txt
 
-Instructions for accessing the lab environment for this hands-on based training.
+NOTE: This lab requires a standard OpenShift Container Platform (OCP) environment with permissions to deploy an application using a StatefulSet, Pod YAML, or Deployment. You may use any OpenShift cluster you have access to. If you do not have access to an OpenShift cluster for the hands-on exercise, follow the instructions on this page to order a lab environment.
 
-This lab does not require many specific or especial Openshift cluster feature, just an standard OCP environment with permissions to deploy an application (via statefulset, pod yaml, or deployment).
-That is enough to test Java container awareness and its features, as well as its limitations.
+== Instructions to Launch Your Lab on the Red Hat Demo Platform (RHDP)
+
+. **Log in** to the xref:#RHDP-Portal-Links[RHDP portal]
+. **Search** for the catalog entry: **Red Hat OpenShift Container Platform Cluster (Multi-Cloud)**.
+. **Click** on the catalog entry in the search results.
+. On the catalog page, **click** the **Order** button.
+. **Fill out** the required details in the order form.
+  * *Activity:* _Practice / Enablement_
+  * *Purpose:* _Learning about the product_
+  * *Cloud Provider:* _cnv_
+  * *OpenShift Version:* _4.21 (or as desired)_
+  * *cluster size:* _sno_
+. **Review the warning** at the bottom of the form and **check the box** labeled: +
+   *“I confirm that I understand the above warnings.”*
+. **Click** the **Order** button to place your lab order.
+
+=== Important Notes:
+- This lab may take approximately **5 minutes** to become ready.
+- You will receive an **email with access details** once your lab environment is ready.
+- You can also **retrieve lab access** directly from the RHDP portal.
+
+=== How to Access Your Lab via the RHDP Portal:
+. On the RHDP portal, **click** on the **Services** option in the left-hand menu.
+. **Select your lab** from the listings on the right-hand side of the page to view access details.
+
+[[RHDP-Portal-Links]]
+=== RHDP Portal Links
+- RedHat associates: https://demo.redhat.com/[https://demo.redhat.com/,window=_blank]
+- RedHat partners: https://partner.demo.redhat.com/[https://partner.demo.redhat.com/,window=_blank]
+

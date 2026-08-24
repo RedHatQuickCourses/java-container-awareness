@@ -1,7 +1,0 @@
-Welcome to the course on Java Container Awareness. This training provides in-depth details and explanations regarding how Java functions within containerized environments. You can expect to complete this course in approximately one to two hours.
-
-Throughout this program, we will cover several key areas, starting with an introduction to containerized Java. We will then examine how containers detect resources, explore the risks and best practices for memory management, and look at integration with OpenShift and Kubernetes. Finally, we will cover essential troubleshooting techniques and tooling, and wrap up with a hands-on lab to put your knowledge into practice.
-
-Before we begin, please ensure you meet the course prerequisites. This training assumes you have a general understanding of Java, including how heap and off-heap memory allocation works. Additionally, you should have some experience with OpenShift, specifically regarding the deployment process, though expert knowledge of operators is not required. 
-
-Let's get started.

@@ -1,16 +1,16 @@
 {
-  "totalSeconds": 2955,
+  "totalSeconds": 3036,
   "pageCount": 28,
   "pages": [
     {
       "module": "ROOT",
       "page": "index.adoc",
-      "seconds": 23
+      "seconds": 44
     },
     {
       "module": "LABENV",
       "page": "index.adoc",
-      "seconds": 4
+      "seconds": 40
     },
     {
       "module": "introduction-to-containerized-java",
@@ -140,7 +140,7 @@
     {
       "module": "appendix",
       "page": "appendix.adoc",
-      "seconds": 1
+      "seconds": 25
     }
   ]
 }
