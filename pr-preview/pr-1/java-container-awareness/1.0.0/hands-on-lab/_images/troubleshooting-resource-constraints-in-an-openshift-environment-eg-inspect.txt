@@ -1,0 +1,27 @@
+When Java applications run in OpenShift, they operate within the constraints defined by the Linux kernel's control groups, or cgroups. If these constraints are misconfigured, or if the Java Virtual Machine is not aware of them, you may experience performance degradation, unexpected OutOfMemoryErrors, or even container restarts due to being killed by the kernel.
+
+In this lesson, we will focus on diagnostic strategies and the tools you can use to inspect resource constraints for Java workloads in OpenShift.
+
+To effectively troubleshoot these constraints, you need to correlate three distinct layers. First, the OpenShift or Kubernetes layer, which defines the resource requests and limits in your pod specification. Second, the kernel or cgroup layer, which enforces the actual hardware quotas. And third, the JVM layer, which represents the memory and CPU settings as perceived by the Java process itself.
+
+A common pitfall here is the misalignment between the container limit and the JVM heap size. For example, if your container limit is set to one gigabyte, but the JVM is configured with a maximum heap size of two gigabytes, the process will likely fail. The kernel will kill the process as soon as it attempts to allocate memory beyond the container's cgroup boundary.
+
+Let's look at the tools available for inspection.
+
+The first step in any troubleshooting process is verifying the resource configuration of your pod using the command: `oc describe pod` followed by your pod name. When you run this, look closely at the Limits and Requests sections. It is vital to ensure that your limits are explicitly defined. If limits are missing, the JVM might default to host-level visibility rather than container-level, which often leads to incorrect heap sizing.
+
+If an application behaves unexpectedly, you can use `oc debug` to inspect the runtime environment from inside the pod's namespace. Once you have access to the environment, you can inspect the cgroup limits directly by reading the memory limit file. Keep in mind that in cgroup v2 environments, this path may be located under `/sys/fs/cgroup/memory.max` instead of the traditional location.
+
+Another powerful tool is `jcmd`, which is the standard diagnostic utility for Java. Because Java versions 8 update 191 and later are container-aware, you can use `jcmd` to verify how the JVM perceives the container. Run the command `oc exec` followed by the pod name, and then call `jcmd 1 VM.flags`. Look specifically for the `MaxHeapSize` flag. If this value is disproportionately large compared to your container limit, your application is at high risk of being killed by the kernel.
+
+Now, let's move on to a hands-on lab where you will diagnose a pod experiencing memory constraints. Before beginning, ensure you have an active OpenShift cluster and the `oc` command-line tool authenticated.
+
+First, simulate a memory kill by deploying a pod with a very low memory limit, such as 64 megabytes, while setting a JVM heap requirement that exceeds that limit. You can observe the crash by running `oc get pods` and checking for an OOMKilled status.
+
+Next, verify the specific cause by inspecting the exit code using `oc get pod` with a JSON path query for the termination reason. If the result is `OOMKilled`, it confirms that the kernel terminated the process for exceeding its cgroup memory limit.
+
+After confirming the issue, verify your configuration by checking the deployment settings to identify the discrepancy between your container limit and the JVM heap setting.
+
+To remediate the issue, you have two options. You can either increase the container memory limit or update the JVM flags. A best practice is to use the `JAVA_OPTS` environment variable to set a percentage-based heap, such as `-XX:MaxRAMPercentage=50.0`, to ensure the JVM scales dynamically with the container limit.
+
+Finally, always re-verify your work. After applying the changes, use `jcmd` again inside the pod to confirm that the new `MaxHeapSize` is being calculated correctly based on your updated container limits.

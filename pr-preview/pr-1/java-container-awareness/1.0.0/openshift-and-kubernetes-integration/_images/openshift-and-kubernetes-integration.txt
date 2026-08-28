@@ -1,0 +1,11 @@
+In containerized environments, Java applications rely on integration with OpenShift and Kubernetes to manage resource allocation through cgroups. Understanding how these platforms govern resources is essential for ensuring your deployments remain stable.
+
+Let's break down the key aspects of this integration.
+
+First, consider your resource specifications. Kubernetes uses `requests` and `limits` defined in your deployment YAML files to manage compute resources. Remember that `requests` guide the scheduler for node placement, while `limits` enforce hard constraints on CPU and memory usage.
+
+Second, understand cgroup enforcement. These platform resource definitions translate directly into Linux kernel cgroup values. Specifically, CPU limits define your execution quotas, while memory limits act as the boundary for the container's total memory footprint.
+
+Third, be aware of Quality of Service classes, or QoS, which OpenShift uses to handle resource contention. While the "Guaranteed" QoS class provides stable resource allocation, it is important to keep in mind that it does not prevent cgroup-level OutOfMemory kills if the application exceeds its assigned memory limits.
+
+Finally, focus on operational alignment. Proper integration requires that you align your Java heap configurations with your container-level constraints. This prevents discrepancies between the JVM's view of memory and the actual limits imposed by the OpenShift platform.

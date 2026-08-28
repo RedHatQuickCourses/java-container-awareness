@@ -1,0 +1,17 @@
+When deploying Java applications in containerized environments like Red Hat OpenShift or Kubernetes, it is important to understand that traditional Linux diagnostic tools often fall short. Tools that are not, quote, "container-aware," report the physical or virtual resources of the entire host node rather than the specific constraints applied to your pod. 
+
+In this session, we will explore how to distinguish between container-aware and node-aware outputs and how to use them effectively for troubleshooting.
+
+Let’s start by looking at the visibility gap. If you use standard Linux utilities such as `lscpu`, `nproc`, or `free -m` inside a container, you are likely seeing the resources of the underlying host node. Relying on these values for capacity planning and testing will likely lead to OOMExceptions—or Out of Memory kills—as well as CPU throttling. This happens because the JVM may attempt to allocate resources that exceed the container's cgroup limits. To monitor your Java application accurately, you must utilize tools and flags that interface directly with the cgroups filesystem.
+
+The JVM provides built-in mechanisms to report exactly what it sees regarding container limits. Two essential tools include the `--XshowSettings:system` flag, which is critical for initial diagnosis as it displays system information including memory limits and active processor counts, and the `VM.info` command, which, when used with `jcmd`, provides a comprehensive dump of the JVM configuration.
+
+When running a container-aware command, you should look for three key indicators. First, `active_processor_count` represents the number of CPUs available to the JVM based on your orchestrator's limits. Second, `memory_limit_in_bytes` reflects the specific cgroup memory limit; if this doesn't match your expectations, the JVM is not correctly detecting the container boundary. Finally, `cpu_quota` and `cpu_period` dictate CPU throttling behavior.
+
+Now, let’s move to a hands-on activity where you will verify your container limits. Please ensure you have a running Java pod in your OpenShift or Kubernetes environment and have access to the shell via `oc rsh` or `kubectl exec`.
+
+Step one is to compare node-aware versus container-aware visibility. Log into your running Java pod using the `oc rsh` command followed by your pod name. Next, run a non-container-aware command such as `free -m` or `nproc`. You will observe that the output reflects the total RAM and CPUs of the entire worker node, not your pod. Now, run the container-aware JVM setting command: `java -XX:+UnlockDiagnosticVMOptions -XshowSettings:system -version`.
+
+Step two is to analyze that JVM output. Locate the container information section. You should see entries for the container type, CPU sets, active processor count, and memory limit in bytes. Verify that the `memory_limit_in_bytes` aligns with the memory limit defined in your pod's YAML configuration. If these numbers differ, check your JVM version, as versions earlier than 8u191 lack proper cgroup awareness.
+
+For step three, we will perform a real-time analysis using `jcmd`. While your application is running, execute `jcmd` followed by the process ID and `VM.info`. Search the output for the cgroup section. This provides a real-time snapshot of metrics, including `memory_usage_in_bytes`. Use this to determine if your heap size is appropriately leaving enough headroom for off-heap memory.
