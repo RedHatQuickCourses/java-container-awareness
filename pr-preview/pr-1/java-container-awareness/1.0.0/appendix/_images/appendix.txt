@@ -1,3 +1,0 @@
-To wrap up this course, we have compiled a list of complementary materials to help you further your learning. These resources cover essential topics such as Java container awareness, middleware troubleshooting in OpenShift 4, and troubleshooting Spring Boot applications. We also include guides on understanding the impact of cgroups v2 on your applications and how to resolve application issues following an OpenShift upgrade. You can find these articles by consulting the documentation links provided in the course materials.
-
-Finally, for a complete reference guide, you can download the course PDF, which is available in the resources section.
