@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 3036,
+  "totalSeconds": 3021,
   "pageCount": 28,
   "pages": [
     {
@@ -50,7 +50,7 @@
     {
       "module": "container-resource-detection",
       "page": "determining-cpu-availability-within-containers.adoc",
-      "seconds": 174
+      "seconds": 149
     },
     {
       "module": "risks-and-memory-management",
@@ -65,7 +65,7 @@
     {
       "module": "risks-and-memory-management",
       "page": "managing-off-heap-memory-in-containerized-environments.adoc",
-      "seconds": 133
+      "seconds": 143
     },
     {
       "module": "risks-and-memory-management",

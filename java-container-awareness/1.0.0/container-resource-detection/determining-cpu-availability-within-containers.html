@@ -348,21 +348,117 @@ cpu_shares: 51</code></pre>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>Inspect current CPU perception:</strong>
-Inside your running container, identify the Java process ID:
-<code>jps</code></p>
+<p><strong>Create new project:</strong></p>
+<div class="paragraph">
+<p>Use the following command to create a new OpenShift project:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc new-project my-java-app</code></pre>
+</div>
+</div>
 </li>
 <li>
-<p><strong>Query the VM metadata:</strong>
-Run the following command to see the active processor count:
-<code>jcmd &lt;pid&gt; VM.info | grep active_processor_count</code></p>
+<p><strong>Launch the container:</strong></p>
+<div class="paragraph">
+<p>Use the following command to launch a new container:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc create deployment my-java-app --image=quay.io/hummingbird/openjdk:latest</code></pre>
+</div>
+</div>
 </li>
 <li>
-<p><strong>Compare with OS-level tools:</strong>
-Run <code>nproc</code> in the same terminal.
-<strong>Note: If <code>nproc</code> returns the node&#8217;s total CPUs (e.g., 64) but <code>active_processor_count</code> returns your container limit (e.g., 2), your application is correctly container-aware.</strong></p>
+<p><strong>Connect to the container:</strong></p>
+<div class="paragraph">
+<p>Use the following command to connect to your running container:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>oc get pods
+oc rsh &lt;pod-name&gt;</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Inspect current CPU perception:</strong></p>
+<div class="paragraph">
+<p>Inside your running container, identify the Java process ID:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jps</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Example output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>sh-5.3$ jps
+1 JShellToolProvider
+84 Jps
+27 RemoteExecutionControl
+sh-5.3$</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Query the VM metadata:</strong></p>
+<div class="paragraph">
+<p>Run the following command to see the active processor count:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jcmd 1 VM.info | grep active_processor_count</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Example output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>sh-5.3$ jcmd 1 VM.info | grep active_processor_count
+active_processor_count: 32
+sh-5.3$</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Compare with OS-level tools:</strong></p>
+<div class="paragraph">
+<p>Run <code>nproc</code> in the same terminal.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">nproc</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Example output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>sh-5.3$ nproc
+32
+sh-5.3$</pre>
+</div>
+</div>
 </li>
 </ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If <code>nproc</code> returns the node&#8217;s total CPUs (e.g., 64) but <code>active_processor_count</code> returns your container limit (e.g., 2), your application is correctly container-aware. The above output indicates the currently running application is not container aware.
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
