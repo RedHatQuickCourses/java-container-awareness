@@ -60,14 +60,84 @@ cpu_shares: 51
 == Hands-on Exercise: Inspecting CPU Awareness
 In this short task, you will verify the JVM's CPU detection.
 
-1. **Inspect current CPU perception:**
-   Inside your running container, identify the Java process ID:
-   `jps`
+. **Create new project:**
++
+Use the following command to create a new OpenShift project:
++
+[source,bash]
+----
+oc new-project my-java-app
+----
 
-2. **Query the VM metadata:**
-   Run the following command to see the active processor count:
-   `jcmd <pid> VM.info | grep active_processor_count`
+. **Launch the container:**
++
+Use the following command to launch a new container:
++  
+[source,bash]
+----
+oc create deployment my-java-app --image=quay.io/hummingbird/openjdk:latest
+----
 
-3. **Compare with OS-level tools:**
-   Run `nproc` in the same terminal.
-   *Note: If `nproc` returns the node's total CPUs (e.g., 64) but `active_processor_count` returns your container limit (e.g., 2), your application is correctly container-aware.*
+. **Connect to the container:**
++
+Use the following command to connect to your running container:
++
+----
+oc get pods
+oc rsh <pod-name>
+----
+
+. **Inspect current CPU perception:**
++
+Inside your running container, identify the Java process ID:
++
+[source,bash]
+----
+jps
+----
++
+Example output:
++
+----
+sh-5.3$ jps
+1 JShellToolProvider
+84 Jps
+27 RemoteExecutionControl
+sh-5.3$ 
+----
+
+. **Query the VM metadata:**
++
+Run the following command to see the active processor count:
++
+[source,bash]
+----
+jcmd 1 VM.info | grep active_processor_count
+----
++
+Example output:
++
+----
+sh-5.3$ jcmd 1 VM.info | grep active_processor_count
+active_processor_count: 32
+sh-5.3$ 
+----
+
+. **Compare with OS-level tools:**
++
+Run `nproc` in the same terminal.
++
+[source,bash]
+----
+nproc
+----
++
+Example output:
++
+----
+sh-5.3$ nproc
+32
+sh-5.3$ 
+----
+
+NOTE: If `nproc` returns the node's total CPUs (e.g., 64) but `active_processor_count` returns your container limit (e.g., 2), your application is correctly container-aware. The above output indicates the currently running application is not container aware.

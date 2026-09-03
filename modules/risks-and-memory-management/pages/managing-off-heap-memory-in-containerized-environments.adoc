@@ -44,26 +44,127 @@ This activity guides you through identifying the native memory footprint of your
 === Step 1: Enable NMT and Inspect Memory
 Use `jcmd` to inspect the memory distribution of your running containerized application.
 
-1. Access the terminal of your running pod:
+. Access the terminal of your running pod:
 +
 [source,bash]
 ----
 oc rsh <pod-name>
 ----
 
-2. Run the NMT summary command:
+. Run the NMT summary command:
 +
 [source,bash]
 ----
-jcmd <pid> VM.native_memory summary
+jcmd 1 VM.native_memory summary
+----
++
+Example output:
++
+----
+sh-5.3$ jcmd 1 VM.native_memory summary
+1:
+Native memory tracking is not enabled
+sh-5.3$ 
+----
++
+NOTE: If you see "Native memory tracking is not enabled", you must enable it by adding the following JVM option:
+----
+-XX:NativeMemoryTracking=summary
 ----
 
-3. Analyze the output. Look specifically at:
+. Delete the current deployment
++
+[source,bash]
+----
+oc delete deployment my-java-app
+----
+
+. Create a deployment configuration to enable NMT in the container:
++
+[source,bash]
+----
+cat > my-java-app.yaml << EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-java-app
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: my-java-app
+
+  template:
+    metadata:
+      labels:
+        app: my-java-app
+
+    spec:
+      containers:
+        - name: java-app
+          image: quay.io/hummingbird/openjdk:latest
+
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:NativeMemoryTracking=summary"
+EOF
+----
+
+. Create the deployment:
++
+[source,bash]
+----
+oc apply -f my-java-app.yaml
+----
+
+. Access the terminal of your new running pod:
++
+[source,bash]
+----
+oc rsh <pod-name>
+----
+
+. Inspect the memory distribution:
++
+[source,bash]
+----
+jcmd 1 VM.native_memory summary
+----
++
+Examle output:
+----
+sh-5.3$ jcmd 1 VM.native_memory summary 
+Picked up JAVA_TOOL_OPTIONS: -XX:NativeMemoryTracking=summary
+1:
+
+Native Memory Tracking:
+
+(Omitting categories weighting less than 1KB)
+
+Total: reserved=33545316KB, committed=288676KB
+       malloc: 59876KB #80575, peak=111544KB #81451
+       mmap:   reserved=33485440KB, committed=228800KB
+
+-                 Java Heap (reserved=31424512KB, committed=147456KB)
+                            (mmap: reserved=31424512KB, committed=147456KB, at peak)
+
+. . . 
+
+-      String Deduplication (reserved=1KB, committed=1KB)
+                            (malloc=1KB tag=String Deduplication #8) (at peak)
+
+-           Object Monitors (reserved=75KB, committed=75KB)
+                            (malloc=75KB tag=Object Monitors #385) (at peak)
+
+----
+
+. Analyze the output. Look specifically at:
 * **Internal:** Memory used by the JVM internal structures.
 * **Symbol:** Memory used for string interning.
 * **Thread:** Memory consumed by stack spaces.
 
-=== Step 2: Simulate Constraint Pressure
+=== Step 2: Simulate Constraint Pressure (FIXME as per lab)
 To ensure your configuration is resilient, verify that your application does not exceed the container limit.
 
 1. View the current cgroup memory limit for your container:
