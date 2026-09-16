@@ -7,7 +7,12 @@ When deploying Java in containerized environments, improper memory configuration
 *   **Decoupling Risks:** Hard-coding heap sizes (e.g., via `-Xmx`) without considering container limits can lead to memory mismatches. If the JVM ignores container boundaries, it may trigger cgroups OOM-Kills, causing the kernel to terminate the application.
 *   **Off-Heap Considerations:** Container-aware Java calculates heap size as a percentage of available container memory. It is essential to account for off-heap usage (e.g., metaspace, thread stacks, native buffers) to ensure the total memory footprint does not exceed the container limit.
 *   **Resource Underutilization:** Inadequate configuration can lead to inefficient resource usage, where the JVM reserves significantly less memory than the container provides, leaving allocated infrastructure resources idle.
-*   **Best Practices:**
+*   **Non-container aware allocation:** Allocating a certain percentage for container, but not benchmarking/tracking non-container aware components inside the Java application. For example, jemalloand glibc's malloc that are below the JVM and are both not container aware.
+
+**Best Practices:**
     *   Prioritize container-aware JVM settings over manual heap overrides to allow for dynamic scaling.
     *   Benchmark application memory usage to determine the optimal ratio between heap and off-heap requirements.
     *   Avoid configurations that ignore cgroup limits, as these bypass the self-tuning capabilities of modern JDKs.
+    *   Track specific percentage utilization for the application.
+    *   Use limits in the container settings to make sure Java won't use host details.
+    *   Understand Quality of Service (QoS) and how it impacts (Java) deployments.
