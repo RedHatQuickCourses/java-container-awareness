@@ -278,18 +278,18 @@
 <h2 id="_current_fully_container_aware_java"><a class="anchor" href="#_current_fully_container_aware_java"></a>Current Fully Container-Aware Java</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Today, container awareness is the standard expectation for cloud-native Java development for Java 8u372+, 11.0.16, 17, 21, and 25. The transition from unaware to fully container-aware has considerably streamlined the DevOps workflow:</p>
+<p>Today, container awareness is the standard expectation for cloud-native Java development for Java 8u372+, 11.0.16+, 17+ such as 21 and 25. The transition from unaware to fully container-aware has considerably streamlined the DevOps workflow:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Self-Tuning:</strong> Applications can now adjust their memory footprint dynamically to fit within Kubernetes/OpenShift resource requests and limits without manual intervention.</p>
+<p><strong>Self-Tuning:</strong> Applications can now adjust their memory footprint dynamically to fit within Kubernetes/OpenShift resource requests and limits only requiring restart.</p>
 </li>
 <li>
 <p><strong>Improved Stability:</strong> By aligning the JVM&#8217;s view of resources with the kernel-enforced limits, the frequency of container restarts due to resource exhaustion is drastically reduced.</p>
 </li>
 <li>
-<p><strong>Reduced Configuration Overhead:</strong> Developers do not spend time tuning CPU values and  heap limits (<code>-Xmx</code>) limits, as the JVM can now effectively derive them from the container environment deployed by an orchestrator.</p>
+<p><strong>Reduced Configuration Overhead:</strong> Developers do not spend time tuning CPU values and  heap limits (<code>-Xmx</code>), as the JVM can now effectively derive them from the container environment deployed by an orchestrator via percentage.</p>
 </li>
 </ul>
 </div>
