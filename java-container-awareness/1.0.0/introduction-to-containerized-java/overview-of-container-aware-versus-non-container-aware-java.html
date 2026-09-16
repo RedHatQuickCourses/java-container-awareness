@@ -222,7 +222,8 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>In the early days of containerization, Java applications often struggled to coexist with container runtimes like Docker and Kubernetes. This friction stemmed from a fundamental mismatch: the Java Virtual Machine (JVM) was designed to query the host operating system for resource availability, while containers rely on control groups (cgroups) to impose artificial resource constraints.</p>
+<p>Before containerization and container awareness, Java applications more often than not would struggled to coexist within its container limits.
+This friction stemmed from a fundamental mismatch: the Java Virtual Machine (JVM) was designed to query the host operating system for resource availability, while containers rely on control groups (cgroups) to impose different resource constraints.</p>
 </div>
 </div>
 </div>
@@ -276,13 +277,13 @@
 <p>In a non-container-aware environment, if you deploy a Java application with a default heap size (e.g., <code>-Xmx</code> not explicitly defined) into a container with a 1GB limit, the JVM might inspect the host&#8217;s 64GB of RAM and attempt to allocate a heap significantly larger than 1GB.</p>
 </div>
 <div class="paragraph">
-<p>When the application tries to consume this memory, the container runtime’s kernel-level cgroup enforcement triggers an <strong>Out-of-Memory (OOM) Kill</strong>. The process is terminated abruptly because it breached the container&#8217;s allowed boundary, despite the JVM "thinking" it had plenty of memory available.</p>
+<p>When the application tries to consume this memory, the container runtime’s kernel-level cgroup enforcement triggers an <strong>Out-of-Memory (OOM) Kill</strong>. The process is terminated abruptly because it breached the container&#8217;s allowed boundary, despite the JVM assuming (and using) it had plenty of memory available.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_container_aware_java_the_shift_with_jdk_8146115"><a class="anchor" href="#_container_aware_java_the_shift_with_jdk_8146115"></a>Container-Aware Java: The Shift with JDK-8146115</h3>
 <div class="paragraph">
-<p>The industry shift occurred with the implementation of <strong>JDK-8146115</strong>, starting with Java 8u191 and continuing through all modern LTS releases (e.g., Java 11, 17, 21). This update enabled the JVM to "read" the <code>cgroup</code> filesystem directly.</p>
+<p>The industry shift occurred with the implementation of <strong>JDK-8146115</strong>, starting with Java 8u191 and continuing through all modern LTS releases (e.g., Java 11, 17, 21). This update enabled the JVM to detect its container <code>cgroup</code> filesystem directly.</p>
 </div>
 <div class="paragraph">
 <p>When running a container-aware JVM, the process performs the following:</p>
@@ -309,10 +310,10 @@
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Simplified Configuration:</strong> Developers no longer need to hardcode <code>-Xmx</code> values that perfectly match every environment&#8217;s resource limit. The JVM automatically adapts to the <code>limits</code> defined in your Kubernetes deployment manifests.</p>
+<p><strong>Simplified Configuration:</strong> Developers no longer need to hardcode <code>-Xmx</code> values that perfectly match every environment&#8217;s resource limit. The JVM automatically adapts to the <code>limits</code> defined from the container/cgroups limits from the deployment manifests and uses percentage as reference.</p>
 </li>
 <li>
-<p><strong>Deterministic Behavior:</strong> By aligning the JVM&#8217;s view of resources with the container&#8217;s reality, you reduce the likelihood of "invisible" OOM kills that occur when the JVM over-allocates memory.</p>
+<p><strong>Deterministic Behavior:</strong> By aligning the JVM&#8217;s view of resources with the container&#8217;s reality, you reduce the likelihood OOM kills that occur when the JVM allocates memory, given it won&#8217;t over-allocate (above the container size).</p>
 </li>
 <li>
 <p><strong>Operational Efficiency:</strong> Container-aware Java allows DevOps teams to set resource requests and limits in OpenShift with the confidence that the application will scale its internal memory management to fit the provided space.</p>
@@ -327,7 +328,8 @@
 </td>
 <td class="content">
 <div class="paragraph">
-<p>While container awareness resolves around JVM limits association with the container size, such as heap and threads, it does not necessarily account for <strong>off-heap</strong> memory (e.g., metaspace, code cache, direct buffers, or native memory). Therefore, even with container aware Java, one must benchmark your application to ensure that the ratio of heap to off-heap memory is sufficient resources are allocated to avoid container-level OOMkills events.</p>
+<p>While container awareness resolves around JVM limits association with the container size, such as memory (heap) and CPU (for thread calculation). It does not necessarily account for full memory utilization, especially <strong>off-heap</strong> memory (e.g., metaspace, code cache, direct buffers, or native memory).
+Therefore, even with container aware Java, one must benchmark your application to ensure that the ratio of heap to off-heap memory is sufficient resources are allocated to avoid OOMkills events</p>
 </div>
 </td>
 </tr>
