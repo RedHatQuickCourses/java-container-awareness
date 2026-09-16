@@ -222,10 +222,10 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>In modern Java applications, memory management extends beyond the Java Heap. While the Heap is responsible for storing object instances, the <strong>Off-Heap</strong> memory—encompassing Metaspace, Code Cache, Thread stacks, and Direct ByteBuffers—is critical for the stability of containerized deployments.</p>
+<p>In current Java applications (Java 8+), memory management extends beyond the Java Heap. While the Heap is responsible for storing object instances, the <strong>Off-Heap</strong> memory—encompassing Metaspace, Code Cache, Thread stacks, and Direct ByteBuffers. Those are critical for the stability of containerized deployments.</p>
 </div>
 <div class="paragraph">
-<p>When a Java application runs in an OpenShift or Kubernetes container, it is subject to strict Linux Control Group (cgroup) memory limits. If the sum of the Heap and Off-Heap memory exceeds these container limits, the container runtime will trigger an <code>OOMKill</code> (Out of Memory Kill), regardless of how much space is left in the Java Heap.</p>
+<p>When a Java application runs in a container, it is subject to strict Linux Control Group (cgroup) memory limits. If the sum of the Heap and Off-Heap memory exceeds the container limit, the container runtime will trigger an <code>OOMKill</code> (Out of Memory Kill).</p>
 </div>
 </div>
 </div>
@@ -233,7 +233,7 @@
 <h2 id="_the_decoupling_risk"><a class="anchor" href="#_the_decoupling_risk"></a>The Decoupling Risk</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Historically, developers focused exclusively on <code>-Xmx</code> (maximum heap size). However, in a container, the JVM sees the container&#8217;s memory limit. If you configure the Heap to consume too large a percentage of the container&#8217;s limit, you leave insufficient headroom for Off-Heap requirements.</p>
+<p>Historically, developers focused exclusively on <code>-Xmx</code> (maximum heap size). However, in a container, the JVM sees the container&#8217;s memory limit. If you configure the Heap to consume too large a percentage of the container&#8217;s limit, you leave insufficient headroom for Off-Heap requirements. Therefore a percentage approach is used:</p>
 </div>
 <div class="paragraph">
 <p>Key Off-Heap components that must be accounted for include:</p>
@@ -257,7 +257,7 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_best_practices_for_configuration"><a class="anchor" href="#_best_practices_for_configuration"></a>Best Practices for Configuration</h2>
+<h2 id="_best_practices"><a class="anchor" href="#_best_practices"></a>Best Practices</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>To prevent <code>OOMKills</code>, you must treat the container&#8217;s memory limit as the total capacity for both Heap and Off-Heap.</p>
@@ -265,17 +265,17 @@
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>Calculate the Total Footprint:</strong> Before setting heap percentages, perform load testing to determine the "baseline" Off-Heap usage of your application under peak load.</p>
+<p><strong>Calculate the Total Footprint:</strong> Before setting heap percentages, perform load testing to determine the baseline Off-Heap usage of your application under peak load.</p>
 </li>
 <li>
-<p><strong>Use Relative Sizing:</strong> Instead of fixed <code>-Xmx</code> values, leverage container-aware JVM flags that allow the heap to scale proportionally to the container limit.</p>
+<p><strong>Use Relative Sizing:</strong> Instead of fixed <code>-Xmx</code> values, JVM will already start with a percentage value that leverage container-aware JVM flags that allow the heap to scale proportionally to the container limit. Therefore, user can tune that value:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">-XX:MaxRAMPercentage=70.0</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Note: If your application is highly dependent on Off-Heap (e.g., uses large Direct Buffers or high thread counts), you should reduce this percentage to 50% or 60% to ensure enough "breathing room" for native memory allocations.</em></p>
+<p><em>Note: If your application is highly dependent on Off-Heap (e.g., uses large Direct Buffers or high thread counts), you should reduce this percentage to 50% or 60% to ensure enough spare space/breathing room for native memory allocations.</em></p>
 </div>
 </li>
 <li>
@@ -283,7 +283,7 @@
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Enable NMT in the container
--XX:NativeMemoryTracking=summary</code></pre>
+-XX:NativeMemoryTracking=summary (or detail)</code></pre>
 </div>
 </div>
 </li>
@@ -361,7 +361,7 @@ If you see "Native memory tracking is not enabled", you must enable it by adding
 </div>
 </li>
 <li>
-<p>Create a deployment configuration to enable NMT in the container:</p>
+<p>Create a deployment configuration to enable NMT in the container (example below will never work, it is just an example - you need an actual application):</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cat &gt; my-java-app.yaml &lt;&lt; EOF
@@ -387,7 +387,7 @@ spec:
           image: quay.io/hummingbird/openjdk:latest
 
           env:
-            - name: JAVA_TOOL_OPTIONS
+            - name: JAVA_OPTS_APPEND
               value: "-XX:NativeMemoryTracking=summary"
 EOF</code></pre>
 </div>
@@ -425,7 +425,7 @@ EOF</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre>sh-5.3$ jcmd 1 VM.native_memory summary
-Picked up JAVA_TOOL_OPTIONS: -XX:NativeMemoryTracking=summary
+Picked up JAVA_OPTS_APPEND: -XX:NativeMemoryTracking=summary
 1:
 
 Native Memory Tracking:
@@ -470,7 +470,7 @@ Total: reserved=33545316KB, committed=288676KB
 </div>
 </div>
 <div class="sect2">
-<h3 id="_step_2_simulate_constraint_pressure_fixme_as_per_lab"><a class="anchor" href="#_step_2_simulate_constraint_pressure_fixme_as_per_lab"></a>Step 2: Simulate Constraint Pressure (FIXME as per lab)</h3>
+<h3 id="_step_2_simulate_constraint_pressure"><a class="anchor" href="#_step_2_simulate_constraint_pressure"></a>Step 2: Simulate Constraint Pressure</h3>
 <div class="paragraph">
 <p>To ensure your configuration is resilient, verify that your application does not exceed the container limit.</p>
 </div>
@@ -485,7 +485,7 @@ Total: reserved=33545316KB, committed=288676KB
 </div>
 </li>
 <li>
-<p>Compare this value against your calculated Heap + Off-Heap usage. If your application&#8217;s <code>Total</code> committed memory (as seen in NMT) + <code>-Xmx</code> exceeds this limit, you must adjust your <code>MaxRAMPercentage</code> downward or increase the container&#8217;s memory request/limit in your OpenShift <code>DeploymentConfig</code>.</p>
+<p>Compare this value against your calculated Heap + Off-Heap usage. If your application&#8217;s <code>Total</code> committed memory (as seen in NMT) + heap usage exceeds this limit, one must adjust your <code>MaxRAMPercentage</code> downward or increase the container&#8217;s memory request/limit in OpenShift <code>Deployment</code> YAML.</p>
 </li>
 </ol>
 </div>
@@ -493,7 +493,23 @@ Total: reserved=33545316KB, committed=288676KB
 <div class="sect2">
 <h3 id="_troubleshooting_tip"><a class="anchor" href="#_troubleshooting_tip"></a>Troubleshooting Tip</h3>
 <div class="paragraph">
-<p>If you encounter <code>cgroup OOMKills</code> despite having a small Java Heap, use <code>jcmd</code> to identify if the <strong>Thread</strong> or <strong>Internal</strong> categories are consuming unexpected amounts of native memory. If so, investigate thread pool sizing or consider decreasing the <code>-Xss</code> (thread stack size) flag to reduce the memory footprint per thread.</p>
+<p>The following risks are possible on the deployment in orchestrators like Openshift 4:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>OOMKill</strong>: The full memory is above the container size or cgroups v2 detection is failing.</p>
+</li>
+<li>
+<p><strong>OOMException</strong>: Usually off-heap allocation or metaspace, not that if <code>ExitOnOutOfMemoryError</code> flag is enabled, so then the JVM will exit.</p>
+</li>
+<li>
+<p><strong>SIGTerm</strong>: In case communication is impacted or the JVM is unresponsive sigterm can kick in. That will be in the events.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If you encounter <code>cgroup OOMKills</code> despite having a small Java Heap, use <code>jcmd</code> to identify the category consuming unexpected amounts of native memory. From that, investigate off-heap components such as non-container aware libraries, thread pool sizing, and do an investigation from the off-heap size perspective.</p>
 </div>
 </div>
 </div>
