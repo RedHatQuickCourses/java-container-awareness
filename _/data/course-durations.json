@@ -1,11 +1,11 @@
 {
-  "totalSeconds": 3021,
+  "totalSeconds": 3024,
   "pageCount": 28,
   "pages": [
     {
       "module": "ROOT",
       "page": "index.adoc",
-      "seconds": 44
+      "seconds": 47
     },
     {
       "module": "LABENV",
