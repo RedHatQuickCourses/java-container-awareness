@@ -2,12 +2,12 @@
 :page-audio-src: managing-off-heap-memory-in-containerized-environments.wav
 :page-transcript-src: managing-off-heap-memory-in-containerized-environments.txt
 
-In modern Java applications, memory management extends beyond the Java Heap. While the Heap is responsible for storing object instances, the *Off-Heap* memory—encompassing Metaspace, Code Cache, Thread stacks, and Direct ByteBuffers—is critical for the stability of containerized deployments.
+In current Java applications (Java 8+), memory management extends beyond the Java Heap. While the Heap is responsible for storing object instances, the *Off-Heap* memory—encompassing Metaspace, Code Cache, Thread stacks, and Direct ByteBuffers. Those are critical for the stability of containerized deployments.
 
-When a Java application runs in an OpenShift or Kubernetes container, it is subject to strict Linux Control Group (cgroup) memory limits. If the sum of the Heap and Off-Heap memory exceeds these container limits, the container runtime will trigger an `OOMKill` (Out of Memory Kill), regardless of how much space is left in the Java Heap.
+When a Java application runs in a container, it is subject to strict Linux Control Group (cgroup) memory limits. If the sum of the Heap and Off-Heap memory exceeds the container limit, the container runtime will trigger an `OOMKill` (Out of Memory Kill).
 
 == The Decoupling Risk
-Historically, developers focused exclusively on `-Xmx` (maximum heap size). However, in a container, the JVM sees the container's memory limit. If you configure the Heap to consume too large a percentage of the container's limit, you leave insufficient headroom for Off-Heap requirements.
+Historically, developers focused exclusively on `-Xmx` (maximum heap size). However, in a container, the JVM sees the container's memory limit. If you configure the Heap to consume too large a percentage of the container's limit, you leave insufficient headroom for Off-Heap requirements. Therefore a percentage approach is used: 
 
 Key Off-Heap components that must be accounted for include:
 
@@ -16,25 +16,25 @@ Key Off-Heap components that must be accounted for include:
 * **Thread Stacks:** Each thread requires native memory; in applications with high thread counts, this can lead to significant memory consumption.
 * **Direct Buffers:** Used by NIO libraries and netty-based frameworks.
 
-== Best Practices for Configuration
+== Best Practices 
 To prevent `OOMKills`, you must treat the container's memory limit as the total capacity for both Heap and Off-Heap.
 
-1. **Calculate the Total Footprint:** Before setting heap percentages, perform load testing to determine the "baseline" Off-Heap usage of your application under peak load.
-2. **Use Relative Sizing:** Instead of fixed `-Xmx` values, leverage container-aware JVM flags that allow the heap to scale proportionally to the container limit.
+1. **Calculate the Total Footprint:** Before setting heap percentages, perform load testing to determine the baseline Off-Heap usage of your application under peak load.
+2. **Use Relative Sizing:** Instead of fixed `-Xmx` values, JVM will already start with a percentage value that leverage container-aware JVM flags that allow the heap to scale proportionally to the container limit. Therefore, user can tune that value:
 +
 [source,bash]
 ----
 -XX:MaxRAMPercentage=70.0
 ----
 +
-_Note: If your application is highly dependent on Off-Heap (e.g., uses large Direct Buffers or high thread counts), you should reduce this percentage to 50% or 60% to ensure enough "breathing room" for native memory allocations._
+_Note: If your application is highly dependent on Off-Heap (e.g., uses large Direct Buffers or high thread counts), you should reduce this percentage to 50% or 60% to ensure enough spare space/breathing room for native memory allocations._
 
 3. **Monitor Native Memory:** Use the Native Memory Tracking (NMT) feature to gain visibility into non-heap memory usage.
 +
 [source,bash]
 ----
 # Enable NMT in the container
--XX:NativeMemoryTracking=summary
+-XX:NativeMemoryTracking=summary (or detail)
 ----
 
 == Hands-on Activity: Analyzing Off-Heap Requirements
@@ -79,7 +79,7 @@ NOTE: If you see "Native memory tracking is not enabled", you must enable it by 
 oc delete deployment my-java-app
 ----
 
-. Create a deployment configuration to enable NMT in the container:
+. Create a deployment configuration to enable NMT in the container (example below will never work, it is just an example - you need an actual application):
 +
 [source,bash]
 ----
@@ -106,7 +106,7 @@ spec:
           image: quay.io/hummingbird/openjdk:latest
 
           env:
-            - name: JAVA_TOOL_OPTIONS
+            - name: JAVA_OPTS_APPEND
               value: "-XX:NativeMemoryTracking=summary"
 EOF
 ----
@@ -135,7 +135,7 @@ jcmd 1 VM.native_memory summary
 Examle output:
 ----
 sh-5.3$ jcmd 1 VM.native_memory summary 
-Picked up JAVA_TOOL_OPTIONS: -XX:NativeMemoryTracking=summary
+Picked up JAVA_OPTS_APPEND: -XX:NativeMemoryTracking=summary
 1:
 
 Native Memory Tracking:
@@ -164,7 +164,7 @@ Total: reserved=33545316KB, committed=288676KB
 * **Symbol:** Memory used for string interning.
 * **Thread:** Memory consumed by stack spaces.
 
-=== Step 2: Simulate Constraint Pressure (FIXME as per lab)
+=== Step 2: Simulate Constraint Pressure
 To ensure your configuration is resilient, verify that your application does not exceed the container limit.
 
 1. View the current cgroup memory limit for your container:
@@ -174,7 +174,13 @@ To ensure your configuration is resilient, verify that your application does not
 cat /sys/fs/cgroup/memory/memory.limit_in_bytes
 ----
 
-2. Compare this value against your calculated Heap + Off-Heap usage. If your application's `Total` committed memory (as seen in NMT) + `-Xmx` exceeds this limit, you must adjust your `MaxRAMPercentage` downward or increase the container's memory request/limit in your OpenShift `DeploymentConfig`.
+2. Compare this value against your calculated Heap + Off-Heap usage. If your application's `Total` committed memory (as seen in NMT) + heap usage exceeds this limit, one must adjust your `MaxRAMPercentage` downward or increase the container's memory request/limit in OpenShift `Deployment` YAML.
 
 === Troubleshooting Tip
-If you encounter `cgroup OOMKills` despite having a small Java Heap, use `jcmd` to identify if the **Thread** or **Internal** categories are consuming unexpected amounts of native memory. If so, investigate thread pool sizing or consider decreasing the `-Xss` (thread stack size) flag to reduce the memory footprint per thread.
+The following risks are possible on the deployment in orchestrators like Openshift 4:
+
+* **OOMKill**: The full memory is above the container size or cgroups v2 detection is failing.
+* **OOMException**: Usually off-heap allocation or metaspace, not that if `ExitOnOutOfMemoryError` flag is enabled, so then the JVM will exit.
+* **SIGTerm**: In case communication is impacted or the JVM is unresponsive sigterm can kick in. That will be in the events.
+
+If you encounter `cgroup OOMKills` despite having a small Java Heap, use `jcmd` to identify the category consuming unexpected amounts of native memory. From that, investigate off-heap components such as non-container aware libraries, thread pool sizing, and do an investigation from the off-heap size perspective.
