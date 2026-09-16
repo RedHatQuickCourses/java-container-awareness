@@ -233,7 +233,17 @@
 <h2 id="_how_java_detects_cpu_resources"><a class="anchor" href="#_how_java_detects_cpu_resources"></a>How Java Detects CPU Resources</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Modern JDKs (Java 8u191+ and all subsequent versions) use <strong>cgroups (Control Groups)</strong> to determine CPU availability. The JVM reads the cgroup filesystem to calculate the <code>ActiveProcessorCount</code>.</p>
+<p>Current JDKs (Java 8u191+ and all subsequent versions) use <strong>cgroups (Control Groups)</strong> to determine CPU availability. The JVM reads the cgroup filesystem to calculate the <code>ActiveProcessorCount</code>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>For cgroups v1, versions Java 8u191+ should be enough</p>
+</li>
+<li>
+<p>For cgroups v2, versions Java 8u372+ Java 11.0.16+ are required.</p>
+</li>
+</ul>
 </div>
 <div class="sect2">
 <h3 id="_the_calculation_logic"><a class="anchor" href="#_the_calculation_logic"></a>The Calculation Logic</h3>
@@ -455,7 +465,8 @@ sh-5.3$</pre>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-If <code>nproc</code> returns the node&#8217;s total CPUs (e.g., 64) but <code>active_processor_count</code> returns your container limit (e.g., 2), your application is correctly container-aware. The above output indicates the currently running application is not container aware.
+If you deploy a container with limits (not just requests, but limits) and <code>active_processor_count</code> (jcmd or java -XshowSettings:system) returns that limit, the application is correctly container-aware.
+Otherwise, in case it returns the host values, this indicates the application is likely not container aware (nproc shows host).
 </td>
 </tr>
 </table>
