@@ -8,7 +8,10 @@ If the JVM is not container-aware, it may incorrectly identify the host's total 
 
 == How Java Detects CPU Resources
 
-Modern JDKs (Java 8u191+ and all subsequent versions) use **cgroups (Control Groups)** to determine CPU availability. The JVM reads the cgroup filesystem to calculate the `ActiveProcessorCount`.
+Current JDKs (Java 8u191+ and all subsequent versions) use **cgroups (Control Groups)** to determine CPU availability. The JVM reads the cgroup filesystem to calculate the `ActiveProcessorCount`. 
+
+- For cgroups v1, versions Java 8u191+ should be enough
+- For cgroups v2, versions Java 8u372+ Java 11.0.16+ are required.
 
 ### The Calculation Logic
 When running inside a container, the JVM inspects two primary metrics from the cgroup controller to determine how many processors it should use:
@@ -140,4 +143,5 @@ sh-5.3$ nproc
 sh-5.3$ 
 ----
 
-NOTE: If `nproc` returns the node's total CPUs (e.g., 64) but `active_processor_count` returns your container limit (e.g., 2), your application is correctly container-aware. The above output indicates the currently running application is not container aware.
+NOTE: If you deploy a container with limits (not just requests, but limits) and `active_processor_count` (jcmd or java -XshowSettings:system) returns that limit, the application is correctly container-aware. 
+Otherwise, in case it returns the host values, this indicates the application is likely not container aware (nproc shows host).
