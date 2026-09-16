@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 3074,
+  "totalSeconds": 3076,
   "pageCount": 28,
   "pages": [
     {
@@ -40,7 +40,7 @@
     {
       "module": "container-resource-detection",
       "page": "understanding-jdk8146115-and-java-8u191-updates.adoc",
-      "seconds": 135
+      "seconds": 137
     },
     {
       "module": "container-resource-detection",

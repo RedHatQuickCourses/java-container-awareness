@@ -222,7 +222,7 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Before the introduction of specific container-aware updates, the Java Virtual Machine (JVM) lacked the ability to natively "see" the resource boundaries imposed by container runtimes. This caused significant operational friction in cloud-native environments.</p>
+<p>Before the introduction of specific container-aware updates, the Java Virtual Machine (JVM) lacked the ability to natively read the resource boundaries imposed by container runtimes. This caused significant operational friction in cloud-native environments.</p>
 </div>
 </div>
 </div>
@@ -323,7 +323,8 @@
 </tbody>
 </table>
 <div class="paragraph">
-<p>By aligning the JVM&#8217;s view of resources with the container orchestration layer, these updates eliminated the "decoupling" problem. Developers no longer need to manually synchronize <code>-Xmx</code> settings with pod resource limits, significantly simplifying the management of Java applications in Red Hat OpenShift and Kubernetes.</p>
+<p>By aligning the JVM&#8217;s view of resources with the container orchestration layer, these updates eliminated the decoupling problem (container not matching the Java&#8217;s heap size).
+Developers no longer need to manually synchronize <code>-Xmx</code> settings with pod resource limits, significantly simplifying the management of Java applications in Red Hat OpenShift and Kubernetes.</p>
 </div>
 </div>
 </div>
