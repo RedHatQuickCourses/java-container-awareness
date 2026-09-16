@@ -233,18 +233,18 @@
 <p><strong>Resource Underutilization:</strong> Inadequate configuration can lead to inefficient resource usage, where the JVM reserves significantly less memory than the container provides, leaving allocated infrastructure resources idle.</p>
 </li>
 <li>
-<p><strong>Best Practices:</strong></p>
-</li>
-<li>
-<p>Prioritize container-aware JVM settings over manual heap overrides to allow for dynamic scaling.</p>
-</li>
-<li>
-<p>Benchmark application memory usage to determine the optimal ratio between heap and off-heap requirements.</p>
-</li>
-<li>
-<p>Avoid configurations that ignore cgroup limits, as these bypass the self-tuning capabilities of modern JDKs.</p>
+<p><strong>Non-container aware allocation:</strong> Allocating a certain percentage for container, but not benchmarking/tracking non-container aware components inside the Java application. For example, jemalloand glibc&#8217;s malloc that are below the JVM and are both not container aware.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p><strong>Best Practices:</strong>
+    *   Prioritize container-aware JVM settings over manual heap overrides to allow for dynamic scaling.
+    *   Benchmark application memory usage to determine the optimal ratio between heap and off-heap requirements.
+    *   Avoid configurations that ignore cgroup limits, as these bypass the self-tuning capabilities of modern JDKs.
+    *   Track specific percentage utilization for the application.
+    *   Use limits in the container settings to make sure Java won&#8217;t use host details.
+    *   Understand Quality of Service (QoS) and how it impacts (Java) deployments.</p>
 </div>
 <nav class="pagination">
   <span class="prev"><a href="../container-resource-detection/determining-cpu-availability-within-containers.html">Determining CPU Availability Within Containers</a></span>
