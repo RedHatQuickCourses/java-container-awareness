@@ -233,10 +233,10 @@
 <p>Before 2019, Java (its JVM) would identify the system resources by querying the underlying operating system (OS) kernel via <code>/proc/meminfo</code> and <code>/proc/stat</code>. When a Java process runs on a physical server, it sees the total memory and CPU cores of the host.</p>
 </div>
 <div class="paragraph">
-<p>In other words, despite running inside a container, Java was unable to detect the container&#8217;s limits. It would only detect the host limits regardless of the deployment. Consequently, the user needed to set the heap limits (Xmx) manually as a size.</p>
+<p>In other words, despite running inside a container, Java was unable to detect the container&#8217;s limits. It would only detect the host limits regardless of the deployment. Consequently, the DevOps team needed to set the heap limits (Xmx) manually as a size and make sure those two were approapriate: container size and Java heap size.</p>
 </div>
 <div class="paragraph">
-<p>Later, evolving this concept, Java was it was encapsulated inside an initialization script: run-java.sh, which would then detect the container limits and deploy Java with those limits (script &#8594; container limits &#8594; Java). Java did not know about cgroups. It would just start, and a script would provide its max heap, Xmx.</p>
+<p>Later, evolving this concept, Java was it was encapsulated inside an initialization script: run-java.sh, which would then detect the container limits and deploy Java with those limits (script &#8594; container limits &#8594; Java). Java did not know about cgroups. It would just start, and the initialization script would provide its max heap, Xmx, and CPU limits.</p>
 </div>
 </div>
 </div>
@@ -260,7 +260,7 @@
 </ol>
 </div>
 <div class="paragraph">
-<p>Containers achieve isolation through <strong>Control Groups (cgroups)</strong>, which is a Linux kernel feature that limits, accounts for, and isolates the resource usage of a collection of processes. Before 2019, Java was not cgroup-aware when running inside a container, so the JVM would still attempt to query the host&#8217;s total resources rather than the container&#8217;s restricted limits. This created a dangerous "mismatch" where the JVM believed it had access to gigabytes of host RAM, leading to:</p>
+<p>Containers achieve isolation through <strong>Control Groups (cgroups)</strong>, which is a Linux kernel feature that limits, accounts for, and isolates the resource usage of a collection of processes. Before 2019, Java was not cgroup-aware when running inside a container, so the JVM would still attempt to query the host&#8217;s total resources rather than the container&#8217;s restricted limits. This created a mismatch where the JVM believed it had access to gigabytes of host RAM, leading to:</p>
 </div>
 <div class="ulist">
 <ul>
