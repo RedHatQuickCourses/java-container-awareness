@@ -233,9 +233,12 @@
 <p><strong>CPU Availability:</strong> The JVM detects the number of CPU cores allocated to the container, preventing over-provisioning and ensuring efficient thread management within the containerized environment.</p>
 </li>
 <li>
-<p><strong>Operational Benefits:</strong> Accurate detection prevents "out-of-memory" errors caused by the JVM incorrectly defaulting to host-level physical memory rather than container-specific limits.</p>
+<p><strong>Operational Benefits:</strong> Accurate detection prevents OutOfMemory and OutOfMemoryKill  caused by the JVM incorrectly defaulting to host-level physical memory rather than container-specific limits.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>In simple terms: don&#8217;t not worry about the Xmx directly. Worry about the correct percentage value to be set of heap vs off-heap.</p>
 </div>
 <nav class="pagination">
   <span class="prev"><a href="../introduction-to-containerized-java/importance-of-cgroup-detection-for-modern-deployments.html">Importance of cgroup detection for deployments</a></span>
