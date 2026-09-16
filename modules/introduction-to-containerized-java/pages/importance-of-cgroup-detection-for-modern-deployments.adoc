@@ -26,6 +26,8 @@ For a DevOps team, relying on container-aware Java simplifies the deployment pip
 *   **Standardize Images:** Use the same container image across development, testing, and production environments, where resource limits may vary significantly.
 *   **Predictable Scaling:** As you adjust memory limits in your Kubernetes manifest, the application automatically adapts its memory footprint without requiring a rebuild or manual configuration update.
 
+If before the users set Xmx and the container size, currently they just need to know the adequate percentage and the heap will adapt to the container size automatically at start up.
+
 [IMPORTANT]
 ====
 While cgroup detection prevents the JVM from over-allocating heap space by setting the Heap Percentage automatically and allowing the user to tune it, it does **not** manage off-heap memory (Metaspace, Code Cache, Thread stacks, etc.). Because the heap is only a portion of the total memory usage, administrators must still account for the non-heap overhead seperately. Failing to leave enough room for off-heap memory can still result in a cgroup OOMKill, even if the heap appears to be within the allowed percentage.
