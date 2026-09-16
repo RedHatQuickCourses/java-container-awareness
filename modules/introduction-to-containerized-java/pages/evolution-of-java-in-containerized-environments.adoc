@@ -10,7 +10,7 @@ Before 2019, Java (its JVM) would identify the system resources by querying the 
 
 In other words, despite running inside a container, Java was unable to detect the container's limits. It would only detect the host limits regardless of the deployment. Consequently, the user needed to set the heap limits (Xmx) manually as a size.
 
-Therefore, to solve this scenario, it was encapsulated inside an initialization script: run-java.sh, which would then detect the container limits and deploy Java with those limits (script -> container limits -> Java). Java didn't know about cgroups. It would just start, and someone would provide its max heap, Xmx.
+Later, evolving this concept, Java was it was encapsulated inside an initialization script: run-java.sh, which would then detect the container limits and deploy Java with those limits (script -> container limits -> Java). Java did not know about cgroups. It would just start, and a script would provide its max heap, Xmx.
 
 == JDK-8146115
 
@@ -28,11 +28,11 @@ Containers achieve isolation through **Control Groups (cgroups)**, which is a Li
 
 == Current Fully Container-Aware Java
 
-Today, container awareness is the standard expectation for cloud-native Java development for Java 8, 11, 17, 21, and 25. The transition from unaware to fully container-aware has considerably streamlined the DevOps workflow:
+Today, container awareness is the standard expectation for cloud-native Java development for Java 8u372+, 11.0.16, 17, 21, and 25. The transition from unaware to fully container-aware has considerably streamlined the DevOps workflow:
 
 *   **Self-Tuning:** Applications can now adjust their memory footprint dynamically to fit within Kubernetes/OpenShift resource requests and limits without manual intervention.
 *   **Improved Stability:** By aligning the JVM's view of resources with the kernel-enforced limits, the frequency of container restarts due to resource exhaustion is drastically reduced.
-*   **Reduced Configuration Overhead:** Developers do not spend time tuning CPU values and `-Xmx` limits, as the JVM can now effectively derive them from the container environment.
+*   **Reduced Configuration Overhead:** Developers do not spend time tuning CPU values and  heap limits (`-Xmx`) limits, as the JVM can now effectively derive them from the container environment deployed by an orchestrator.
 
-Understanding this evolution is crucial for any team moving toward microservices architectures. Container awareness provides a robust foundation that requires the development team (who handles the Java settings) and the Deployment team (who handles the container size) to 
-between JVM heap memory, off-heap memory, and the container's hard limits—a topic that remains a critical consideration for production-grade deployments.
+Understanding this evolution is important for any team moving toward microservices architectures. Container awareness provides a robust foundation that requires the development team (who handles the Java settings) and the Deployment team (who handles the container size) to 
+between JVM heap memory, off-heap memory, and the container's hard limits, which is a topic that remains a pivotal consideration for production-grade containerized deployments.
