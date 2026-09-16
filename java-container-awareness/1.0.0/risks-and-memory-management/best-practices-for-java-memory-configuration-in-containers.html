@@ -227,7 +227,7 @@
 <div class="ulist">
 <ul>
 <li>
-<p><code>Xmx</code> direct usage: in most cases, it is an anti-pattern. In other words, the manual strategy of defining absolute heap sizes (e.g., <code>-Xmx2g</code>) has become a deployment anti-pattern, because it decouples from the container size.</p>
+<p><code>Xmx</code> direct usage: (in most cases) is an anti-pattern. By default Java will have already percentage utilization inside a container. In other words, the manual strategy of defining absolute heap sizes (e.g., <code>-Xmx2g</code>) has become a deployment anti-pattern, because it decouples from the container size.</p>
 </li>
 <li>
 <p>JVM arguments directly at build time, rather than runtime. For example, the usage of JVM arguments hardcoded in a Containerfile (Dockerfile), rather than customizable in a deployment resource (YAML).</p>
@@ -354,7 +354,8 @@
 <td class="content">
 <div class="paragraph">
 <p>When using Red Hat OpenJDK images, the provided <code>run-java.sh</code> initialization script sets a specific <code>MaxRAMPercentage</code> percentage, currently at 80%. Previously, the MaxRAMPercentage was 50%. This value sets the Max Heap at 80% of the container size. The remainder goes to off-heap.
-Overriding the <code>MaxRAMPercentage</code> with a custom value is sufficient to customize the deployment, considering that 80% heap may not be adequate.</p>
+Overriding the <code>MaxRAMPercentage</code> with a custom value is sufficient to customize the deployment, considering that 80% heap may not be adequate.
+If the scripts run-java.sh is not used, so the default percentage (MaxRAMPercentage) will be 25% (for heap) so 75% for off-heap.</p>
 </div>
 </td>
 </tr>
@@ -375,7 +376,7 @@ Overriding the <code>MaxRAMPercentage</code> with a custom value is sufficient t
 <p><strong>Check <code>VM.info</code> file</strong>: Use Java Diagnostics (jcmd) to print all details of Java concerning containers.</p>
 </li>
 <li>
-<p><strong>Check <code>cgroups</code> usage</strong>: Use <code>cat /sys/fs/cgroup/memory/memory.stat</code> inside the container to see if the container is hitting its hard limit.</p>
+<p><strong>Check <code>cgroups</code> usage</strong>: Use <code>cat /sys/fs/cgroup/memory/memory.stat</code> inside the container to see if the container is hitting its hard limit. This file is usually used for Prometheus/cadAdvisor output scrapping.</p>
 </li>
 <li>
 <p><strong>Analyze Native Memory Tracking (NMT)</strong>: Enable <code>-XX:NativeMemoryTracking=summary</code> to identify if the memory leak is occurring in the heap or in native memory segments (e.g., excessive thread allocation).</p>
