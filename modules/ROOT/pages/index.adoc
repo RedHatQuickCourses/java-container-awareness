@@ -7,8 +7,8 @@
 
 Course Title:  Java Container Awareness
 
-Course description: This course provides a practical introduction to running Java applications in containerized environments, with a focus on resource detection and memory management.
-Learn how Java applications integrate with Kubernetes and OpenShift and how to identify common runtime and resource-related issues.
+Course description: This course provides a practical introduction to running Java applications as a fully containerized application, with a focus on resource detection and memory management inside a container.
+Learn how Java applications containerized applications integrate with Kubernetes and OpenShift and how to identify common runtime and resource-related issues.
 Explore essential troubleshooting techniques and tools for containerized Java workloads.
 
 Duration: 2 Hours
@@ -33,7 +33,7 @@ Duration: 2 Hours
 This course assumes that you have the following prior experience:
 
 * Experience with Java (in general) and heap (off-heap) allocation
-* Experience with Openshift in terms of deployment, not necessarily with Operators
+* Experience with container orchestrators, such as Openshift in terms of deployment, not necessarily with Operators
 
 NOTE: **Use of Artificial Intelligence:**
-This publication contains content or media that is generated or assisted by AI tools. All the Training deliverables have primarily human authorship, and all content was reviewed by a human domain expert.
+This publication contains content or media that is generated or assisted by AI tools. The Training deliverables have primarily human authorship, and all content was reviewed by an human domain expert.
