@@ -248,13 +248,27 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_why_decoupling_is_an_anti_pattern"><a class="anchor" href="#_why_decoupling_is_an_anti_pattern"></a>Why Decoupling is an Anti-Pattern</h2>
+<h2 id="_build_the_container_with_xmx_manual_settings_is_an_anti_pattern"><a class="anchor" href="#_build_the_container_with_xmx_manual_settings_is_an_anti_pattern"></a>Build the container with Xmx (manual settings is an Anti-Pattern</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Decoupling occurs when the JVM’s memory configuration ignores the orchestrator’s resource constraints. This makes the application "blind" to the environment it resides in.</p>
+<p>Building an application with JVM settings hard coded is an anti-pattnern. That&#8217;s because a change on the JVM flag would require a new build, which breaks the main idea of Kubernetes.</p>
 </div>
 <div class="paragraph">
-<p>Modern Java versions (Java 8u191+, Java 11+) are designed to be container-aware, meaning they automatically derive memory settings from cgroups. Overriding this by hardcoding heap values removes the benefits of this feature, essentially reverting the JVM to a "legacy" mode that is unaware of its surroundings.</p>
+<p>In other words, baking JVM configurations directly into an application artificat is an anti-pattern that severely limits the flexibility of the application directly and impacts its deployment.</p>
+</div>
+<div class="paragraph">
+<p>For Red Hat&#8217;s OpenJDK containers, the run-java.sh allows <code>JAVA_OPTS</code> and <code>JAVA_OPTS_APPEND</code> environment variables that allow the user to set JVM flags, including MaxRAM Percentage and Garbage collector.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_decoupling_is_an_anti_pattern"><a class="anchor" href="#_decoupling_is_an_anti_pattern"></a>Decoupling is an Anti-Pattern</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Decoupling occurs when the JVM’s memory configuration ignores the orchestrator’s resource constraints. This makes the application blind to the environment it resides in.</p>
+</div>
+<div class="paragraph">
+<p>Modern Java versions (Java 8u191+, Java 11+) are designed to be container-aware, meaning they automatically derive memory settings from cgroups. Overriding this by hardcoding heap values removes the benefits of this feature, essentially reverting the JVM to a legacy mode that is non-container aware  of its surroundings.</p>
 </div>
 </div>
 </div>
@@ -262,12 +276,12 @@
 <h2 id="_best_practices_the_percentage_based_approach"><a class="anchor" href="#_best_practices_the_percentage_based_approach"></a>Best Practices: The Percentage-Based Approach</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>To avoid decoupling, the recommendation is to shift from absolute values (<code>-Xmx</code>) to relative values. By using flags like <code>-XX:MaxRAMPercentage</code>, the JVM maintains a "coupled" relationship with the container:</p>
+<p>To avoid decoupling, the recommendation is to shift from absolute values (<code>-Xmx</code>) to relative values. The percentage already comes by default and the user can tune that via <code>-XX:MaxRAMPercentage</code>, the JVM maintains a coupled relationship with the container:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Dynamic Changes:</strong> As you increase the memory limit of your OpenShift or Kubernetes pod, the JVM heap will not automatically adjust to maintain the defined percentage. That&#8217;s because the JVM only detects the limits once when it starts and therefore needs to fully restart to detect its limits.</p>
+<p><strong>Dynamic Changes:</strong> As you increase the memory limit of your OpenShift or Kubernetes pod, the JVM heap will not automatically adjust to maintain the defined percentage. That&#8217;s because the JVM only detects the limits once when it starts and therefore needs to fully restart to detect its limits, so pod restart/JVM start are required.</p>
 </li>
 <li>
 <p><strong>Safety Margin:</strong> Leaving a percentage of the container memory free (i.e., not allocating 100% to the heap) provides the necessary space for off-heap components—such as Netty buffers, thread stacks, and Metaspace—preventing cgroup-level OOMKills.</p>
