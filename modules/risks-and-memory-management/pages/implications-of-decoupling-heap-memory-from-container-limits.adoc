@@ -11,15 +11,22 @@ Before Java became fully container-aware, it was common practice to explicitly d
 *   **Resource Underutilization:** If the `-Xmx` is set significantly lower than the container limit, the application cannot scale its memory usage to handle increased load, even if the container has plenty of headroom. This results in inefficient resource allocation and potential `OutOfMemoryException` (OOME) errors within the JVM, despite the container appearing to have available memory.
 *   **Off-heap limits:** DevOps teams/developers may often focus exclusively on the heap. However, native memory (off-heap) usage is not governed by `Xmx`, although `Xmx` caps the heap limit. The JVM is a combination of both heap and off-heap, and both segments together potentially cause the combined memory pressure to breach the container's hard limit.
 
-== Why Decoupling is an Anti-Pattern
-Decoupling occurs when the JVM’s memory configuration ignores the orchestrator’s resource constraints. This makes the application "blind" to the environment it resides in. 
+== Build the container with Xmx (manual settings is an Anti-Pattern
+Building an application with JVM settings hard coded is an anti-pattnern. That's because a change on the JVM flag would require a new build, which breaks the main idea of Kubernetes.
 
-Modern Java versions (Java 8u191+, Java 11+) are designed to be container-aware, meaning they automatically derive memory settings from cgroups. Overriding this by hardcoding heap values removes the benefits of this feature, essentially reverting the JVM to a "legacy" mode that is unaware of its surroundings.
+In other words, baking JVM configurations directly into an application artificat is an anti-pattern that severely limits the flexibility of the application directly and impacts its deployment.
+
+For Red Hat's OpenJDK containers, the run-java.sh allows `JAVA_OPTS` and `JAVA_OPTS_APPEND` environment variables that allow the user to set JVM flags, including MaxRAM Percentage and Garbage collector.
+
+== Decoupling is an Anti-Pattern
+Decoupling occurs when the JVM’s memory configuration ignores the orchestrator’s resource constraints. This makes the application blind to the environment it resides in.
+
+Modern Java versions (Java 8u191+, Java 11+) are designed to be container-aware, meaning they automatically derive memory settings from cgroups. Overriding this by hardcoding heap values removes the benefits of this feature, essentially reverting the JVM to a legacy mode that is non-container aware  of its surroundings.
 
 == Best Practices: The Percentage-Based Approach
-To avoid decoupling, the recommendation is to shift from absolute values (`-Xmx`) to relative values. By using flags like `-XX:MaxRAMPercentage`, the JVM maintains a "coupled" relationship with the container:
+To avoid decoupling, the recommendation is to shift from absolute values (`-Xmx`) to relative values. The percentage already comes by default and the user can tune that via `-XX:MaxRAMPercentage`, the JVM maintains a coupled relationship with the container:
 
-*   **Dynamic Changes:** As you increase the memory limit of your OpenShift or Kubernetes pod, the JVM heap will not automatically adjust to maintain the defined percentage. That's because the JVM only detects the limits once when it starts and therefore needs to fully restart to detect its limits.
+*   **Dynamic Changes:** As you increase the memory limit of your OpenShift or Kubernetes pod, the JVM heap will not automatically adjust to maintain the defined percentage. That's because the JVM only detects the limits once when it starts and therefore needs to fully restart to detect its limits, so pod restart/JVM start are required.
 *   **Safety Margin:** Leaving a percentage of the container memory free (i.e., not allocating 100% to the heap) provides the necessary space for off-heap components—such as Netty buffers, thread stacks, and Metaspace—preventing cgroup-level OOMKills.
 
 [TIP]
