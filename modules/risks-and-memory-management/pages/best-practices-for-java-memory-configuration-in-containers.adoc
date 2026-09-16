@@ -4,7 +4,7 @@
 
 As Java has evolved to be flexible and container-aware, some practices could be considered anti-patterns, such as:
 
-*   `Xmx` direct usage: in most cases, it is an anti-pattern. In other words, the manual strategy of defining absolute heap sizes (e.g., `-Xmx2g`) has become a deployment anti-pattern, because it decouples from the container size.
+*   `Xmx` direct usage: (in most cases) is an anti-pattern. By default Java will have already percentage utilization inside a container. In other words, the manual strategy of defining absolute heap sizes (e.g., `-Xmx2g`) has become a deployment anti-pattern, because it decouples from the container size.
 *   JVM arguments directly at build time, rather than runtime. For example, the usage of JVM arguments hardcoded in a Containerfile (Dockerfile), rather than customizable in a deployment resource (YAML).
 
 When the JVM is unaware of its container boundaries, it will default to host-level metrics, leading to resource contention, poor performance, or premature `cgroups` OOM-Kills.
@@ -56,6 +56,7 @@ Ensure your Pod resource requests and limits are configured to support your Java
 ====
 When using Red Hat OpenJDK images, the provided `run-java.sh` initialization script sets a specific `MaxRAMPercentage` percentage, currently at 80%. Previously, the MaxRAMPercentage was 50%. This value sets the Max Heap at 80% of the container size. The remainder goes to off-heap.
 Overriding the `MaxRAMPercentage` with a custom value is sufficient to customize the deployment, considering that 80% heap may not be adequate. 
+If the scripts run-java.sh is not used, so the default percentage (MaxRAMPercentage) will be 25% (for heap) so 75% for off-heap.
 ====
 
 == Troubleshooting Resource Constraints
@@ -63,6 +64,6 @@ Overriding the `MaxRAMPercentage` with a custom value is sufficient to customize
 If your application is experiencing `OutOfMemoryException` or being killed by the container orchestrator, analyze the environment with the following diagnostic flow:
 
 1.  **Check `VM.info` file**: Use Java Diagnostics (jcmd) to print all details of Java concerning containers. 
-2.  **Check `cgroups` usage**: Use `cat /sys/fs/cgroup/memory/memory.stat` inside the container to see if the container is hitting its hard limit.
+2.  **Check `cgroups` usage**: Use `cat /sys/fs/cgroup/memory/memory.stat` inside the container to see if the container is hitting its hard limit. This file is usually used for Prometheus/cadAdvisor output scrapping.
 3.  **Analyze Native Memory Tracking (NMT)**: Enable `-XX:NativeMemoryTracking=summary` to identify if the memory leak is occurring in the heap or in native memory segments (e.g., excessive thread allocation).
 4.  **Benchmark**: Always performance-test with a memory profiler before finalizing your percentage values to ensure the off-heap headroom is sufficient for peak load.
