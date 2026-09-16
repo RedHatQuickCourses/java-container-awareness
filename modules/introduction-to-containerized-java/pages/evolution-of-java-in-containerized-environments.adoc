@@ -8,9 +8,9 @@ The landscape of Java application deployment has shifted dramatically with the a
 
 Before 2019, Java (its JVM) would identify the system resources by querying the underlying operating system (OS) kernel via `/proc/meminfo` and `/proc/stat`. When a Java process runs on a physical server, it sees the total memory and CPU cores of the host. 
 
-In other words, despite running inside a container, Java was unable to detect the container's limits. It would only detect the host limits regardless of the deployment. Consequently, the user needed to set the heap limits (Xmx) manually as a size.
+In other words, despite running inside a container, Java was unable to detect the container's limits. It would only detect the host limits regardless of the deployment. Consequently, the DevOps team needed to set the heap limits (Xmx) manually as a size and make sure those two were approapriate: container size and Java heap size.
 
-Later, evolving this concept, Java was it was encapsulated inside an initialization script: run-java.sh, which would then detect the container limits and deploy Java with those limits (script -> container limits -> Java). Java did not know about cgroups. It would just start, and a script would provide its max heap, Xmx.
+Later, evolving this concept, Java was it was encapsulated inside an initialization script: run-java.sh, which would then detect the container limits and deploy Java with those limits (script -> container limits -> Java). Java did not know about cgroups. It would just start, and the initialization script would provide its max heap, Xmx, and CPU limits.
 
 == JDK-8146115
 
@@ -21,7 +21,7 @@ Instead of looking at the host's total resources, the JVM was updated to inspect
 1.  **Read Container Memory Limits:** Automatically calculate appropriate initial and maximum heap sizes (`-Xmx` and `-Xms`) based on the specific container memory constraints.
 2.  **Detect CPU Availability:** Properly identify the number of CPU shares or quotas allocated to the container, allowing the garbage collector and internal thread pools to scale their concurrency appropriately.
 
-Containers achieve isolation through **Control Groups (cgroups)**, which is a Linux kernel feature that limits, accounts for, and isolates the resource usage of a collection of processes. Before 2019, Java was not cgroup-aware when running inside a container, so the JVM would still attempt to query the host's total resources rather than the container's restricted limits. This created a dangerous "mismatch" where the JVM believed it had access to gigabytes of host RAM, leading to:
+Containers achieve isolation through **Control Groups (cgroups)**, which is a Linux kernel feature that limits, accounts for, and isolates the resource usage of a collection of processes. Before 2019, Java was not cgroup-aware when running inside a container, so the JVM would still attempt to query the host's total resources rather than the container's restricted limits. This created a mismatch where the JVM believed it had access to gigabytes of host RAM, leading to:
 
 *   **OOMKills:** The JVM would attempt to allocate heap memory based on host capacity, triggering the container orchestrator to kill the process for exceeding its cgroup memory limit.
 *   **Performance Degradation:** The JVM would size its internal thread pools (e.g., ForkJoinPool) based on the total physical CPU cores of the host, leading to excessive context switching and performance bottlenecks in environments where the container was throttled, given the container likely has different CPU limits.
