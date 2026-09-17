@@ -292,6 +292,46 @@
 <div class="paragraph">
 <p>Specifically the default OpenJDK container image, the default ENTRYPOINT will be run-java.sh, which is a script that provides default settings, such as ParallelGC as expected GC, but also environment virables that can be used at runtime:</p>
 </div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Environment Variable</th>
+<th class="tableblock halign-left valign-top">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>JAVA_OPTS</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Main option, which includes default settings - can be used to replace them</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>JAVA_OPTS_APPEND</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Append option, can be used to complement the main ones</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GC_COLLECTOR</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used for GC collector</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>JAVA_TOOL_OPTIONS</code> is not from the run-java.sh and should be avoided, it will be used for any Java environment variable, including jcmd itself:</p>
+</div>
+<div class="listingblock">
+<div class="title">Example: Why JAVA_TOOL_OPTIONS should be avoided</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ export JAVA_TOOL_OPTIONS="EXAMPLE"
+$ openjdk/app-injection$ jcmd
+Picked up JAVA_TOOL_OPTIONS: EXAMPLE
+Unrecognized option: EXAMPLE
+Error: Could not create the Java Virtual Machine.
+Error: A fatal exception has occurred. Program will exit.</code></pre>
+</div>
+</div>
 <div class="paragraph">
 <p>For a deep dive into how these changes specifically affect Java runtimes specifically for cgroups v2, review the scenarios outlined in the following developer article:</p>
 </div>

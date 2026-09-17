@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 3613,
+  "totalSeconds": 3625,
   "pageCount": 28,
   "pages": [
     {
@@ -30,7 +30,7 @@
     {
       "module": "introduction-to-containerized-java",
       "page": "importance-of-cgroup-detection-for-modern-deployments.adoc",
-      "seconds": 182
+      "seconds": 194
     },
     {
       "module": "container-resource-detection",
