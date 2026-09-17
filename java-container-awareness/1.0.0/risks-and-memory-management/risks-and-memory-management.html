@@ -262,6 +262,15 @@
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p><strong>Java ENTRYPOINT Practices:</strong></p>
+</div>
+<div class="paragraph">
+<p>Default OpenJDK container uses run-java.sh as ENTRYPOINT, this has several implications:
+* MAXRAMPercentage is set at 80%
+* ParallelGC is the default container (regardless of CPU)
+* Environment variables: <code>JAVA_OPTS</code>, <code>JAVA_OPTS_APPEND</code> is the default container (regardless of CPU)</p>
+</div>
 <nav class="pagination">
   <span class="prev"><a href="../container-resource-detection/determining-cpu-availability-within-containers.html">Determining CPU Availability Within Containers</a></span>
   <span class="next"><a href="implications-of-decoupling-heap-memory-from-container-limits.html">Implications of Decoupling Heap Memory from Container Limits</a></span>
