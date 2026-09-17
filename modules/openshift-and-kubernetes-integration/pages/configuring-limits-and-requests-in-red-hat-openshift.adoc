@@ -97,8 +97,11 @@ oc rsh <pod-name>
 +
 [source,bash]
 ----
-cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us
+$ cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us
 # This will return 100000 (100ms), confirming the 1000m CPU limit.
+$ jcmd VM.info
+...
+active_processor_count: 1 <-- shows 1 CPU
 ----
 
 4.  **Observe Java's internal detection** of these limits:
