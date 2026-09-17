@@ -40,6 +40,13 @@ Transitioning to container-aware Java is not merely a technical optimization; it
 * **Deterministic Behavior:** By aligning the JVM's view of resources with the container's reality, you reduce the likelihood OOM kills that occur when the JVM allocates memory, given it won't over-allocate (above the container size).
 * **Operational Efficiency:** Container-aware Java allows DevOps teams to set resource requests and limits in OpenShift with the confidence that the application will scale its internal memory management to fit the provided space.
 
+The default value of `MaxRAMPercentage` is 25% for upstream deployment, however Red Hat build of OpenJDK will allowtaking advantage of run-java.sh will have the following impacts:
+
+*The JVM achieves container awareness (memory and CPU).
+* The heap will be calculated at 50% of the container size (not the host). Later images will default to 80%.
+*The user can use JAVA_OPTS and other environment variables from run-java.sh, such as `JAVA_OPTS`, `JAVA_OPTS_APPEND`, `GC_MAX_METASPACE_SIZE`.
+
+
 [IMPORTANT]
 ====
 While container awareness resolves around JVM limits association with the container size, such as memory (heap) and CPU (for thread calculation). It does not necessarily account for full memory utilization, especially *off-heap* memory (e.g., metaspace, code cache, direct buffers, or native memory). 
