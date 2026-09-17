@@ -313,13 +313,21 @@
 <td class="tableblock halign-left valign-top"><p class="tableblock">Append option, can be used to complement the main ones</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GC_COLLECTOR</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Used for GC collector</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GC_CONTAINER_OPTIONS</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used for GC collector to be used.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GC_MAX_METASPACE_SIZE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The maximum metaspace size.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GC_METASPACE_SIZE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The initial metaspace size.</p></td>
 </tr>
 </tbody>
 </table>
 <div class="paragraph">
-<p><code>JAVA_TOOL_OPTIONS</code> is not from the run-java.sh and should be avoided, it will be used for any Java environment variable, including jcmd itself:</p>
+<p><code>JAVA_TOOL_OPTIONS</code> and <code>_JAVA_OPTIONS</code> are not inherit from the run-java.sh and should be avoided, it will be used for any Java environment variable, although can be used regardless of run-java.sh. Example with jcmd itself:</p>
 </div>
 <div class="listingblock">
 <div class="title">Example: Why JAVA_TOOL_OPTIONS should be avoided</div>
