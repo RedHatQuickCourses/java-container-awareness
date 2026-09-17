@@ -9,29 +9,29 @@ This friction stemmed from a fundamental mismatch: the Java Virtual Machine (JVM
 
 Before the introduction of container awareness, the JVM would query the host machine's total physical memory and CPU cores, completely ignoring the limits imposed by the container runtime.
 
-[cols="1,1", options="header"]
+[cols="1,1,1", options="header"]
 |===
 | Feature | Non-Container-Aware (Legacy) | Fully Container-Aware (Current)
-| Memory Detection | Sees total host RAM | Sees cgroup-defined memory limit
-| CPU Detection | Sees total host CPU cores | Sees cgroup-defined CPU quota
+| Memory Detection | Sees total host RAM | Sees container (cgroup) defined memory limit
+| CPU Detection | Sees total host CPU cores | Sees container (cgroup) defined CPU limit
 | Heap Sizing | Based on total host memory | Based on container memory limit
-| OOM Risk | High (Host-level OOM) | Lower (Managed by container orchestrator)
+| OOM Risk | High (dissociated with the container size) | Lower (associated with the contianer size)
 |===
 
 === Non-Container-Aware Java: The Visibility Gap
-In a non-container-aware environment, if you deploy a Java application with a default heap size (e.g., `-Xmx` not explicitly defined) into a container with a 1GB limit, the JVM might inspect the host's 64GB of RAM and attempt to allocate a heap significantly larger than 1GB. 
+In a non-container-aware environment, if you deploy a Java application with a default heap size (e.g., `-Xmx` not explicitly defined) into a container with a 1GB limit, the JVM will the host's 64GB of RAM and attempt to allocate a heap significantly larger than 1GB, causing issues. 
 
-When the application tries to consume this memory, the container runtime’s kernel-level cgroup enforcement triggers an **Out-of-Memory (OOM) Kill**. The process is terminated abruptly because it breached the container's allowed boundary, despite the JVM assuming (and using) it had plenty of memory available.
+When the JVM allocates this memory, the host kernel will trigger a cgroup **Out-of-Memory (OOM) Kill** event. The process is terminated abruptly because it breached the container's allowed boundary, despite the JVM assuming it had plenty of memory available. Note that JVM allocation and application consumption are separated and may considerably diverge, because the JVM may allocate more than the application is in fact currently using.
 
 === Container-Aware Java: The Shift with JDK-8146115
-The industry shift occurred with the implementation of **JDK-8146115**, starting with Java 8u191 and continuing through all modern LTS releases (e.g., Java 11, 17, 21). This update enabled the JVM to detect its container `cgroup` filesystem directly.
+The industry shift occurred with the implementation of **JDK-8146115**, starting with Java 8u191 and then other subsequent jiras on all current LTS releases (e.g., Java 11, 17, 21, 25) that now rely on cgroups natively. In other words, those updates enabled the JVM to detect its container `cgroup` filesystem directly natively.
 
 When running a container-aware JVM, the process performs the following:
 
 * **Memory Sensing:** Instead of asking the OS for total physical RAM, the JVM reads the `memory.limit_in_bytes` file from the container's cgroup. It then calculates the default heap size as a percentage of this limit, rather than a percentage of the host's total RAM.
-* **CPU Awareness:** The JVM queries the `cpu.shares` or `cpu.cfs_quota_us` files to determine how many CPU cycles are available to the container. This prevents the JVM from spawning an excessive number of Garbage Collection (GC) threads that would otherwise lead to performance degradation via context switching.
+* **CPU Awareness:** The JVM queries the `cpu.shares` or `cpu.cfs_quota_us` files to determine how many CPU cores are available to the container. And calculates the thread pools from this value, rather than the host limits.
 
-== Why This Matters for Modern Deployments
+== Why This Matters for current Java Deployments
 Transitioning to container-aware Java is not merely a technical optimization; it is a prerequisite for stability in orchestrators like OpenShift and Kubernetes.
 
 * **Simplified Configuration:** Developers no longer need to hardcode `-Xmx` values that perfectly match every environment's resource limit. The JVM automatically adapts to the `limits` defined from the container/cgroups limits from the deployment manifests and uses percentage as reference.
