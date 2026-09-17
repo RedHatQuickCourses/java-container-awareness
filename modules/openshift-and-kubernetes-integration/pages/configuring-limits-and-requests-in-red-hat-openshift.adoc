@@ -30,14 +30,15 @@ It is vital to understand that different layers of your infrastructure interpret
 
 [IMPORTANT]
 ====
-While Java workloads are burstable (threads dynamically demand kernel time), the JVM performs its cgroup reading at **startup**. Consequently, the JVM is inelastic. If the user changes limits at runtime without restarting the Pod, the JVM will **not** automatically adjust its internal heuristics to match the new constraints.
+While Java workloads are burstable (threads dynamically demand kernel time), the JVM performs its cgroup reading at **startup** only once. Consequently, the JVM is inelastic, i.e. changing a container limits dynamically and expect the JVM to change its settings without restart. If the user changes limits at runtime without restarting the Pod, the JVM will **not** automatically adjust its internal heuristics to match the new constraints.
 ====
 
 == Best Practices for OCP Configurations
 
-*   **Avoid Overcommitting Critical Workloads:** For production-critical applications, consider Guaranteed Quality of Service (QoS). A pod is considered Guaranteed when both requests and limits are set to the same value for all containers in the pod.
+*   **Avoid Overcommitting Critical Workloads:** For production-critical applications, consider Guaranteed Quality of Service (QoS) - this will put the application as the last to be evicted. A pod is considered Guaranteed when both requests and limits are set to the same value for all containers in the pod.
+*   **Avoid Undercommiting Workloads:** Benchmark the application to use the correct heap percentage (MaxRAMPercentage) to make sure heap and off-heap have space to grow accordingly.
 *   **Limit vs. Request Parity:** If you are unsure of the application's baseline, start by setting requests lower than limits to allow for burstable performance, but ensure the limit is high enough to accommodate peak load to prevent CPU throttling.
-*   **Memory Awareness:** Always set memory limits to prevent a single Java container from consuming all available node memory, which would trigger the node-level OOM killer and impact other pods on the same node.
+*   **Memory Awareness:** Prefer using memory limits into containers to prevent a single Java container from consuming a large chunck of available node memory and CPU, which can impact other pods on the same node. Unbounded deployments can be very useful, but need to be used in specific scenarios.
 
 == Hands-on Activity: Inspecting cgroup Resource Constraints
 
@@ -52,7 +53,7 @@ Note: When deploying with an Operator, the Operator will control the deployment 
 
 **Steps:**
 
-1.  **Deploy a sample Java application** with defined limits and requests:
+1.  **Deploy a sample Java application** with defined limits and requests (below is just an example - it won't deploy)
 +
 [source,yaml]
 ----
@@ -95,5 +96,6 @@ cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us
 [source,bash]
 ----
 java -XshowSettings:vm -version
+jcmd VM.info
 ----
 *Look for the output related to `MaxHeapSize` and `ActiveProcessorCount`. You will notice these values are derived from the limits, not the requests.*
