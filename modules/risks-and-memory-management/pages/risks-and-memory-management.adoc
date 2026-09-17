@@ -21,6 +21,7 @@ When deploying Java in containerized environments, improper memory configuration
 **Java ENTRYPOINT Practices:**
 
 Default OpenJDK container uses run-java.sh as ENTRYPOINT, this has several implications:
+
 * MAXRAMPercentage is set at 80%
 * ParallelGC is the default container (regardless of CPU)
 * Environment variables: `JAVA_OPTS`, `JAVA_OPTS_APPEND` is the default container (regardless of CPU)
