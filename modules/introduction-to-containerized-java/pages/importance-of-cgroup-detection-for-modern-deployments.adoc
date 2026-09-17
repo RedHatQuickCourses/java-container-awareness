@@ -75,6 +75,12 @@ For a deep dive into how these changes specifically affect Java runtimes specifi
 - Red Hat container images now rely on native OpenJDK C++ container detection rather than legacy `run-java.sh` wrapper scripts for setting memory limits.
 - The `MaxRAMPercentage` property (defaulting to 80% in these images) allows the JVM to dynamically size its heap based on the cgroups v2 boundaries.
 
+== Additional References
+
+For detailed information on the UBI 9 OpenJDK 21 container image, including available environment variables and configuration options, see the official documentation:
+
+* https://rh-openjdk.github.io/redhat-openjdk-containers/ubi9/ubi9-openjdk-21.html[Red Hat OpenJDK 21 UBI 9 Container Image Documentation]
+
 [IMPORTANT]
 ====
 While cgroup detection prevents the JVM from over-allocating heap space by setting the Heap Percentage automatically and allowing the user to tune it, it does **not** manage off-heap memory (Metaspace, Code Cache, Thread stacks, etc.). Because the heap is only a portion of the total memory usage, administrators must still account for the non-heap overhead seperately. Failing to leave enough room for off-heap memory can still result in a cgroup OOMKill, even if the heap appears to be within the allowed percentage.
