@@ -219,15 +219,15 @@
 <article class="doc" data-audio-src="troubleshooting-and-tooling.wav" data-transcript-src="troubleshooting-and-tooling.txt">
 <h1 class="page">Troubleshooting and Tooling</h1>
 <div class="paragraph">
-<p>Troubleshooting Java in containerized environments requires distinguishing between tools that report host-level node metrics versus those that are container-aware. Improper resource visibility often leads to memory misconfiguration and <code>OOMKills</code>.</p>
+<p>Troubleshooting Java in containerized environments requires distinguishing between tools that report host-level node metrics versus those that are container-aware. Improper resource utilization undoubtedly will lead to memory misconfiguration, <code>OOMKills</code>, OOMExceptions, SIGMTERMs, and under/over-utilization of resources.</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Host-level vs. Container-aware Tools</strong>: Standard Linux utilities like <code>lscpu</code>, <code>nproc</code>, and <code>free -m</code> reflect the underlying OpenShift node&#8217;s resources rather than container-specific limits.</p>
+<p><strong>Host-level vs. Container-aware Tools</strong>: Standard Linux utilities like <code>lscpu</code>, <code>nproc</code>, and <code>free -m</code> reflect the underlying node&#8217;s resources rather than container limits.</p>
 </li>
 <li>
-<p><strong>Container-aware Diagnostics</strong>: Utilize JVM-specific flags such as <code>VM.info</code> and <code>-XX:+PrintFlagsFinal</code> (via <code>--XshowSettings:system</code>) to accurately retrieve the memory and CPU constraints enforced on the container.</p>
+<p><strong>Container-aware Diagnostics</strong>: Utilize JVM-specific tools such as jcmd&#8217;s <code>VM.info</code> or <code>-XX:+PrintFlagsFinal</code> (via <code>--XshowSettings:system</code>) to accurately retrieve the memory and CPU constraints enforced on the container.</p>
 </li>
 <li>
 <p><strong>Deployment Inspection</strong>: Analyze pod logs to verify if scripts like <code>run-java.sh</code> are active or if the default OpenJDK memory allocation is scaling correctly.</p>
