@@ -92,7 +92,7 @@ oc rsh <pod-name>
 
 . **Inspect current CPU perception:**
 +
-Inside your running container, identify the Java process ID:
+Inside your running container, identify the Java process ID (use jcmd, jps, or ps aux):
 +
 [source,bash]
 ----
@@ -150,7 +150,7 @@ Otherwise, in case it returns the host values, this indicates the application is
 +
 [source,bash]
 ----
-oc set resources deployment/my-java-app --requests=cpu=100m --limits=cpu=200m
+oc set resources deployment/my-java-app --requests=cpu=1000m --limits=cpu=2000m
 ----
 
 . Connect to the newly running container.
@@ -177,3 +177,8 @@ sh-5.3$ jcmd 1 VM.info | grep active_processor_count
 active_processor_count: 1
 sh-5.3$ 
 ----
+
+Notes: Given the fact only integers can be used as CPU boundaries:
+
+* Values below 1 CPU, are rounded to 1.
+* Broken values are rounded to the lowest integer, so 2200 millicores, becomes 2 CPU.
