@@ -289,9 +289,12 @@
 <p><strong>Improved Stability:</strong> By aligning the JVM&#8217;s view of resources with the kernel-enforced limits, the frequency of container restarts due to resource exhaustion is drastically reduced.</p>
 </li>
 <li>
-<p><strong>Reduced Configuration Overhead:</strong> Developers do not spend time tuning CPU values and  heap limits (<code>-Xmx</code>), as the JVM can now effectively derive them from the container environment deployed by an orchestrator via percentage.</p>
+<p><strong>Reduced Configuration Overhead:</strong> Developers do not spend time tuning CPU values and  heap limits (<code>-Xmx</code>), as the JVM can now effectively derive them from the container environment deployed by an orchestrator via percentage automatically by having MaxRAMPercentage at 25% (upstream value).</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>Specifically in terms of Red Hat build of OpenJDK, our images rely on the script <code>run-java.sh</code> script, which current is not use anymore for detecting limits from the container but to add features: such as JAVA_OPTS and JAVA_OPTS_APPEND environment variables and configurations (MaxRAMPercentage at 80%).</p>
 </div>
 <div class="paragraph">
 <p>Understanding this evolution is important for any team moving toward microservices architectures. Container awareness provides a robust foundation that requires the development team (who handles the Java settings) and the Deployment team (who handles the container size) to
