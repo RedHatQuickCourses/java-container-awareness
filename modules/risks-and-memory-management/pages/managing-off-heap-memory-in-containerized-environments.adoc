@@ -1,10 +1,50 @@
-= Managing Off-Heap Memory in Containerized Environments
+= Managing Heap and Off-Heap Memory in Containerized Environments
 :page-audio-src: managing-off-heap-memory-in-containerized-environments.wav
 :page-transcript-src: managing-off-heap-memory-in-containerized-environments.txt
 
 In current Java applications (Java 8+), memory management extends beyond the Java Heap. While the Heap is responsible for storing object instances, the *Off-Heap* memory—encompassing Metaspace, Code Cache, Thread stacks, and Direct ByteBuffers. Those are critical for the stability of containerized deployments.
 
 When a Java application runs in a container, it is subject to strict Linux Control Group (cgroup) memory limits. If the sum of the Heap and Off-Heap memory exceeds the container limit, the container runtime will trigger an `OOMKill` (Out of Memory Kill).
+
+== **Java ENTRYPOINT Practices:**
+
+Default OpenJDK container uses run-java.sh as ENTRYPOINT, this has several implications.
+
+[cols="1,2,2", options="header"]
+|===
+| Feature | `run-java.sh` Entry Point | Straight `java` Start
+
+| **Execution Method** 
+| Shell wrapper script that evaluates the environment and builds the Java command line.
+| Native binary execution directly invoking the JVM.
+
+| **Environment Variables** 
+| Automatically parses custom variables like `JAVA_OPTS_APPEND`, `JAVA_OPTS`
+| Ignores script-specific variables. Relies strictly on command-line arguments and `JAVA_TOOL_OPTIONS` and `_JAVA_OPTIONS`.
+
+| **Default JVM Tuning** 
+| Automatically applies container-friendly defaults (e.g., `-XX:MaxRAMPercentage`, ParallelGC settings) if not overridden.
+| Uses standard JVM defaults unless explicitly defined in the command line or deployment manifest.
+
+| **GC collector** 
+| Run-java.sh sets ParallelGC as default collector
+| The collector is detected based on CPU and the JDK version (1 CPU will set SerialGC, 2+ on JDK 11+ sets G1GC).
+
+| **Container Awareness** 
+| Container aware: sets MaxRAMPercentage at 80% (or 50% previously).
+| Container aware: sets MaxRAMPercentage at 25%, which is the default value upstream
+
+| **Process Management** 
+| It can have Java process with different PID than 1, but not as a rule
+| Directly executes as PID 1 given entrypoint will be the first process to be executed
+|===
+
+
+== References
+
+For comprehensive details on configuring Red Hat Universal Base Image (UBI) OpenJDK containers, including supported environment variables across different UBI versions, consult the official documentation:
+
+* https://rh-openjdk.github.io/redhat-openjdk-containers/[Red Hat UBI OpenJDK Container Images Documentation]
 
 == The Decoupling Risk
 Historically, developers focused exclusively on `-Xmx` (maximum heap size). However, in a container, the JVM sees the container's memory limit. If you configure the Heap to consume too large a percentage of the container's limit, you leave insufficient headroom for Off-Heap requirements. Therefore a percentage approach is used: 
