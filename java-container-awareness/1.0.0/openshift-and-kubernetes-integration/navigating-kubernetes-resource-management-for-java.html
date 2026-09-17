@@ -222,7 +222,10 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>In Kubernetes and OpenShift environments, resource management is governed by the orchestration layer, which enforces boundaries using Linux Control Groups (cgroups). For Java applications, the primary challenge lies in the abstraction gap: the JVM manages its own memory (heap, code cache, metaspace) and CPU (GC threads, JIT compiler threads), while Kubernetes manages the container’s total resource footprint.</p>
+<p>In Kubernetes and OpenShift environments, resource management is governed by the orchestration layer: kubeAPI, which creates deployments with CPU settings. In case this fails (at container creation or deployment) events will show the cause.
+* The specific cgroups boundaries are maintained by the Host kernel. In case this fail (memory grows too much) the kernel will trigger an OOMKill event.
+* For Java applications, the primary challenge lies in the abstraction gap: the JVM manages its own memory (heap, code cache, metaspace) and CPU (GC threads, JIT compiler threads). In case this fails, the JVM will cause OOExceptions or Errors (crashes).
+* Kubernetes manages the container’s total resource footprint and keeps the overall applications running nominally via probes, which in case they fail cause SIGTERMs.</p>
 </div>
 </div>
 </div>
@@ -262,7 +265,7 @@
 <h2 id="_cgroups_and_the_java_jvm"><a class="anchor" href="#_cgroups_and_the_java_jvm"></a>Cgroups and the Java JVM</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Since the introduction of JDK 8u191 (and the backport of <code>JDK8146115</code>), the JVM has become "container-aware." It reads cgroup filesystem metrics to determine available resources rather than querying the host OS kernel.</p>
+<p>Since the introduction of JDK 8u191 (and the backport of <code>JDK8146115</code>), the JVM has become container-aware. It reads cgroup filesystem metrics to determine available resources rather than querying the host OS kernel.</p>
 </div>
 <div class="paragraph">
 <p>When the JVM starts, it calculates heap ergonomics based on the container’s cgroup limits:</p>
@@ -291,7 +294,7 @@
 <p><strong>Startup Snapshot:</strong> The JVM performs its initial heap and thread pool calculations based on the resource values present when the process is invoked.</p>
 </li>
 <li>
-<p><strong>Detection vs. Adaptation:</strong> While the JVM can technically observe changes in the cgroup filesystem during runtime, it does not necessarily resize its internal heap boundaries or thread pools dynamically.</p>
+<p><strong>Detection vs. Adaptation:</strong> While the JVM can technically observe changes in the cgroup filesystem during runtime, it does not resize its internal heap boundaries (Xmx) dynamically.</p>
 </li>
 <li>
 <p><strong>Risk:</strong> If a container is vertically scaled (e.g., memory limit increased), the JVM will likely continue to respect the original heap size calculated at boot, potentially leaving the application under-provisioned despite the increase in available container resources.</p>
@@ -309,13 +312,13 @@
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Explicit Heap Definition:</strong> Even with container awareness, it is best practice to define memory settings using percentages of the container limit (e.g., <code>-XX:MaxRAMPercentage=75.0</code>). This ensures the heap scales proportionally if the container limit is adjusted in the deployment manifest.</p>
+<p><strong>Explicit Heap Definition:</strong> Even with container awareness, Java is already contianer aware and this ensures the heap scales proportionally if the container limit is adjusted in the deployment manifest. The best practice is for the user to tune this valu (e.g., <code>-XX:MaxRAMPercentage=75.0</code>), rather than setting directly Xmx, which overwites anything else.</p>
 </li>
 <li>
 <p><strong>Account for Off-Heap Memory:</strong> Remember that the total container memory limit must accommodate the Java heap, Metaspace, Code Cache, Thread stacks, and Native memory (NMT). Always set the <code>-XX:MaxRAMPercentage</code> conservatively (e.g., 60-75%) to prevent OOM events.</p>
 </li>
 <li>
-<p><strong>CPU Throttling:</strong> Be aware that setting strict CPU limits can lead to "CPU throttling," where the kernel pauses threads when the quota is reached. Monitor <code>container_cpu_cfs_throttled_periods_total</code> in Prometheus to identify performance bottlenecks.</p>
+<p><strong>CPU Throttling:</strong> Be aware that setting strict CPU limits can lead to CPU throttling, where the kernel pauses threads when the quota is reached. Monitor <code>container_cpu_cfs_throttled_periods_total</code> in Prometheus to identify performance bottlenecks. The application&#8217;s threads will be paused during this throttling process, which will show as a plateau in Prometheus CPU usage.</p>
 </li>
 </ul>
 </div>
