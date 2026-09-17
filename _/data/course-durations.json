@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 3542,
+  "totalSeconds": 3559,
   "pageCount": 28,
   "pages": [
     {
@@ -45,7 +45,7 @@
     {
       "module": "container-resource-detection",
       "page": "detecting-container-memory-limits.adoc",
-      "seconds": 145
+      "seconds": 162
     },
     {
       "module": "container-resource-detection",
