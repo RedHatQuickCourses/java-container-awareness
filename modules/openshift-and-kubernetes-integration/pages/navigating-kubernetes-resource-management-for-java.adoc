@@ -25,7 +25,7 @@ Since the introduction of JDK 8u191 (and the backport of `JDK8146115`), the JVM 
 
 When the JVM starts, it calculates heap ergonomics based on the container’s cgroup limits:
 
-*   **Memory:** If no `-Xmx` is explicitly set, the JVM defaults to a fraction of the container's memory limit (typically 1/4 of the available RAM).
+*   **Memory:** If no `-Xmx` is explicitly set, the JVM defaults to a fraction of the container's memory limit - see details on the percentage below.
 *   **CPU:** The JVM detects the number of available CPUs via cgroup shares/quotas and scales the number of Garbage Collection (GC) threads accordingly. 
 
 == The Impact of Dynamic Resizing
@@ -40,8 +40,8 @@ While recent Kubernetes versions (1.27+) and OpenShift 4.4+ introduced features 
 
 To ensure stability in a Kubernetes-managed environment, adhere to the following configurations:
 
-*   **Explicit Heap Definition:** Even with container awareness, Java is already contianer aware and this ensures the heap scales proportionally if the container limit is adjusted in the deployment manifest. The best practice is for the user to tune this valu (e.g., `-XX:MaxRAMPercentage=75.0`), rather than setting directly Xmx, which overwites anything else.
-*   **Account for Off-Heap Memory:** Remember that the total container memory limit must accommodate the Java heap, Metaspace, Code Cache, Thread stacks, and Native memory (NMT). Always set the `-XX:MaxRAMPercentage` conservatively (e.g., 60-75%) to prevent OOM events.
+*   **Explicit Heap Definition:** Even with container awareness, Java is already contianer aware and this ensures the heap scales proportionally if the container limit is adjusted in the deployment manifest. The best practice is for the user to tune this value (e.g., `-XX:MaxRAMPercentage=75.0`), rather than setting directly Xmx, which overwites anything else.
+*   **Account for Off-Heap Memory:** Remember that the total container memory limit must accommodate the Java heap, Metaspace, Code Cache, Thread stacks, and Native memory (NMT). Tune `-XX:MaxRAMPercentage` conservatively (e.g., 60-75%) to prevent OOM Exceptions events at heap level.
 *   **CPU Throttling:** Be aware that setting strict CPU limits can lead to CPU throttling, where the kernel pauses threads when the quota is reached. Monitor `container_cpu_cfs_throttled_periods_total` in Prometheus to identify performance bottlenecks. The application's threads will be paused during this throttling process, which will show as a plateau in Prometheus CPU usage.
 
 [TIP]
