@@ -235,7 +235,7 @@
 <div class="sect2">
 <h3 id="_the_mechanics_of_detection"><a class="anchor" href="#_the_mechanics_of_detection"></a>The Mechanics of Detection</h3>
 <div class="paragraph">
-<p>Container-aware JVMs (starting from Java 8u191 and newer) automatically inspect cgroup files—such as <code>memory.limit_in_bytes</code> and <code>cpu.cfs_quota_us</code>—to size the heap and determine the available processor count.</p>
+<p>Container-aware JVMs (starting from Java 8u191 and newer) automatically inspect cgroup files, such as <code>memory.limit_in_bytes</code> to size the heap, but cgroups will also be used to determine the available processor count (for thread pool calculations).</p>
 </div>
 <div class="paragraph">
 <p>When analyzing your application, you can extract this metadata using <code>jcmd</code>. If your JVM is properly detecting the container environment, the output will reveal specific cgroup configurations:</p>
@@ -272,7 +272,9 @@ memory_usage_in_bytes: 125108224</code></pre>
 <div class="sect2">
 <h3 id="_the_decoupling_risk"><a class="anchor" href="#_the_decoupling_risk"></a>The Decoupling Risk</h3>
 <div class="paragraph">
-<p>A common pitfall is ignoring the "off-heap" footprint. If you set your Java Heap (Xmx) to 80% of your container limit, but your application requires 30% for off-heap memory (Metaspace, Code Cache, Thread stacks, Direct Buffers), the container will exceed its memory limit.</p>
+<p>There are several risks of decoupling.
+- The Xmx set the full size of the heap, given it is unrelated so the container size can reduce and starve the application or have too much space useless.
+- A common pitfall is ignoring the off-heap footprint. If the Java Heap (Xmx) to 80% of your container limit, but your application requires 30% for off-heap memory (Metaspace, Code Cache, Thread stacks, Direct Buffers), the container will exceed its memory limit and OOMKill.</p>
 </div>
 <div class="paragraph">
 <p>This results in a <strong>cgroup OOMKill</strong>, which is distinct from a JVM <code>java.lang.OutOfMemoryError</code>.</p>
@@ -329,8 +331,8 @@ memory_usage_in_bytes: 125108224</code></pre>
 <p><strong>Identify the PID of the Java process:</strong></p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jps
-# Output: 1234 AppMain</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jps (or ps -aux, or jcmd)
+# Output: 1 AppMain</code></pre>
 </div>
 </div>
 </li>
@@ -345,9 +347,18 @@ memory_usage_in_bytes: 125108224</code></pre>
 </li>
 <li>
 <p><strong>Cross-reference with OpenShift limits:</strong>
-Compare the <code>memory_limit_in_bytes</code> reported by the JVM with the memory limit defined in your OpenShift deployment YAML. If they do not align, adjust your <code>JAVA_TOOL_OPTIONS</code> using <code>-XX:MaxRAMPercentage</code> to force the JVM to align its heap to the container boundary.</p>
+Compare the <code>memory_limit_in_bytes</code> reported by the JVM with the memory limit defined in the deployment YAML. If they do not align, verify if the application is container aware, it is using <code>java-run.sh</code>. In case needed, one can adjust the JAVA_OPTS` and <code>JAVA_OPTS_APPEND</code> using <code>-XX:MaxRAMPercentage</code> in case <code>java-run.sh</code> is used. The environment variables: <code>JAVA_OPTS</code> and <code>JAVA_OPTS_APPEND</code> can be used as long as java-run.sh are used.</p>
 </li>
 </ol>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text"># Example:
+$ podman run --memory-reservation=700m --memory=500m --memory-swap=1000m --rm -it localhost/openjdk:app
+memory_limit_in_bytes: 512000 k &lt;------------------- memory 500mb
+memory_and_swap_limit_in_bytes: 1024000 k &lt;--------- swap and memory 1000mb
+memory_soft_limit_in_bytes: 716800 k &lt;-------------- soft limit 700mb</code></pre>
+</div>
 </div>
 <div class="admonitionblock note">
 <table>
