@@ -2,7 +2,7 @@
 :page-audio-src: identifying-container-aware-versus-non-container-aware-tools.wav
 :page-transcript-src: identifying-container-aware-versus-non-container-aware-tools.txt
 
-When managing Java applications in Red Hat OpenShift or Kubernetes, understanding whether your diagnostic tools perceive the underlying host node or the isolated container environment is critical. Misinterpreting these outputs often leads to "out of memory" (OOM) kills or CPU throttling because the application may be configured based on node-level visibility rather than container-level constraints.
+When managing Java applications in Red Hat OpenShift or Kubernetes, understanding whether your diagnostic tools perceive the underlying host node or the isolated container environment is critical. Misinterpreting these outputs often leads to OutOfMemory (OOM) kills or CPU throttling because the application may be relying on node-level visibility rather than container-level bondaries.
 
 == Distinguishing Tool Behavior
 
@@ -20,7 +20,7 @@ Container-aware tools interface with the Linux `cgroups` subsystem to identify t
 
 *   **`-XX:+PrintFlagsFinal` / `-XshowSettings:system`**: These flags instruct the JVM to report the memory and CPU settings it has calculated based on container limits. Use these to verify if the JVM correctly identified the container memory boundary.
 *   **`VM.info` (via `jcmd`)**: Provides a snapshot of the JVM, including flags and internal settings that reflect whether the container-aware logic was successfully applied.
-*   **`run-java.sh`**: Often used in Red Hat-supported images, this script evaluates the container environment and environment variables to set optimal Java heap sizes automatically before the JVM starts.
+*   **`run-java.sh`**: Always present in Red Hat OpenJDK images, sets certain specific Java flags, such as ParallelGC and MaxRAMPercentage Java heap sizes automatically before the JVM starts. In current images, this script won't make Java container aware (that is on the Java code itself) but it will make a difference on the Heap percentage that comes by default (MaxRAMPercentage) value, in case it is not used the default OpenJDK container should set heap at 25% of the deployment (upstream default value).
 
 == Diagnostic Strategy
 
@@ -45,5 +45,6 @@ If your application is crashing with an `OOMKiller` signal, follow this diagnost
 
 [TIP]
 ====
-If your application logs indicate it is defaulting to 25% of the *node's* memory rather than the *container's* limit, verify that you are using a supported OpenJDK version (8u191+) and that the image is properly configured to handle `cgroups`.
+If the application logs indicate it is defaulting to 25% of the *node's* memory rather than the *container's* limit:  verify the OpenJDK version (8u191+) is correctly detecting containers limits, e.g. for cgroups v2 compliance. 
+If the application logs indicate it is defaulting to 25% of the *container's* memory rather than t50% or 80%:  verify if the application is deployed with run-java.sh as ENTRYPOINT (that's the default).
 ====
