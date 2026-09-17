@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Managing Off-Heap Memory in Containerized Environments :: Java Container Awareness</title>
+    <title>Managing Heap and Off-Heap Memory in Containerized Environments :: Java Container Awareness</title>
     <link rel="prev" href="implications-of-decoupling-heap-memory-from-container-limits.html">
     <link rel="next" href="best-practices-for-java-memory-configuration-in-containers.html">
     <meta name="generator" content="Antora 3.2.0-alpha.12">
@@ -103,7 +103,7 @@
     <a class="nav-link" href="implications-of-decoupling-heap-memory-from-container-limits.html">Implications of Decoupling Heap Memory from Container Limits</a>
   </li>
   <li class="nav-item is-current-page" data-depth="2">
-    <a class="nav-link" href="managing-off-heap-memory-in-containerized-environments.html">Managing Off-Heap Memory in Containerized Environments</a>
+    <a class="nav-link" href="managing-off-heap-memory-in-containerized-environments.html">Managing Heap and Off-Heap Memory in Containerized Environments</a>
   </li>
   <li class="nav-item" data-depth="2">
     <a class="nav-link" href="best-practices-for-java-memory-configuration-in-containers.html">Best Practices for Java Memory Configuration in Containers</a>
@@ -209,7 +209,7 @@
   <ul>
     <li><a href="../index.html">Java Container Awareness</a></li>
     <li><a href="risks-and-memory-management.html">Risks and Memory Management</a></li>
-    <li><a href="managing-off-heap-memory-in-containerized-environments.html">Managing Off-Heap Memory in Containerized Environments</a></li>
+    <li><a href="managing-off-heap-memory-in-containerized-environments.html">Managing Heap and Off-Heap Memory in Containerized Environments</a></li>
   </ul>
 </nav>
 </div>
@@ -218,7 +218,7 @@
   <div class="toc-menu"></div>
 </aside>
 <article class="doc" data-audio-src="managing-off-heap-memory-in-containerized-environments.wav" data-transcript-src="managing-off-heap-memory-in-containerized-environments.txt">
-<h1 class="page">Managing Off-Heap Memory in Containerized Environments</h1>
+<h1 class="page">Managing Heap and Off-Heap Memory in Containerized Environments</h1>
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
@@ -226,6 +226,75 @@
 </div>
 <div class="paragraph">
 <p>When a Java application runs in a container, it is subject to strict Linux Control Group (cgroup) memory limits. If the sum of the Heap and Off-Heap memory exceeds the container limit, the container runtime will trigger an <code>OOMKill</code> (Out of Memory Kill).</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_java_entrypoint_practices"><a class="anchor" href="#_java_entrypoint_practices"></a><strong>Java ENTRYPOINT Practices:</strong></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Default OpenJDK container uses run-java.sh as ENTRYPOINT, this has several implications.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Feature</th>
+<th class="tableblock halign-left valign-top"><code>run-java.sh</code> Entry Point</th>
+<th class="tableblock halign-left valign-top">Straight <code>java</code> Start</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Execution Method</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Shell wrapper script that evaluates the environment and builds the Java command line.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Native binary execution directly invoking the JVM.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Environment Variables</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Automatically parses custom variables like <code>JAVA_OPTS_APPEND</code>, <code>JAVA_OPTS</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ignores script-specific variables. Relies strictly on command-line arguments and <code>JAVA_TOOL_OPTIONS</code> and <code>_JAVA_OPTIONS</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Default JVM Tuning</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Automatically applies container-friendly defaults (e.g., <code>-XX:MaxRAMPercentage</code>, ParallelGC settings) if not overridden.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Uses standard JVM defaults unless explicitly defined in the command line or deployment manifest.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>GC collector</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Run-java.sh sets ParallelGC as default collector</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The collector is detected based on CPU and the JDK version (1 CPU will set SerialGC, 2+ on JDK 11+ sets G1GC).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Container Awareness</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Container aware: sets MaxRAMPercentage at 80% (or 50% previously).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Container aware: sets MaxRAMPercentage at 25%, which is the default value upstream</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Process Management</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">It can have Java process with different PID than 1, but not as a rule</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Directly executes as PID 1 given entrypoint will be the first process to be executed</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references"><a class="anchor" href="#_references"></a>References</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>For comprehensive details on configuring Red Hat Universal Base Image (UBI) OpenJDK containers, including supported environment variables across different UBI versions, consult the official documentation:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://rh-openjdk.github.io/redhat-openjdk-containers/">Red Hat UBI OpenJDK Container Images Documentation</a></p>
+</li>
+</ul>
 </div>
 </div>
 </div>
