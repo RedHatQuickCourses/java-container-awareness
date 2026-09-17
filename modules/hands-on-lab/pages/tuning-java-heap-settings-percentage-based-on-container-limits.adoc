@@ -76,7 +76,7 @@ oc exec <pod-name> -- jcmd 1 VM.flags
 *Observe the output:* You should see the `-XX:MaxRAMPercentage` flag active. If you check `VM.max_heap_size`, you will see an absolute byte value calculated based on the 75% ratio of your current container limit. jcmd VM.info will bring much more details and container size/settings.
 
 ### Step 4: Monitoring
-Use the OpenShift web console or CLI to monitor memory usage. Compare the "Memory Usage" metric against the "Container Limit." Ensure that the "Usage" remains below the total limit, accounting for the gap required for native off-heap memory.
+Use the OpenShift web console or CLI to monitor memory usage. Compare the Memory Usage metric against the container Limit. Ensure that the usage remains below the total limit, accounting for the gap required for native off-heap memory.
 
 [TIP]
 ====
