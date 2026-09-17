@@ -394,7 +394,7 @@ oc rsh &lt;pod-name&gt;</pre>
 <li>
 <p><strong>Inspect current CPU perception:</strong></p>
 <div class="paragraph">
-<p>Inside your running container, identify the Java process ID:</p>
+<p>Inside your running container, identify the Java process ID (use jcmd, jps, or ps aux):</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -473,7 +473,7 @@ Otherwise, in case it returns the host values, this indicates the application is
 <p>Set the resource limits on the deployment.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc set resources deployment/my-java-app --requests=cpu=100m --limits=cpu=200m</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc set resources deployment/my-java-app --requests=cpu=1000m --limits=cpu=2000m</code></pre>
 </div>
 </div>
 </li>
@@ -508,6 +508,19 @@ sh-5.3$ jcmd 1 VM.info | grep active_processor_count
 active_processor_count: 1
 sh-5.3$</pre>
 </div>
+</div>
+<div class="paragraph">
+<p>Notes: Given the fact only integers can be used as CPU boundaries:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Values below 1 CPU, are rounded to 1.</p>
+</li>
+<li>
+<p>Broken values are rounded to the lowest integer, so 2200 millicores, becomes 2 CPU.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
