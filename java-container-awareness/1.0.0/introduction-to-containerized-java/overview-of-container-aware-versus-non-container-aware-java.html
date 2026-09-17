@@ -321,6 +321,14 @@ This friction stemmed from a fundamental mismatch: the Java Virtual Machine (JVM
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p>The default value of <code>MaxRAMPercentage</code> is 25% for upstream deployment, however Red Hat build of OpenJDK will allowtaking advantage of run-java.sh will have the following impacts:</p>
+</div>
+<div class="paragraph">
+<p>*The JVM achieves container awareness (memory and CPU).
+* The heap will be calculated at 50% of the container size (not the host). Later images will default to 80%.
+*The user can use JAVA_OPTS and other environment variables from run-java.sh, such as <code>JAVA_OPTS</code>, <code>JAVA_OPTS_APPEND</code>, <code>GC_MAX_METASPACE_SIZE</code>.</p>
+</div>
 <div class="admonitionblock important">
 <table>
 <tr>
