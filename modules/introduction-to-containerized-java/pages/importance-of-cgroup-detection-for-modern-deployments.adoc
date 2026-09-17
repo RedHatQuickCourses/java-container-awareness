@@ -42,12 +42,18 @@ Specifically the default OpenJDK container image, the default ENTRYPOINT will be
 | `JAVA_OPTS_APPEND` 
 | Append option, can be used to complement the main ones
 
-| `GC_COLLECTOR` 
-| Used for GC collector
+| `GC_CONTAINER_OPTIONS` 
+| Used for GC collector to be used.
+
+| `GC_MAX_METASPACE_SIZE` 
+| The maximum metaspace size.
+
+| `GC_METASPACE_SIZE` 
+| The initial metaspace size.
 
 |===
 
-`JAVA_TOOL_OPTIONS` is not from the run-java.sh and should be avoided, it will be used for any Java environment variable, including jcmd itself:
+`JAVA_TOOL_OPTIONS` and `_JAVA_OPTIONS` are not inherit from the run-java.sh and should be avoided, it will be used for any Java environment variable, although can be used regardless of run-java.sh. Example with jcmd itself:
 
 .Example: Why JAVA_TOOL_OPTIONS should be avoided
 [source,console]
