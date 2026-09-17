@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 3266,
+  "totalSeconds": 3267,
   "pageCount": 28,
   "pages": [
     {
@@ -90,7 +90,7 @@
     {
       "module": "openshift-and-kubernetes-integration",
       "page": "navigating-kubernetes-resource-management-for-java.adoc",
-      "seconds": 166
+      "seconds": 167
     },
     {
       "module": "troubleshooting-and-tooling",

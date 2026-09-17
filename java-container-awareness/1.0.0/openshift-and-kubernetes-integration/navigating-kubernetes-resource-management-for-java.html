@@ -273,7 +273,7 @@
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Memory:</strong> If no <code>-Xmx</code> is explicitly set, the JVM defaults to a fraction of the container&#8217;s memory limit (typically 1/4 of the available RAM).</p>
+<p><strong>Memory:</strong> If no <code>-Xmx</code> is explicitly set, the JVM defaults to a fraction of the container&#8217;s memory limit - see details on the percentage below.</p>
 </li>
 <li>
 <p><strong>CPU:</strong> The JVM detects the number of available CPUs via cgroup shares/quotas and scales the number of Garbage Collection (GC) threads accordingly.</p>
@@ -312,10 +312,10 @@
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Explicit Heap Definition:</strong> Even with container awareness, Java is already contianer aware and this ensures the heap scales proportionally if the container limit is adjusted in the deployment manifest. The best practice is for the user to tune this valu (e.g., <code>-XX:MaxRAMPercentage=75.0</code>), rather than setting directly Xmx, which overwites anything else.</p>
+<p><strong>Explicit Heap Definition:</strong> Even with container awareness, Java is already contianer aware and this ensures the heap scales proportionally if the container limit is adjusted in the deployment manifest. The best practice is for the user to tune this value (e.g., <code>-XX:MaxRAMPercentage=75.0</code>), rather than setting directly Xmx, which overwites anything else.</p>
 </li>
 <li>
-<p><strong>Account for Off-Heap Memory:</strong> Remember that the total container memory limit must accommodate the Java heap, Metaspace, Code Cache, Thread stacks, and Native memory (NMT). Always set the <code>-XX:MaxRAMPercentage</code> conservatively (e.g., 60-75%) to prevent OOM events.</p>
+<p><strong>Account for Off-Heap Memory:</strong> Remember that the total container memory limit must accommodate the Java heap, Metaspace, Code Cache, Thread stacks, and Native memory (NMT). Tune <code>-XX:MaxRAMPercentage</code> conservatively (e.g., 60-75%) to prevent OOM Exceptions events at heap level.</p>
 </li>
 <li>
 <p><strong>CPU Throttling:</strong> Be aware that setting strict CPU limits can lead to CPU throttling, where the kernel pauses threads when the quota is reached. Monitor <code>container_cpu_cfs_throttled_periods_total</code> in Prometheus to identify performance bottlenecks. The application&#8217;s threads will be paused during this throttling process, which will show as a plateau in Prometheus CPU usage.</p>
