@@ -408,8 +408,11 @@ spec:
 <p><strong>Check the CPU quota</strong> enforced by the kernel:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us
-# This will return 100000 (100ms), confirming the 1000m CPU limit.</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us
+# This will return 100000 (100ms), confirming the 1000m CPU limit.
+$ jcmd VM.info
+...
+active_processor_count: 1 &lt;-- shows 1 CPU</code></pre>
 </div>
 </div>
 </li>

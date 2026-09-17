@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 3432,
+  "totalSeconds": 3435,
   "pageCount": 28,
   "pages": [
     {
@@ -80,7 +80,7 @@
     {
       "module": "openshift-and-kubernetes-integration",
       "page": "configuring-limits-and-requests-in-red-hat-openshift.adoc",
-      "seconds": 239
+      "seconds": 242
     },
     {
       "module": "openshift-and-kubernetes-integration",
