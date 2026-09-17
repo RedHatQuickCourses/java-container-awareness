@@ -106,7 +106,7 @@ spec:
           image: quay.io/hummingbird/openjdk:latest
 
           env:
-            - name: JAVA_OPTS_APPEND
+            - name: JAVA_TOOL_OPTIONS
               value: "-XX:NativeMemoryTracking=summary"
 EOF
 ----
@@ -171,6 +171,7 @@ To ensure your configuration is resilient, verify that your application does not
 +
 [source,bash]
 ----
+## FIXME: The below path is not found in the container.
 cat /sys/fs/cgroup/memory/memory.limit_in_bytes
 ----
 

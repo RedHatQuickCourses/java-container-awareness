@@ -142,6 +142,38 @@ sh-5.3$ nproc
 32
 sh-5.3$ 
 ----
-
++
 NOTE: If you deploy a container with limits (not just requests, but limits) and `active_processor_count` (jcmd or java -XshowSettings:system) returns that limit, the application is correctly container-aware. 
 Otherwise, in case it returns the host values, this indicates the application is likely not container aware (nproc shows host).
+
+. Set the resource limits on the deployment.
++
+[source,bash]
+----
+oc set resources deployment/my-java-app --requests=cpu=100m --limits=cpu=200m
+----
+
+. Connect to the newly running container.
++
+[source,bash]
+----
+oc get pods
+oc rsh <pod-name>
+----
+
+. Verify the CPU limits honored by the container and the Java application running inside it.
++
+[source,bash]
+----
+nproc
+jcmd 1 VM.info | grep active_processor_count
+----
++
+Example output:
+----
+sh-5.3$ nproc 
+1
+sh-5.3$ jcmd 1 VM.info | grep active_processor_count
+active_processor_count: 1
+sh-5.3$ 
+----

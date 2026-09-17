@@ -72,11 +72,19 @@ kind: Deployment
 metadata:
   name: java-resource-demo
 spec:
+
+  selector:
+    matchLabels:
+      app: java-resource-demo
+
   template:
+    metadata:
+      labels:
+        app: java-resource-demo
     spec:
       containers:
-      - name: java-app
-        image: registry.access.redhat.com/openjdk/openjdk-11-rhel8
+      - name: java-resource-demo
+        image: quay.io/hummingbird/openjdk:latest
         resources:
           requests:
             memory: "256Mi"
@@ -97,10 +105,15 @@ oc rsh <pod-name>
 +
 [source,bash]
 ----
+# FIXME: The below file is not found in the container
 $ cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us
 # This will return 100000 (100ms), confirming the 1000m CPU limit.
-$ jcmd VM.info
-...
+$ jcmd 1 VM.info | grep active_processor_count
+----
++
+Example Output:
++
+----
 active_processor_count: 1 <-- shows 1 CPU
 ----
 
@@ -109,6 +122,20 @@ active_processor_count: 1 <-- shows 1 CPU
 [source,bash]
 ----
 java -XshowSettings:vm -version
-jcmd VM.info
 ----
-*Look for the output related to `MaxHeapSize` and `ActiveProcessorCount`. You will notice these values are derived from the limits, not the requests.*
++
+Example output:
++
+----
+VM settings:
+    Max. Heap Size (Estimated): 123.75M
+    Using VM: OpenJDK 64-Bit Server VM
+
+openjdk version "25.0.4.1" 2026-08-18
+OpenJDK Runtime Environment (Red_Hat-25.0.4.1.1-0) (build 25.0.4.1+1)
+OpenJDK 64-Bit Server VM (Red_Hat-25.0.4.1.1-0) (build 25.0.4.1+1, mixed mode, sharing)
+----
+
+FIXME: Limit is set to 512Mi but the heap size displayed is 123.75M. Output contradicts the below explanation.
+
+*Look for the output related to `Max. Heap Size` and `active_processor_count`. You will notice these values are derived from the limits, not the requests.*
