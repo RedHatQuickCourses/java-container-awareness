@@ -268,7 +268,7 @@
 </div>
 </div>
 <div class="sect2">
-<h3 id="_2_understanding_the_off_heap_allocation"><a class="anchor" href="#_2_understanding_the_off_heap_allocation"></a>2. Understanding the Off-Heap allocation</h3>
+<h3 id="_2_understanding_the_heap_and_off_heap_allocation"><a class="anchor" href="#_2_understanding_the_heap_and_off_heap_allocation"></a>2. Understanding the Heap and off-Heap allocation</h3>
 <div class="paragraph">
 <p>The memory not occupied by the JVM heap is not wasted — it is necessary for the stability of the Java application. When you configure your heap, you must leave sufficient headroom for:</p>
 </div>
@@ -318,6 +318,22 @@
 </div>
 </div>
 <div class="sect2">
+<h3 id="_5_understand_red_hat_openjdks_run_java_sh_specifics"><a class="anchor" href="#_5_understand_red_hat_openjdks_run_java_sh_specifics"></a>5. Understand Red Hat OpenJDK&#8217;s run-java.sh specifics.</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>environment variables</strong>: run-java.sh sets default environment varaiables that the user can use at runtime (in the container env variables) to control the Java deployment at runtime</p>
+</li>
+<li>
+<p><strong>GC collector</strong>: run-java.sh sets default ParallelGC</p>
+</li>
+<li>
+<p><strong>JVM settings</strong>: run-java.sh sets MaxRAMPercentage at 80% (currently) rather than relying on 25% default value.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_summary_table_configuration_comparison"><a class="anchor" href="#_summary_table_configuration_comparison"></a>Summary Table: Configuration Comparison</h3>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -333,15 +349,15 @@
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-Xmx</code> (Absolute)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Discouraged</strong>. Will cause a decoupling and potential OOM-Kills. Also any change will cause problems. Xmx  overwrites any percentage (MaxRAMPercentage).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Discouraged</strong>. Will cause a decoupling and potential OOM-Kills. Also any change will cause problems. Xmx  overwrites any percentage (MaxRAMPercentage). Xmx sets full heap size.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:MaxRAMPercentage</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Recommended</strong>. Automatically aligns heap with container <code>cgroups</code> limits.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Default/Recommended</strong>. Automatically aligns heap with container <code>cgroups</code> limits.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>MaxRAM</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Avoid</strong>. Can create conflicting memory views between the OS and the JVM.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Avoid</strong>. Similar to hard coding Xmx, it decouples memory views between the OS and the JVM. MaxRAM sets full heap+off-heap size.</p></td>
 </tr>
 </tbody>
 </table>
