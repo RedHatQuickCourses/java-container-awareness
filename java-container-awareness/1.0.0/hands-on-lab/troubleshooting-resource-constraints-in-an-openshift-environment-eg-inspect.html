@@ -222,7 +222,7 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>When Java applications run in OpenShift, they operate within the constraints defined by the Linux kernel&#8217;s control groups (cgroups). If these constraints are misconfigured or if the Java Virtual Machine (JVM) is unaware of them, you may encounter performance degradation, unexpected <code>OutOfMemoryError</code> (OOM) exceptions, or even container restarts due to OOMKills.</p>
+<p>When Java applications run in OpenShift, they operate within the constraints defined by the Linux kernel&#8217;s control groups (cgroups). If these constraints are misconfigured or if the Java Virtual Machine (JVM) is unaware of them, you may encounter performance degradation, unexpected <code>OutOfMemoryError</code> (OOM) exceptions (that may, or may not exit the container), or even container restarts due to OOMKills.</p>
 </div>
 <div class="paragraph">
 <p>This section focuses on diagnostic strategies and using tools to inspect resource constraints for Java workloads in OpenShift.</p>
@@ -257,7 +257,7 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_tools_for_inspection"><a class="anchor" href="#_tools_for_inspection"></a>Tools for Inspection</h2>
+<h2 id="_tools_for_verification"><a class="anchor" href="#_tools_for_verification"></a>Tools for verification</h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_using_oc_describe"><a class="anchor" href="#_using_oc_describe"></a>Using <code>oc describe</code></h3>
@@ -381,7 +381,7 @@ Check the deployment configuration to see the discrepancy between your <code>lim
 </li>
 <li>
 <p><strong>Remediate:</strong>
-Adjust the deployment YAML to either increase the container memory limit or update the JVM flags using the <code>JAVA_OPTS</code> environment variable to reflect a lower heap percentage:</p>
+Adjust the deployment YAML to either increase the container memory limit or update the JVM flags using the <code>JAVA_OPTS</code> (or <code>JAVA_OPTS_APPEND</code>) environment variable to reflect a lower heap percentage:</p>
 <div class="literalblock">
 <div class="content">
 <pre>[source,bash]
@@ -395,7 +395,7 @@ env:
 </li>
 <li>
 <p><strong>Re-verify:</strong>
-After applying the change, use <code>jcmd</code> inside the pod to confirm the new <code>MaxHeapSize</code> is calculated correctly based on the updated container limit.</p>
+After applying the change, use <code>jcmd</code> inside the container to confirm the new <code>MaxHeapSize</code> is calculated correctly based on the updated container limit.</p>
 </li>
 </ol>
 </div>
