@@ -222,7 +222,7 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>In modern containerized environments like Red Hat OpenShift, the JVM no longer treats the host machine&#8217;s total physical memory as its boundary. Instead, it respects the <code>cgroup</code> limits assigned to the container. Tuning the Java heap using percentages is the industry-standard approach to ensure the JVM remains "elastic" relative to the container’s resource allocation.</p>
+<p>In containerized environments orchestrators, Red Hat OpenShift, Red Hat OpenJDK is able to detect the container boundaries. Instead, it respects the <code>cgroup</code> limits assigned to the container. Tuning the Java heap using percentages is the recommended and standard approach to ensure the JVM remains flexible and associated with the container’s resource allocation.</p>
 </div>
 </div>
 </div>
@@ -230,7 +230,7 @@
 <h2 id="_the_shift_to_percentage_based_memory_management"><a class="anchor" href="#_the_shift_to_percentage_based_memory_management"></a>The Shift to Percentage-Based Memory Management</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Historically, developers used the <code>-Xmx</code> flag to set an absolute heap size (e.g., <code>-Xmx2g</code>). In a container, this creates a static configuration that ignores the actual memory limit of the pod. If the container limit is lowered, the JVM may attempt to exceed it, leading to a <code>cgroup</code> OOM-Kill.</p>
+<p>Historically since Java inception, developers used the <code>-Xmx</code> flag to set an absolute heap size (e.g., <code>-Xmx2g</code>). In a container, this creates a static configuration that ignores the actual memory limit of the container. If the container limit is lowered, the JVM may attempt to exceed it, leading to a <code>cgroup</code> OOM-Kill.</p>
 </div>
 <div class="paragraph">
 <p>By using <strong>RAM Percentage flags</strong>, you decouple the specific memory limit from the application code, allowing the JVM to calculate its heap size dynamically based on the container&#8217;s available memory.</p>
@@ -240,7 +240,7 @@
 <div class="ulist">
 <ul>
 <li>
-<p><code>-XX:MaxRAMPercentage=N</code>: Sets the maximum heap size as a percentage of the container&#8217;s memory limit. The default is typically 25%, though specialized container images (like Red Hat’s <code>run-java.sh</code> scripts) often default to 50% or 80%.</p>
+<p><code>-XX:MaxRAMPercentage=N</code>: Sets the maximum heap size as a percentage of the container&#8217;s memory limit. The default upstream limit is25%, though specialized container images (like Red Hat’s <code>run-java.sh</code> scripts) will default to 80%.</p>
 </li>
 <li>
 <p><code>-XX:InitialRAMPercentage=N</code>: Sets the initial heap size as a percentage of the container limit.</p>
@@ -361,7 +361,7 @@ oc set env deployment/&lt;deployment-name&gt; --list</code></pre>
 </ol>
 </div>
 <div class="paragraph">
-<p><strong>Observe the output:</strong> You should see the <code>-XX:MaxRAMPercentage</code> flag active. If you check <code>VM.max_heap_size</code>, you will see an absolute byte value calculated based on the 75% ratio of your current container limit.</p>
+<p><strong>Observe the output:</strong> You should see the <code>-XX:MaxRAMPercentage</code> flag active. If you check <code>VM.max_heap_size</code>, you will see an absolute byte value calculated based on the 75% ratio of your current container limit. jcmd VM.info will bring much more details and container size/settings.</p>
 </div>
 </div>
 <div class="sect2">
@@ -383,6 +383,32 @@ oc set env deployment/&lt;deployment-name&gt; --list</code></pre>
 </tr>
 </table>
 </div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_reference_documentation"><a class="anchor" href="#_reference_documentation"></a>Reference Documentation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>For complete details and subscriber-exclusive guidance on analyzing these diagnostic artifacts, refer to the official Red Hat knowledgebase article:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://access.redhat.com/solutions/6973111">Red Hat Solution 6973111: Interpreting VM.info file in OpenJDK/OracleJDK</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_common_properties"><a class="anchor" href="#_common_properties"></a>Common Properties</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>VM.info</code> file typically includes:
+- JVM build details and version strings
+- Operating system environment specifications
+- Ergonomics and default sizing parameters</p>
 </div>
 </div>
 </div>
