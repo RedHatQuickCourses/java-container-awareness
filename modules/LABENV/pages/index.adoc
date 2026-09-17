@@ -1,4 +1,6 @@
 = Lab Environment
+:page-audio-src: index.wav
+:page-transcript-src: index.txt
 :page-audio-src: index-lab-demo.wav
 :page-transcript-src: index-lab-demo.txt
 
