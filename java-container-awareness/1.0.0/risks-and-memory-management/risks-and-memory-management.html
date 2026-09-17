@@ -238,13 +238,29 @@
 </ul>
 </div>
 <div class="paragraph">
-<p><strong>Best Practices:</strong>
-    *   Prioritize container-aware JVM settings over manual heap overrides to allow for dynamic scaling.
-    *   Benchmark application memory usage to determine the optimal ratio between heap and off-heap requirements.
-    *   Avoid configurations that ignore cgroup limits, as these bypass the self-tuning capabilities of modern JDKs.
-    *   Track specific percentage utilization for the application.
-    *   Use limits in the container settings to make sure Java won&#8217;t use host details.
-    *   Understand Quality of Service (QoS) and how it impacts (Java) deployments.</p>
+<p><strong>Best Practices:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Prioritize container-aware JVM settings over manual heap overrides to allow for dynamic scaling.</p>
+</li>
+<li>
+<p>Benchmark application memory usage to determine the optimal ratio between heap and off-heap requirements.</p>
+</li>
+<li>
+<p>Avoid configurations that ignore cgroup limits, as these bypass the self-tuning capabilities of modern JDKs.</p>
+</li>
+<li>
+<p>Track specific percentage utilization for the application.</p>
+</li>
+<li>
+<p>Use limits in the container settings to make sure Java won&#8217;t use host details.</p>
+</li>
+<li>
+<p>Understand Quality of Service (QoS) and how it impacts (Java) deployments.</p>
+</li>
+</ul>
 </div>
 <nav class="pagination">
   <span class="prev"><a href="../container-resource-detection/determining-cpu-availability-within-containers.html">Determining CPU Availability Within Containers</a></span>

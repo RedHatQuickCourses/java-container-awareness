@@ -387,7 +387,7 @@ spec:
           image: quay.io/hummingbird/openjdk:latest
 
           env:
-            - name: JAVA_OPTS_APPEND
+            - name: JAVA_TOOL_OPTIONS
               value: "-XX:NativeMemoryTracking=summary"
 EOF</code></pre>
 </div>
@@ -480,7 +480,8 @@ Total: reserved=33545316KB, committed=288676KB
 <p>View the current cgroup memory limit for your container:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cat /sys/fs/cgroup/memory/memory.limit_in_bytes</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">## FIXME: The below path is not found in the container.
+cat /sys/fs/cgroup/memory/memory.limit_in_bytes</code></pre>
 </div>
 </div>
 </li>

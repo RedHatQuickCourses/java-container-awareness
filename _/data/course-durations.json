@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 3435,
+  "totalSeconds": 3463,
   "pageCount": 28,
   "pages": [
     {
@@ -15,7 +15,7 @@
     {
       "module": "introduction-to-containerized-java",
       "page": "introduction-to-containerized-java.adoc",
-      "seconds": 45
+      "seconds": 46
     },
     {
       "module": "introduction-to-containerized-java",
@@ -50,7 +50,7 @@
     {
       "module": "container-resource-detection",
       "page": "determining-cpu-availability-within-containers.adoc",
-      "seconds": 158
+      "seconds": 167
     },
     {
       "module": "risks-and-memory-management",
@@ -80,7 +80,7 @@
     {
       "module": "openshift-and-kubernetes-integration",
       "page": "configuring-limits-and-requests-in-red-hat-openshift.adoc",
-      "seconds": 242
+      "seconds": 257
     },
     {
       "module": "openshift-and-kubernetes-integration",
@@ -115,7 +115,7 @@
     {
       "module": "troubleshooting-and-tooling",
       "page": "java-diagnostics-jcmd.adoc",
-      "seconds": 116
+      "seconds": 119
     },
     {
       "module": "hands-on-lab",
