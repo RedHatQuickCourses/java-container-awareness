@@ -279,13 +279,16 @@
 <td class="tableblock halign-left valign-top"><p class="tableblock">It can have Java process with different PID than 1, but not as a rule</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Directly executes as PID 1 given entrypoint will be the first process to be executed</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Recommendation</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">run-java.sh is to be used: it gives flexibility.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Straight deployment should be avoided, reason: you cannot tune MAxRAMPercentage as easily and may be bounded by the 25% heap limit, which is the full idea of the env variables.</p></td>
+</tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p><strong>References</strong></p>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_references"><a class="anchor" href="#_references"></a>References</h2>
-<div class="sectionbody">
 <div class="paragraph">
 <p>For comprehensive details on configuring Red Hat Universal Base Image (UBI) OpenJDK containers, including supported environment variables across different UBI versions, consult the official documentation:</p>
 </div>
@@ -296,6 +299,48 @@
 </li>
 </ul>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_cgroups_v1_vs_cgropus_v2"><a class="anchor" href="#_cgroups_v1_vs_cgropus_v2"></a>Cgroups v1 vs cgropus v2</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. cgroups v1 vs. v2 Memory Metrics</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Metric</th>
+<th class="tableblock halign-left valign-top">cgroups v1 Path</th>
+<th class="tableblock halign-left valign-top">cgroups v2 Path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Peak Usage</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory/memory.max_usage_in_bytes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory.peak</code> (Requires Kernel 5.19+)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Current Usage</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory/memory.usage_in_bytes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory.current</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Hard Limit</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory/memory.limit_in_bytes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory.max</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Soft Limit</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory/memory.soft_limit_in_bytes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory.high</code></p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div class="sect1">
@@ -456,7 +501,7 @@ spec:
           image: quay.io/hummingbird/openjdk:latest
 
           env:
-            - name: JAVA_TOOL_OPTIONS
+            - name: JAVA_OPTS_APPEND
               value: "-XX:NativeMemoryTracking=summary"
 EOF</code></pre>
 </div>
@@ -549,13 +594,15 @@ Total: reserved=33545316KB, committed=288676KB
 <p>View the current cgroup memory limit for your container:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">## FIXME: The below path is not found in the container.
-cat /sys/fs/cgroup/memory/memory.limit_in_bytes</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">### CGROUPS V1
+cat /sys/fs/cgroup/memory/memory.limit_in_bytes
+### CGROUPS V2
+cat /sys/fs/cgroup/memory.max</code></pre>
 </div>
 </div>
 </li>
 <li>
-<p>Compare this value against your calculated Heap + Off-Heap usage. If your application&#8217;s <code>Total</code> committed memory (as seen in NMT) + heap usage exceeds this limit, one must adjust your <code>MaxRAMPercentage</code> downward or increase the container&#8217;s memory request/limit in OpenShift <code>Deployment</code> YAML.</p>
+<p>Compare this value against your calculated Heap + Off-Heap usage. If your application&#8217;s <code>Total</code> committed memory (as seen in NMT) + heap usage exceeds this limit, one must adjust your <code>MaxRAMPercentage</code> downward or increase the container&#8217;s memory limit in OpenShift <code>Deployment</code> YAML.</p>
 </li>
 </ol>
 </div>
@@ -574,7 +621,7 @@ cat /sys/fs/cgroup/memory/memory.limit_in_bytes</code></pre>
 <p><strong>OOMException</strong>: Usually off-heap allocation or metaspace, not that if <code>ExitOnOutOfMemoryError</code> flag is enabled, so then the JVM will exit.</p>
 </li>
 <li>
-<p><strong>SIGTerm</strong>: In case communication is impacted or the JVM is unresponsive sigterm can kick in. That will be in the events.</p>
+<p><strong>SIGTERM</strong>: In case communication is impacted or the JVM is unresponsive sigterm can kick in. That will be in the events.</p>
 </li>
 </ul>
 </div>
