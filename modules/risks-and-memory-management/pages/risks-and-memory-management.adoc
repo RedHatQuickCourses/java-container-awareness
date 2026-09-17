@@ -10,6 +10,7 @@ When deploying Java in containerized environments, improper memory configuration
 *   **Non-container aware allocation:** Allocating a certain percentage for container, but not benchmarking/tracking non-container aware components inside the Java application. For example, jemalloand glibc's malloc that are below the JVM and are both not container aware.
 
 **Best Practices:**
+
     *   Prioritize container-aware JVM settings over manual heap overrides to allow for dynamic scaling.
     *   Benchmark application memory usage to determine the optimal ratio between heap and off-heap requirements.
     *   Avoid configurations that ignore cgroup limits, as these bypass the self-tuning capabilities of modern JDKs.

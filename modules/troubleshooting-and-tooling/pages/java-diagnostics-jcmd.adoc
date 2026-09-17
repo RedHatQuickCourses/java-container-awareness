@@ -57,6 +57,7 @@ jcmd <PID> VM.native_memory summary
 4.  **Verification:** Compare the output of `GC.heap_info` against your pod's `resources.limits.memory` to verify if the JVM is respecting the container's memory boundaries.
 
 == Hands-on Lab: Inspecting JVM Resources
+FIXME: Can this also be general instructions instead of hands-on activity?
 
 In this exercise, we will verify the JVM's memory awareness.
 

@@ -47,6 +47,7 @@ When analyzing resource constraints, follow these steps:
     *   **Non-container-aware:** Avoid using legacy `top` or `free` commands inside the container, as they often report host-level data rather than container-constrained data.
 
 == Hands-on Activity: Inspecting JVM Resource Awareness
+FIXME: This can be general instructions and not hands-on activity to be followed by learner.
 
 In this activity, you will verify if your currently running pod is correctly interpreting its cgroup limits.
 
