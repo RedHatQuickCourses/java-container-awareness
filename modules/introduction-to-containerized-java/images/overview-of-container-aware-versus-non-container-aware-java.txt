@@ -1,0 +1,19 @@
+In this module, we will explore the evolution of Java in containerized environments, specifically focusing on the difference between container-aware and non-container-aware configurations.
+
+Before the industry adopted container awareness, Java applications often struggled to coexist within container limits. The core of the problem was a mismatch: the Java Virtual Machine—or JVM—was originally designed to query the host operating system for total resource availability. Containers, however, rely on control groups, or cgroups, to impose strict resource constraints.
+
+Let’s look at how this evolution changed the landscape. 
+
+In a legacy, non-container-aware environment, the JVM looked at the host machine's total physical memory and CPU cores, completely ignoring any limits set by the container runtime. This created a significant "visibility gap." For example, if you deployed a Java application without an explicitly defined heap size into a container with a one-gigabyte limit, the JVM might see the host's full 64 gigabytes of RAM. It would then attempt to allocate a heap much larger than the container could actually support. When the application tried to consume that memory, the container’s kernel-level cgroup enforcement would trigger an Out-of-Memory Kill, terminating the process abruptly.
+
+The industry shifted toward a solution with the implementation of JDK-8146115, which began in Java 8 update 191 and continues through all modern long-term support releases, including Java 11, 17, and 21. This update enables the JVM to read the container's cgroup filesystem directly.
+
+When running a container-aware JVM, two critical things happen automatically. First, regarding memory, the JVM reads the memory limit from the cgroup files instead of querying the host OS. It then calculates the default heap size as a percentage of that specific container limit. Second, for CPU awareness, the JVM queries the container's CPU quota files to determine available cycles. This prevents the JVM from spawning too many garbage collection threads, which would otherwise degrade performance through excessive context switching.
+
+This transition is essential for stability in orchestrators like OpenShift and Kubernetes for a few key reasons. 
+
+First, it simplifies configuration because developers no longer need to hardcode specific memory limits that must match every environment. The JVM now automatically adapts to the resource limits defined in your deployment manifests. Second, it provides deterministic behavior; by aligning the JVM's view with the container's reality, you significantly reduce the risk of unexpected crashes. Finally, it improves operational efficiency, allowing teams to set resource limits with the confidence that the application will scale its internal memory management to fit the provided space.
+
+However, there is an important caveat to keep in mind. While container awareness aligns the JVM’s heap and CPU usage with container limits, it does not automatically account for all memory usage. This includes off-heap memory, such as metaspace, code cache, direct buffers, or other native memory. 
+
+It is crucial to understand that even with a container-aware JVM, you must still benchmark your application. You need to ensure that the ratio of heap to off-heap memory is properly balanced, and that sufficient total resources are allocated to your container to avoid Out-of-Memory events.
