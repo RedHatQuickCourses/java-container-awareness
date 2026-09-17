@@ -9,7 +9,7 @@ To ensure Java applications perform predictably within Red Hat OpenShift or Kube
 The primary challenge in containerized Java is the discrepancy between what the Operating System sees (physical host) and what the container runtime enforces (cgroup limits).
 
 ### The Mechanics of Detection
-Container-aware JVMs (starting from Java 8u191 and newer) automatically inspect cgroup files—such as `memory.limit_in_bytes` and `cpu.cfs_quota_us`—to size the heap and determine the available processor count.
+Container-aware JVMs (starting from Java 8u191 and newer) automatically inspect cgroup files, such as `memory.limit_in_bytes` to size the heap, but cgroups will also be used to determine the available processor count (for thread pool calculations).
 
 When analyzing your application, you can extract this metadata using `jcmd`. If your JVM is properly detecting the container environment, the output will reveal specific cgroup configurations:
 
@@ -31,7 +31,9 @@ memory_usage_in_bytes: 125108224
 Analyzing resource utilization requires verifying that your JVM heap plus off-heap requirements remain within the Kubernetes/OpenShift `limits`.
 
 === The Decoupling Risk
-A common pitfall is ignoring the "off-heap" footprint. If you set your Java Heap (Xmx) to 80% of your container limit, but your application requires 30% for off-heap memory (Metaspace, Code Cache, Thread stacks, Direct Buffers), the container will exceed its memory limit. 
+There are several risks of decoupling.
+- The Xmx set the full size of the heap, given it is unrelated so the container size can reduce and starve the application or have too much space useless.
+- A common pitfall is ignoring the off-heap footprint. If the Java Heap (Xmx) to 80% of your container limit, but your application requires 30% for off-heap memory (Metaspace, Code Cache, Thread stacks, Direct Buffers), the container will exceed its memory limit and OOMKill.
 
 This results in a **cgroup OOMKill**, which is distinct from a JVM `java.lang.OutOfMemoryError`. 
 
@@ -59,8 +61,8 @@ oc rsh <pod-name>
 +
 [source,bash]
 ----
-jps
-# Output: 1234 AppMain
+jps (or ps -aux, or jcmd)
+# Output: 1 AppMain
 ----
 
 . **Run the diagnostic command to check resource visibility:**
@@ -72,7 +74,16 @@ jcmd 1234 VM.native_memory summary
 ----
 
 . **Cross-reference with OpenShift limits:**
-Compare the `memory_limit_in_bytes` reported by the JVM with the memory limit defined in your OpenShift deployment YAML. If they do not align, adjust your `JAVA_TOOL_OPTIONS` using `-XX:MaxRAMPercentage` to force the JVM to align its heap to the container boundary.
+Compare the `memory_limit_in_bytes` reported by the JVM with the memory limit defined in the deployment YAML. If they do not align, verify if the application is container aware, it is using `java-run.sh`. In case needed, one can adjust the JAVA_OPTS` and `JAVA_OPTS_APPEND` using `-XX:MaxRAMPercentage` in case `java-run.sh` is used. The environment variables: `JAVA_OPTS` and `JAVA_OPTS_APPEND` can be used as long as java-run.sh are used.
+
+[source,text]
+----
+# Example:
+$ podman run --memory-reservation=700m --memory=500m --memory-swap=1000m --rm -it localhost/openjdk:app
+memory_limit_in_bytes: 512000 k <------------------- memory 500mb
+memory_and_swap_limit_in_bytes: 1024000 k <--------- swap and memory 1000mb
+memory_soft_limit_in_bytes: 716800 k <-------------- soft limit 700mb
+----
 
 [NOTE]
 ====
