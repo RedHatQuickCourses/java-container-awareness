@@ -230,7 +230,7 @@
 <p><code>Xmx</code> direct usage: (in most cases) is an anti-pattern. By default Java will have already percentage utilization inside a container. In other words, the manual strategy of defining absolute heap sizes (e.g., <code>-Xmx2g</code>) has become a deployment anti-pattern, because it decouples from the container size.</p>
 </li>
 <li>
-<p>JVM arguments directly at build time, rather than runtime. For example, the usage of JVM arguments hardcoded in a Containerfile (Dockerfile), rather than customizable in a deployment resource (YAML).</p>
+<p>JVM arguments directly at build time, rather than runtime. For example, avoid the usage of JVM arguments hardcoded in a Containerfile (Dockerfile), rather than customizable in a deployment resource (YAML), which is more adequate.</p>
 </li>
 </ul>
 </div>
@@ -256,7 +256,7 @@
 <div class="ulist">
 <ul>
 <li>
-<p><strong><code>-XX:MaxRAMPercentage=N</code></strong>: Defines the maximum heap size as a percentage of the container&#8217;s memory limit. For most applications, a value between <code>50.0</code> and <code>75.0</code> is recommended, leaving the remaining space for off-heap requirements.</p>
+<p><strong><code>-XX:MaxRAMPercentage=N</code></strong>: Set by default. Defines the maximum heap size as a percentage of the container&#8217;s memory limit. For most applications, a value between <code>50.0</code> and <code>80.0</code> is usually adequate, leaving the remaining space for off-heap requirements. Off-heap heavy application may require a low percentage.</p>
 </li>
 <li>
 <p><strong><code>-XX:InitialRAMPercentage=N</code></strong>: Sets the initial heap size as a percentage of the container limit.</p>
