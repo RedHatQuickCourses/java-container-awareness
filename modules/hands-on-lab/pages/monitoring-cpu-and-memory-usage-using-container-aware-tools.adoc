@@ -13,18 +13,43 @@ To monitor your Java application accurately, you must utilize tools and flags th
 
 == Container-Aware Diagnostic Tools
 
-=== 1. JVM Flags: -XX:+UnlockDiagnosticVMOptions
+Usage of Java Diagnostics (jcmd) is always preffered. 
+
+=== 1. JVM Flags:
 The JVM provides built-in mechanisms to report exactly what it sees regarding container limits. 
 
 *   **`--XshowSettings:system`**: This is the most critical flag for initial diagnosis. It displays the system information the JVM has detected, including cgroup-enforced memory limits and the active processor count.
 *   **`VM.info`**: When using `jcmd`, this command provides a comprehensive dump of the current JVM configuration, including container-specific constraints.
 
 === 2. Interpreting Container-Aware Output
-When running a container-aware command (such as `java -XshowSettings:system -version`), look for the following key indicators:
+When running a container-aware command (such as jcmd's VM.info's and `java -XshowSettings:system -version`), look for the following key indicators:
 
 *   **`active_processor_count`**: Represents the number of CPUs available to the JVM based on the Kubernetes/OpenShift CPU limits.
 *   **`memory_limit_in_bytes`**: Reflects the specific cgroup memory limit. If this value does not match your expected Kubernetes resource limit, the JVM is not correctly detecting the container boundary.
-*   **`cpu_quota` and `cpu_period`**: These values dictate the CPU throttling behavior. A `cpu_quota` of `-1` suggests no limit is set, while specific values indicate restricted processing time.
+*   **active processor`**: this shows how many CPU were detected.
+
+Example:
+[source,bash]
+----
+container (cgroup) information:
+container_type: cgroupv2
+cpu_cpuset_cpus: 0-3
+cpu_memory_nodes: 0
+active_processor_count: 3 <---------------- process count
+cpu_quota: 220000 <------------------------ 2.2 cpus
+cpu_period: 100000
+cpu_shares: no shares
+memory_limit_in_bytes: 12582912 k <-------- 12gb limit
+memory_and_swap_limit_in_bytes: 12582912 k
+memory_soft_limit_in_bytes: unlimited
+memory_usage_in_bytes: 758948 k
+memory_max_usage_in_bytes: 759060 k
+kernel_memory_usage_in_bytes: 10624 k
+kernel_memory_max_usage_in_bytes: unlimited
+kernel_memory_limit_in_bytes: 10628 k
+maximum number of tasks: 98938
+current number of tasks: 98
+----
 
 == Hands-on Activity: Verifying Container Limits
 
@@ -56,14 +81,14 @@ nproc
 +
 [source,bash]
 ----
-java -XX:+UnlockDiagnosticVMOptions -XshowSettings:system -version
+java -XshowSettings:system -version
 ----
 
 === Step 2: Analyze the JVM Output
 Locate the container information section in the output. You should see entries similar to:
 ----
 container (cgroup) information:
-    container_type: cgroupv1
+    container_type: cgroupv2
     cpu_cpuset_cpus: 0-1
     active_processor_count: 2
     memory_limit_in_bytes: 536870912
@@ -79,4 +104,4 @@ container (cgroup) information:
 ----
 jcmd <pid> VM.info
 ----
-2. Search for the `cgroup` section in the output. This provides a real-time snapshot of the container metrics, including `memory_usage_in_bytes`. Use this to determine if your heap size (typically a percentage of the limit) is appropriately leaving enough headroom for off-heap memory.
+2. Search for the `container` section in the output (cgroup). This provides a real-time snapshot of the container metrics, including `memory_usage_in_bytes`. Use this to determine if your heap size (typically a percentage of the limit) is appropriately leaving enough headroom for off-heap memory.
