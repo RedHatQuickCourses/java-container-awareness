@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 3269,
+  "totalSeconds": 3294,
   "pageCount": 28,
   "pages": [
     {
@@ -100,7 +100,7 @@
     {
       "module": "troubleshooting-and-tooling",
       "page": "identifying-container-aware-versus-non-container-aware-tools.adoc",
-      "seconds": 141
+      "seconds": 166
     },
     {
       "module": "troubleshooting-and-tooling",
