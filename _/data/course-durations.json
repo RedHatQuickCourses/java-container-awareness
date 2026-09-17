@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 3187,
+  "totalSeconds": 3206,
   "pageCount": 28,
   "pages": [
     {
@@ -75,7 +75,7 @@
     {
       "module": "openshift-and-kubernetes-integration",
       "page": "openshift-and-kubernetes-integration.adoc",
-      "seconds": 47
+      "seconds": 66
     },
     {
       "module": "openshift-and-kubernetes-integration",

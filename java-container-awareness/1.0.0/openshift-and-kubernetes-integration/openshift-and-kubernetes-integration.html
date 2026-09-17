@@ -224,18 +224,21 @@
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Resource Specifications:</strong> Kubernetes uses <code>requests</code> and <code>limits</code> defined in deployment YAML to manage compute resources. <code>Requests</code> guide the scheduler for node placement, while <code>limits</code> enforce hard constraints on CPU and memory usage.</p>
+<p><strong>Resource Specifications:</strong> Kubernetes uses <code>requests</code> and <code>limits</code> defined in deployment YAML to manage compute resources. <code>Requests</code> guide the scheduler for node placement, while <code>limits</code> enforce hard constraints on CPU and memory usage. Java only cares about limits.</p>
 </li>
 <li>
 <p><strong>Cgroup Enforcement:</strong> Platform resource definitions translate directly into Linux kernel cgroup values. CPU limits define execution quotas, while memory limits act as the boundary for the container&#8217;s total memory footprint.</p>
 </li>
 <li>
-<p><strong>QoS Classes:</strong> OpenShift employs Quality of Service (QoS) classes to handle resource contention. While "Guaranteed" QoS provides stable resource allocation, it does not prevent cgroup-level OutOfMemory (OOM) kills if the application exceeds its assigned memory limits.</p>
+<p><strong>QoS Classes:</strong> OpenShift employs Quality of Service (QoS) classes to handle resource contention. There are three classes: Guaranteed, Burstable, and Best-effort (in order of eviction). While Guaranteed QoS provides stable resource allocation always, it does not prevent cgroup-level OutOfMemory (OOM) kills or OOMException from happening, just puts the application at the end of the eviction process (after burstable and best-effort).</p>
 </li>
 <li>
 <p><strong>Operational Alignment:</strong> Proper integration requires aligning Java heap configurations with container-level constraints to prevent discrepancies between the JVM&#8217;s view of memory and the actual limits imposed by the OpenShift platform.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>Java only cares about limits, so if the deployment does not have limits, it will use the host as limits. Unbouded deployment is a type of deployment that will use the full Host limits.</p>
 </div>
 <nav class="pagination">
   <span class="prev"><a href="../risks-and-memory-management/best-practices-for-java-memory-configuration-in-containers.html">Best Practices for Java Memory Configuration in Containers</a></span>
