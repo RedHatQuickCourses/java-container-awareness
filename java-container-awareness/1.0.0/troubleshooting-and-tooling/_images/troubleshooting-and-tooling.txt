@@ -1,11 +1,13 @@
-When troubleshooting Java applications in containerized environments, the most critical step is distinguishing between tools that report host-level node metrics and those that are truly container-aware. Relying on host-level data often leads to memory misconfiguration and unexpected OOMKills.
+Troubleshooting Java applications within containerized environments requires you to distinguish between tools that report host-level node metrics and those that are truly container-aware. It is important to note that improper resource utilization will lead to significant issues, including memory misconfiguration, OOM Kills, Out of Memory exceptions, SIGTERM signals, and inefficient resource allocation.
 
-First, keep in mind that standard Linux utilities like "lscpu", "nproc", and "free -m" reflect the resources of the underlying OpenShift node rather than the specific limits applied to your container.
+When diagnosing these environments, keep the following key points in mind. 
 
-To get an accurate view, you should utilize container-aware diagnostics. Specifically, leverage JVM flags such as "VM.info" or the "-XX:+PrintFlagsFinal" flag, which you can access via the "--XshowSettings:system" parameter. These will allow you to see the exact memory and CPU constraints enforced on your container.
+First, understand the difference between host-level and container-aware tools. Standard Linux utilities like `lscpu`, `nproc`, and `free -m` are designed to report the resources of the underlying host node rather than the limits of your specific container. Relying on these can lead to inaccurate conclusions.
 
-Next, you should inspect your deployment. Analyze your pod logs to verify whether startup scripts, such as "run-java.sh", are active and to confirm that the default OpenJDK memory allocation is scaling correctly.
+Instead, you should utilize container-aware diagnostics. JVM-specific tools, such as the `jcmd` command with the `VM.info` flag, or using the `-XX:+PrintFlagsFinal` argument via `--XshowSettings:system`, allow you to accurately retrieve the memory and CPU constraints that are actually enforced on your container.
 
-When performing heap analysis, always compare the JVM's reported heap size against your defined container limits. This is a key step in identifying discrepancies between your configured "-Xmx" values and the actual resources available to the application.
+Next, focus on deployment inspection. Be sure to analyze your pod logs to verify whether startup scripts, such as `run-java.sh`, are active, and to confirm that the default OpenJDK memory allocation is scaling correctly.
 
-Finally, a word of caution regarding resource tuning: be very careful when manually overriding the "-Xmx" value on container-aware JVMs. Doing so can cause a mismatch with your container limits, which may lead to your container being underutilized or, conversely, triggering runtime OOMExceptions.
+When performing heap analysis, compare the JVM's reported heap size directly against the container limit values. This comparison is essential for identifying potential discrepancies between your configured `-Xmx` values and the resources actually available to the container.
+
+Finally, a word of caution regarding resource tuning. Be aware that manually overriding the `-Xmx` flag on container-aware JVMs can cause a mismatch with container limits. This practice often results in container underutilization or unexpected runtime Out of Memory exceptions. Always ensure your settings align with the container's environment constraints.

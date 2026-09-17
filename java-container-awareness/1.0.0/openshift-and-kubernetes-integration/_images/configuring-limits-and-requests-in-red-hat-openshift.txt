@@ -1,25 +1,31 @@
-In Red Hat OpenShift Container Platform, effectively managing resources is a balancing act between scheduling efficiency and runtime performance. To optimize Java applications, it is critical to understand how OpenShift handles resource definitions and how those definitions translate to the Linux kernel and the Java Virtual Machine.
+In Red Hat OpenShift Container Platform, effective resource management is a balancing act between scheduling efficiency and runtime performance. To optimize Java applications, it is critical to understand how OpenShift handles resource definitions and how those settings translate to the Linux kernel and the Java Virtual Machine.
 
-Let’s look at the relationship between requests and limits. OpenShift uses Kubernetes-native resource management, defined within the container specification of your deployment or pod YAML. 
+Let’s start with the relationship between Requests and Limits. OpenShift uses Kubernetes-native resource management defined within your container specifications. 
 
-Requests represent the minimum amount of CPU and memory guaranteed to the container. The OpenShift scheduler uses these values to place a pod on a node. If a node does not have enough unallocated resources to satisfy the request, the scheduler will not place the pod there.
+Requests are used by the OpenShift scheduler to place a pod on a node. They represent the minimum amount of CPU and memory guaranteed to that container. If a node does not have enough unallocated resources to satisfy a request, the scheduler will not place the pod there. 
 
-Limits, on the other hand, define the hard ceiling for resource consumption. If a container exceeds its memory limit, it risks being terminated by the kernel with an "OOMKilled" status. CPU limits act as a throttling mechanism, restricting the container's execution time within a defined period.
+Limits, on the other hand, define a hard ceiling for resource consumption. If a container exceeds its memory limit, it risks being terminated by the kernel in what we call an OOMKill. CPU limits act as a throttling mechanism, restricting the container's execution time within a defined period.
 
-When we look at the resource allocation table, CPU requests are used for scheduling and node assignment by setting the C-group share to prioritize usage. CPU limits are used to bind execution allocation, where the system sets a quota and period—defaulting to one hundred millisecond segments—to throttle performance.
+To summarize the technical allocation, CPU requests set the cgroup CPU shares to prioritize usage for scheduling and node assignment, while CPU limits set specific quotas and periods to enforce execution boundaries.
 
-It is vital to understand that different layers of your infrastructure interpret these settings differently. First, at the OpenShift and Kubernetes layer, the scheduler uses requests to manage cluster density and node capacity, but it ignores limits for scheduling decisions. Second, at the kernel layer, the Linux kernel enforces limits using Control Groups, or cgroups. The quotas and periods from your container spec are translated directly into filesystem values. 
+It is vital to understand that different layers of your infrastructure interpret these settings differently. 
 
-Finally, consider the Java layer. Modern versions of OpenJDK—specifically those after version eight, update one-ninety-one—are container-aware. However, you must remember that Java only considers limits, not requests. Even if you define CPU requests in your YAML, the Java Virtual Machine will ignore them when calculating its internal heap sizing and thread pool configurations.
+First, at the OpenShift and Kubernetes layer, the scheduler uses requests to manage cluster density and node capacity, but it ignores limits for scheduling decisions.
 
-An important caution here: While Java workloads are burstable, the JVM performs its cgroup reading only at startup. Consequently, the JVM is inelastic. If you change limits at runtime without restarting the pod, the JVM will not automatically adjust its internal heuristics to match the new constraints.
+Second, at the Linux kernel layer, the kernel enforces limits using control groups, or cgroups. The quotas and periods from your container specification are translated directly into filesystem values.
 
-To ensure your applications run effectively, follow these best practices. First, avoid overcommitting critical workloads. For production-critical applications, consider a Guaranteed Quality of Service, which is achieved when both requests and limits are set to the same value for all containers in the pod. If you are unsure of an application's baseline, you might start by setting requests lower than limits to allow for burstable performance, but ensure the limit is high enough to accommodate peak load to prevent CPU throttling. Lastly, always set memory limits to prevent a single Java container from consuming all available node memory, which could trigger the node-level out-of-memory killer and impact other pods on the same node.
+Third, at the Java layer, modern versions of OpenJDK are container-aware. However, keep in mind that Java only considers limits, not requests. Even if you define CPU requests in your YAML, the JVM will ignore them for internal heap sizing and thread pool calculations.
 
-Now, let’s move to a hands-on activity where you can inspect these cgroup resource constraints yourself. You will need an active OpenShift cluster and the OpenShift command-line interface authenticated with the appropriate access. Keep in mind that when deploying with an Operator, you will need to modify these settings via the respective Custom Resource.
+It is important to remember that while Java workloads are burstable—meaning threads dynamically demand kernel time—the JVM only reads its cgroup constraints once, at startup. Because the JVM is inelastic in this regard, if you change container limits at runtime without restarting the pod, the JVM will not automatically adjust its internal heuristics to match the new constraints.
 
-First, deploy a sample Java application using the YAML configuration provided in the course materials. This configuration defines specific memory and CPU requests and limits for your container.
+When configuring your environment, follow these best practices. For production-critical applications, consider a Guaranteed Quality of Service by setting requests and limits to the same value; this ensures your application is the last to be evicted. Avoid undercommitting by benchmarking your application to use the correct memory percentage, ensuring both heap and off-heap have space to grow. Generally, set requests lower than limits to allow for burst performance, but ensure the limit is high enough to accommodate peak load to prevent CPU throttling. Finally, always prefer using memory limits to prevent a single container from consuming a large chunk of node memory, which can negatively impact other pods.
 
-Next, access the running pod by using the command `oc rsh` followed by the pod name. Once you are inside the shell, check the CPU quota enforced by the kernel by reading the `cpu.cfs_quota_us` file in the sys-fs-cgroup-cpu directory. You should see a value of one hundred thousand, which corresponds to one hundred milliseconds, confirming the one thousand millicpu limit you set.
+While we generally advise using limits, some scenarios—such as clusters with very few applications or large nodes—may justify an unbounded deployment. However, be cautious: unbounded applications can create a race for host resources, leading to CPU throttling and, in worst-case scenarios, generalized pod evictions across the host.
 
-Finally, observe Java's internal detection of these limits by running the command `java -XshowSettings:vm -version`. When you look at the output related to the Max Heap Size and the Active Processor Count, you will notice that these values are derived from your defined limits, not the requests.
+Now, let's look at how you can inspect these cgroup constraints yourself. 
+
+First, deploy a sample Java application with defined limits and requests in your YAML specification. Once the pod is running, use the `oc rsh` command to open a remote shell session into the container. 
+
+From inside the container, you can check the CPU quota enforced by the kernel by reading the `cpu.cfs_quota_us` file in the system cgroup directory. A value of 100,000, for example, confirms a 100-millisecond window, effectively enforcing your CPU limit.
+
+Finally, use Java diagnostic tools like `jcmd VM.info` or the `java -XshowSettings:vm` command. When you inspect the output, look for the `MaxHeapSize` and `ActiveProcessorCount`. You will see that these values are derived from the limits you defined in your configuration, rather than the requests.

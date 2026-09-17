@@ -1,13 +1,19 @@
-When deploying Java in containerized environments, improper memory configuration can lead to significant stability and performance issues. Understanding the balance between heap and off-heap memory is critical to preventing infrastructure-level failures.
+When deploying Java in containerized environments, improper memory configuration can lead to significant stability and performance issues. It is critical to understand the balance between heap and off-heap memory to prevent infrastructure-level failures.
 
-Let’s look at the primary risks associated with these configurations.
+There are four primary risks to keep in mind when managing memory in these environments. 
 
-First, consider the risk of decoupling. If you hard-code heap sizes, for instance by using the dash X-m-x flag, without considering container limits, you may run into memory mismatches. If the JVM ignores container boundaries, it can trigger c-groups O-O-M kills, which forces the kernel to terminate your application unexpectedly.
+First, consider the risks of decoupling. If you hard-code heap sizes using flags like `-Xmx` without considering container limits, you create a memory mismatch. If the JVM ignores container boundaries, it may trigger a cgroups OOM-Kill, causing the kernel to terminate your application.
 
-Second, you must account for off-heap considerations. Modern, container-aware Java calculates its heap size as a percentage of the total available container memory. It is essential to account for your off-heap usage, such as metaspace, thread stacks, and native buffers, to ensure your total memory footprint does not exceed the container's hard limit.
+Second, consider off-heap requirements. Container-aware versions of Java calculate heap size as a percentage of the available container memory. You must account for off-heap usage, such as metaspace, thread stacks, and native buffers, to ensure the total memory footprint does not exceed your container limit.
 
-Third, be aware of the potential for resource underutilization. If your configuration is inadequate, the JVM might reserve significantly less memory than the container actually provides, which leaves expensive infrastructure resources sitting idle.
+Third, be aware of resource underutilization. Inadequate configuration can lead to inefficiency, where the JVM reserves significantly less memory than the container provides, leaving expensive infrastructure resources sitting idle.
 
-To manage these risks effectively, I recommend following these best practices.
+Finally, watch out for non-container-aware allocation. You might allocate a percentage of memory for the container, but fail to benchmark or track components inside your application that are not container-aware. For example, memory allocators like jemalloc and glibc’s malloc operate below the JVM level and are not inherently container-aware.
 
-Always prioritize container-aware JVM settings over manual heap overrides. This allows the system to utilize its self-tuning capabilities and support dynamic scaling. You should also benchmark your application's specific memory usage to determine the optimal ratio between your heap and off-heap requirements. Finally, avoid any configurations that explicitly ignore c-group limits, as these will bypass the essential self-tuning capabilities of modern JDKs.
+To manage these risks effectively, keep these best practices in mind:
+
+Always prioritize container-aware JVM settings over manual heap overrides. This allows your environment to benefit from dynamic scaling. You should also benchmark your application’s memory usage regularly to determine the optimal ratio between heap and off-heap requirements. 
+
+Avoid any configurations that ignore cgroup limits, as these bypass the self-tuning capabilities of modern JDKs. It is also important to track the specific percentage utilization for your application, and always use explicit limits in your container settings to ensure Java does not attempt to read host details. 
+
+Finally, take the time to understand Quality of Service settings and how they impact your Java deployments. Following these steps will help ensure your applications remain stable and performant within a containerized architecture.
