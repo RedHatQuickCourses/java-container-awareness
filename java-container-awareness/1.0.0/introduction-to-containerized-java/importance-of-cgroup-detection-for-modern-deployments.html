@@ -284,6 +284,30 @@
 <div class="paragraph">
 <p>If before the users set Xmx and the container size, currently they just need to know the adequate percentage and the heap will adapt to the container size automatically at start up.</p>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_red_hat_build_of_openjdk_containers"><a class="anchor" href="#_red_hat_build_of_openjdk_containers"></a>Red Hat build of OpenJDK containers</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Specifically the default OpenJDK container image, the default ENTRYPOINT will be run-java.sh, which is a script that provides default settings, such as ParallelGC as expected GC, but also environment virables that can be used at runtime:</p>
+</div>
+<div class="paragraph">
+<p>For a deep dive into how these changes specifically affect Java runtimes specifically for cgroups v2, review the scenarios outlined in the following developer article:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-net-and-nodejs-openshift-4#scenarios_with_java">How does cgroups v2 impact Java, .NET, and Node.js in OpenShift 4? - Scenarios with Java</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Key Takeaways for Java Developers</strong>
+- OpenJDK 8u372+, 11.0.16+, 17, and 21 natively support cgroups v2 detection.
+- Red Hat container images now rely on native OpenJDK C++ container detection rather than legacy <code>run-java.sh</code> wrapper scripts for setting memory limits.
+- The <code>MaxRAMPercentage</code> property (defaulting to 80% in these images) allows the JVM to dynamically size its heap based on the cgroups v2 boundaries.</p>
+</div>
 <div class="admonitionblock important">
 <table>
 <tr>
