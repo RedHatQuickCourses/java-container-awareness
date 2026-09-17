@@ -8,11 +8,14 @@ Understanding how the Java Virtual Machine (JVM) interacts with these cgroups is
 
 == The Role of cgroups in Resource Management
 
-Cgroups allow the kernel to organize processes into hierarchical groups and allocate resources—such as CPU time, system memory, and network bandwidth—to these groups. When you define `limits` and `requests` in your OpenShift Deployment configuration, OpenShift translates these values into cgroups filesystem entries (typically found under `/sys/fs/cgroup/`).
+Cgroups allow the kernel to organize processes into hierarchical groups and allocate resources—such as CPU time, system memory, and network bandwidth—to these groups. When you define `limits` and `requests` in your OpenShift Deployment configuration, OpenShift translates these values into cgroups filesystem entries (typically found under `/sys/fs/cgroup/`). Details:
+
+* cgroups v1: /sys/fs/cgroup/memory/memory.max_usage_in_bytes 
+* cgroups v2: /sys/fs/cgroup/memory.max
 
 === CPU and Memory Enforcement
-*   **CPU Limits:** Java applications are "inelastic" regarding CPU detection. Upon startup, the JVM queries the cgroup filesystem to determine how many CPU cores are available. It uses this information to size its internal thread pools (e.g., the Common ForkJoinPool). Once started, this value generally remains fixed. If a container is restricted via a quota, the kernel throttles the CPU cycles available to the JVM.
-*   **Memory Limits:** The JVM monitors the `memory.limit_in_bytes` (cgroups v1) or `memory.max` (cgroups v2) files. If the JVM is container-aware, it uses these values to calculate default heap sizing (e.g., typically 1/4 of the detected container memory if no explicit `-Xmx` is set).
+*   **CPU Limits:** Java applications are inelastic regarding CPU detection - it won't detect every 10s, it will detect once at start-up. Upon startup, the JVM queries the cgroup filesystem to determine how many CPU cores are available. It uses this information to size its internal thread pools (e.g., the Common ForkJoinPool). Once started, this value generally remains fixed. If a container is restricted via a quota, the kernel throttles the CPU cycles available to the JVM.
+*   **Memory Limits:** The JVM monitors the `memory.limit_in_bytes` (cgroups v1) or `memory.max` (cgroups v2) files. If the JVM is container-aware, it uses these values to calculate default heap sizing. The exact percentage will depend on the version and method of starting: 25% for deployment without run-java.sh, 80% for run-java.sh script (current Red Hat OpenJDK images) and 50% for run-java.sh script started (old Red Hat OpenJDK images).
 
 == The Danger of Decoupling
 
@@ -30,9 +33,9 @@ To ensure your Java applications coexist healthily with cgroup limits, adopt the
 
 *   **Utilize Container-Aware JVMs:** Always use Java 8u191+ or modern versions (Java 11, 17, 21+), which include the JDK8146115 enhancement. These versions automatically read the cgroup filesystem to adjust memory ergonomics.
 *   **Use Relative Sizing:** Instead of hardcoding `-Xmx` values (e.g., `-Xmx2g`), use container-aware flags like `-XX:MaxRAMPercentage`. This allows the JVM to scale its heap dynamically based on the memory limit assigned to the container (e.g., `-XX:MaxRAMPercentage=75.0` will set the heap to 75% of the container limit).
-*   **Account for Off-Heap Memory:** Remember that the total memory used by a container includes the heap, the Metaspace, stack space for threads, code cache, and native buffers (Direct Byte Buffers). Ensure your `-Xmx` leaves sufficient "headroom" for these non-heap segments, or the container will exceed its cgroup limit even if the heap appears healthy.
+*   **Account for Off-Heap Memory:** Remember that the total memory used by a container includes the heap, the Metaspace, stack space for threads, code cache, and native buffers (Direct Byte Buffers). Ensure the percentage (MaxRAMPercentage) leaves sufficient room for heap to grow and for non-heap segments, or the container will exceed its cgroup limit triggering an OOMKill.
 
 [TIP]
 ====
-When debugging, always check the `memory.stat` file inside the container (if permissions allow) or use tools like `jcmd` to inspect current memory usage and compare them against the deployment's defined resource limits.
+When debugging, always check the `memory.stat` file inside the container (if permissions allow) or use tools like `jcmd` (VM.info) to inspect current memory usage and compare them against the deployment's defined resource limits.
 ====
