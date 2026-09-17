@@ -32,6 +32,34 @@ If before the users set Xmx and the container size, currently they just need to 
 
 Specifically the default OpenJDK container image, the default ENTRYPOINT will be run-java.sh, which is a script that provides default settings, such as ParallelGC as expected GC, but also environment virables that can be used at runtime:
 
+[cols="1,2", options="header"]
+|===
+| Environment Variable | Purpose
+
+| `JAVA_OPTS` 
+| Main option, which includes default settings - can be used to replace them
+
+| `JAVA_OPTS_APPEND` 
+| Append option, can be used to complement the main ones
+
+| `GC_COLLECTOR` 
+| Used for GC collector
+
+|===
+
+`JAVA_TOOL_OPTIONS` is not from the run-java.sh and should be avoided, it will be used for any Java environment variable, including jcmd itself:
+
+.Example: Why JAVA_TOOL_OPTIONS should be avoided
+[source,console]
+----
+$ export JAVA_TOOL_OPTIONS="EXAMPLE"
+$ openjdk/app-injection$ jcmd
+Picked up JAVA_TOOL_OPTIONS: EXAMPLE
+Unrecognized option: EXAMPLE
+Error: Could not create the Java Virtual Machine.
+Error: A fatal exception has occurred. Program will exit.
+----
+
 For a deep dive into how these changes specifically affect Java runtimes specifically for cgroups v2, review the scenarios outlined in the following developer article:
 
 * https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-net-and-nodejs-openshift-4#scenarios_with_java[How does cgroups v2 impact Java, .NET, and Node.js in OpenShift 4? - Scenarios with Java]
