@@ -330,6 +330,22 @@
 </div>
 </div>
 <div class="sect1">
+<h2 id="_unbouded_deployment"><a class="anchor" href="#_unbouded_deployment"></a>Unbouded deployment</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Although not the core of this course, it is totally possible and sometimes even desired to have Java applications without container limits, the so called unbouded. Scenarios such as very few java applications, large OCP nodes, and specific scearios for high spike demand can justify its utilization.</p>
+</div>
+<div class="paragraph">
+<p>This is achieved by creating an deployment without limits, which will have two main consequences:
+* Java will use the full host as limit: which can make the application use a very large number of CPUs as baseline (for thread pools) and a large memory utilization (given heap will be based on the host value.
+* QoS will be Burstable or Best Effort, depending if requests are set.</p>
+</div>
+<div class="paragraph">
+<p>This type of application deployment should be treated with caution, given the fact that several applications (unbouded) will cause a race for the hosts resources and may impact directly on CPU throttling (many threads competing at the same time for CPU and memory resources). Consequently, this can overload the host and create more possibilites for eviction scenarios (several Java unbouded demanding more and more resources) causing generalized evictions.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="_hands_on_activity_inspecting_cgroup_resource_constraints"><a class="anchor" href="#_hands_on_activity_inspecting_cgroup_resource_constraints"></a>Hands-on Activity: Inspecting cgroup Resource Constraints</h2>
 <div class="sectionbody">
 <div class="paragraph">
