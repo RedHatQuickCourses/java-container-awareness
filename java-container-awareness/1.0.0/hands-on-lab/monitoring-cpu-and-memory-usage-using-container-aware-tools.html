@@ -243,8 +243,11 @@
 <div class="sect1">
 <h2 id="_container_aware_diagnostic_tools"><a class="anchor" href="#_container_aware_diagnostic_tools"></a>Container-Aware Diagnostic Tools</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>Usage of Java Diagnostics (jcmd) is always preffered.</p>
+</div>
 <div class="sect2">
-<h3 id="_1_jvm_flags_xxunlockdiagnosticvmoptions"><a class="anchor" href="#_1_jvm_flags_xxunlockdiagnosticvmoptions"></a>1. JVM Flags: -XX:+UnlockDiagnosticVMOptions</h3>
+<h3 id="_1_jvm_flags"><a class="anchor" href="#_1_jvm_flags"></a>1. JVM Flags:</h3>
 <div class="paragraph">
 <p>The JVM provides built-in mechanisms to report exactly what it sees regarding container limits.</p>
 </div>
@@ -262,7 +265,7 @@
 <div class="sect2">
 <h3 id="_2_interpreting_container_aware_output"><a class="anchor" href="#_2_interpreting_container_aware_output"></a>2. Interpreting Container-Aware Output</h3>
 <div class="paragraph">
-<p>When running a container-aware command (such as <code>java -XshowSettings:system -version</code>), look for the following key indicators:</p>
+<p>When running a container-aware command (such as jcmd&#8217;s VM.info&#8217;s and <code>java -XshowSettings:system -version</code>), look for the following key indicators:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -273,9 +276,34 @@
 <p><strong><code>memory_limit_in_bytes</code></strong>: Reflects the specific cgroup memory limit. If this value does not match your expected Kubernetes resource limit, the JVM is not correctly detecting the container boundary.</p>
 </li>
 <li>
-<p><strong><code>cpu_quota</code> and <code>cpu_period</code></strong>: These values dictate the CPU throttling behavior. A <code>cpu_quota</code> of <code>-1</code> suggests no limit is set, while specific values indicate restricted processing time.</p>
+<p><strong>active processor`</strong>: this shows how many CPU were detected.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">container (cgroup) information:
+container_type: cgroupv2
+cpu_cpuset_cpus: 0-3
+cpu_memory_nodes: 0
+active_processor_count: 3 &lt;---------------- process count
+cpu_quota: 220000 &lt;------------------------ 2.2 cpus
+cpu_period: 100000
+cpu_shares: no shares
+memory_limit_in_bytes: 12582912 k &lt;-------- 12gb limit
+memory_and_swap_limit_in_bytes: 12582912 k
+memory_soft_limit_in_bytes: unlimited
+memory_usage_in_bytes: 758948 k
+memory_max_usage_in_bytes: 759060 k
+kernel_memory_usage_in_bytes: 10624 k
+kernel_memory_max_usage_in_bytes: unlimited
+kernel_memory_limit_in_bytes: 10628 k
+maximum number of tasks: 98938
+current number of tasks: 98</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -328,7 +356,7 @@ nproc</code></pre>
 <p>Run the container-aware JVM setting command:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">java -XX:+UnlockDiagnosticVMOptions -XshowSettings:system -version</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">java -XshowSettings:system -version</code></pre>
 </div>
 </div>
 </li>
@@ -343,7 +371,7 @@ nproc</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre>container (cgroup) information:
-    container_type: cgroupv1
+    container_type: cgroupv2
     cpu_cpuset_cpus: 0-1
     active_processor_count: 2
     memory_limit_in_bytes: 536870912</pre>
@@ -373,7 +401,7 @@ nproc</code></pre>
 </div>
 </li>
 <li>
-<p>Search for the <code>cgroup</code> section in the output. This provides a real-time snapshot of the container metrics, including <code>memory_usage_in_bytes</code>. Use this to determine if your heap size (typically a percentage of the limit) is appropriately leaving enough headroom for off-heap memory.</p>
+<p>Search for the <code>container</code> section in the output (cgroup). This provides a real-time snapshot of the container metrics, including <code>memory_usage_in_bytes</code>. Use this to determine if your heap size (typically a percentage of the limit) is appropriately leaving enough headroom for off-heap memory.</p>
 </li>
 </ol>
 </div>
