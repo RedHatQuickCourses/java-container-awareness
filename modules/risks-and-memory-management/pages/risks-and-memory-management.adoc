@@ -17,3 +17,10 @@ When deploying Java in containerized environments, improper memory configuration
     *   Track specific percentage utilization for the application.
     *   Use limits in the container settings to make sure Java won't use host details.
     *   Understand Quality of Service (QoS) and how it impacts (Java) deployments.
+
+**Java ENTRYPOINT Practices:**
+
+Default OpenJDK container uses run-java.sh as ENTRYPOINT, this has several implications:
+* MAXRAMPercentage is set at 80%
+* ParallelGC is the default container (regardless of CPU)
+* Environment variables: `JAVA_OPTS`, `JAVA_OPTS_APPEND` is the default container (regardless of CPU)
