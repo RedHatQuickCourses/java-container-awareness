@@ -37,14 +37,42 @@ Default OpenJDK container uses run-java.sh as ENTRYPOINT, this has several impli
 | **Process Management** 
 | It can have Java process with different PID than 1, but not as a rule
 | Directly executes as PID 1 given entrypoint will be the first process to be executed
+
+| **Recommendation** 
+| run-java.sh is to be used: it gives flexibility.
+| Straight deployment should be avoided, reason: you cannot tune MAxRAMPercentage as easily and may be bounded by the 25% heap limit, which is the full idea of the env variables.
 |===
 
 
-== References
+**References**
 
 For comprehensive details on configuring Red Hat Universal Base Image (UBI) OpenJDK containers, including supported environment variables across different UBI versions, consult the official documentation:
 
 * https://rh-openjdk.github.io/redhat-openjdk-containers/[Red Hat UBI OpenJDK Container Images Documentation]
+
+== Cgroups v1 vs cgropus v2
+
+.cgroups v1 vs. v2 Memory Metrics
+[cols="1,2,2", options="header"]
+|===
+| Metric | cgroups v1 Path | cgroups v2 Path
+
+| **Peak Usage** 
+| `/sys/fs/cgroup/memory/memory.max_usage_in_bytes` 
+| `/sys/fs/cgroup/memory.peak` (Requires Kernel 5.19+)
+
+| **Current Usage** 
+| `/sys/fs/cgroup/memory/memory.usage_in_bytes` 
+| `/sys/fs/cgroup/memory.current`
+
+| **Hard Limit** 
+| `/sys/fs/cgroup/memory/memory.limit_in_bytes` 
+| `/sys/fs/cgroup/memory.max`
+
+| **Soft Limit** 
+| `/sys/fs/cgroup/memory/memory.soft_limit_in_bytes` 
+| `/sys/fs/cgroup/memory.high`
+|===
 
 == The Decoupling Risk
 Historically, developers focused exclusively on `-Xmx` (maximum heap size). However, in a container, the JVM sees the container's memory limit. If you configure the Heap to consume too large a percentage of the container's limit, you leave insufficient headroom for Off-Heap requirements. Therefore a percentage approach is used: 
@@ -146,7 +174,7 @@ spec:
           image: quay.io/hummingbird/openjdk:latest
 
           env:
-            - name: JAVA_TOOL_OPTIONS
+            - name: JAVA_OPTS_APPEND
               value: "-XX:NativeMemoryTracking=summary"
 EOF
 ----
@@ -211,17 +239,19 @@ To ensure your configuration is resilient, verify that your application does not
 +
 [source,bash]
 ----
-## FIXME: The below path is not found in the container.
+### CGROUPS V1
 cat /sys/fs/cgroup/memory/memory.limit_in_bytes
+### CGROUPS V2
+cat /sys/fs/cgroup/memory.max
 ----
 
-2. Compare this value against your calculated Heap + Off-Heap usage. If your application's `Total` committed memory (as seen in NMT) + heap usage exceeds this limit, one must adjust your `MaxRAMPercentage` downward or increase the container's memory request/limit in OpenShift `Deployment` YAML.
+2. Compare this value against your calculated Heap + Off-Heap usage. If your application's `Total` committed memory (as seen in NMT) + heap usage exceeds this limit, one must adjust your `MaxRAMPercentage` downward or increase the container's memory limit in OpenShift `Deployment` YAML.
 
 === Troubleshooting Tip
 The following risks are possible on the deployment in orchestrators like Openshift 4:
 
 * **OOMKill**: The full memory is above the container size or cgroups v2 detection is failing.
 * **OOMException**: Usually off-heap allocation or metaspace, not that if `ExitOnOutOfMemoryError` flag is enabled, so then the JVM will exit.
-* **SIGTerm**: In case communication is impacted or the JVM is unresponsive sigterm can kick in. That will be in the events.
+* **SIGTERM**: In case communication is impacted or the JVM is unresponsive sigterm can kick in. That will be in the events.
 
 If you encounter `cgroup OOMKills` despite having a small Java Heap, use `jcmd` to identify the category consuming unexpected amounts of native memory. From that, investigate off-heap components such as non-container aware libraries, thread pool sizing, and do an investigation from the off-heap size perspective.
