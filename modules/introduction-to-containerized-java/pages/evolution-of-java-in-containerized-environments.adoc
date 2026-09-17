@@ -30,7 +30,7 @@ Containers achieve isolation through **Control Groups (cgroups)**, which is a Li
 
 Today, container awareness is the standard expectation for cloud-native Java development for Java 8u372+, 11.0.16+, 17+ such as 21 and 25. The transition from unaware to fully container-aware has considerably streamlined the DevOps workflow:
 
-*   **Self-Tuning:** Applications can now adjust their memory footprint dynamically to fit within Kubernetes/OpenShift resource requests and limits only requiring restart.
+*   **Self-Tuning:** Applications can now adjust their memory footprint automatically to fit within Kubernetes/OpenShift resource requests and limits upon start/restart.
 *   **Improved Stability:** By aligning the JVM's view of resources with the kernel-enforced limits, the frequency of container restarts due to resource exhaustion is drastically reduced.
 *   **Reduced Configuration Overhead:** Developers do not spend time tuning CPU values and  heap limits (`-Xmx`), as the JVM can now effectively derive them from the container environment deployed by an orchestrator via percentage automatically by having MaxRAMPercentage at 25% (upstream value).
 
