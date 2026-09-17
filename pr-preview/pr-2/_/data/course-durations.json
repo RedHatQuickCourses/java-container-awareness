@@ -1,0 +1,146 @@
+{
+  "totalSeconds": 3463,
+  "pageCount": 28,
+  "pages": [
+    {
+      "module": "ROOT",
+      "page": "index.adoc",
+      "seconds": 47
+    },
+    {
+      "module": "LABENV",
+      "page": "index.adoc",
+      "seconds": 40
+    },
+    {
+      "module": "introduction-to-containerized-java",
+      "page": "introduction-to-containerized-java.adoc",
+      "seconds": 46
+    },
+    {
+      "module": "introduction-to-containerized-java",
+      "page": "evolution-of-java-in-containerized-environments.adoc",
+      "seconds": 191
+    },
+    {
+      "module": "introduction-to-containerized-java",
+      "page": "overview-of-container-aware-versus-non-container-aware-java.adoc",
+      "seconds": 157
+    },
+    {
+      "module": "introduction-to-containerized-java",
+      "page": "importance-of-cgroup-detection-for-modern-deployments.adoc",
+      "seconds": 139
+    },
+    {
+      "module": "container-resource-detection",
+      "page": "container-resource-detection.adoc",
+      "seconds": 44
+    },
+    {
+      "module": "container-resource-detection",
+      "page": "understanding-jdk8146115-and-java-8u191-updates.adoc",
+      "seconds": 137
+    },
+    {
+      "module": "container-resource-detection",
+      "page": "detecting-container-memory-limits.adoc",
+      "seconds": 145
+    },
+    {
+      "module": "container-resource-detection",
+      "page": "determining-cpu-availability-within-containers.adoc",
+      "seconds": 167
+    },
+    {
+      "module": "risks-and-memory-management",
+      "page": "risks-and-memory-management.adoc",
+      "seconds": 73
+    },
+    {
+      "module": "risks-and-memory-management",
+      "page": "implications-of-decoupling-heap-memory-from-container-limits.adoc",
+      "seconds": 188
+    },
+    {
+      "module": "risks-and-memory-management",
+      "page": "managing-off-heap-memory-in-containerized-environments.adoc",
+      "seconds": 166
+    },
+    {
+      "module": "risks-and-memory-management",
+      "page": "best-practices-for-java-memory-configuration-in-containers.adoc",
+      "seconds": 234
+    },
+    {
+      "module": "openshift-and-kubernetes-integration",
+      "page": "openshift-and-kubernetes-integration.adoc",
+      "seconds": 66
+    },
+    {
+      "module": "openshift-and-kubernetes-integration",
+      "page": "configuring-limits-and-requests-in-red-hat-openshift.adoc",
+      "seconds": 257
+    },
+    {
+      "module": "openshift-and-kubernetes-integration",
+      "page": "understanding-cgroups-implications-for-java-applications.adoc",
+      "seconds": 168
+    },
+    {
+      "module": "openshift-and-kubernetes-integration",
+      "page": "navigating-kubernetes-resource-management-for-java.adoc",
+      "seconds": 167
+    },
+    {
+      "module": "troubleshooting-and-tooling",
+      "page": "troubleshooting-and-tooling.adoc",
+      "seconds": 50
+    },
+    {
+      "module": "troubleshooting-and-tooling",
+      "page": "identifying-container-aware-versus-non-container-aware-tools.adoc",
+      "seconds": 166
+    },
+    {
+      "module": "troubleshooting-and-tooling",
+      "page": "analyzing-container-limits-and-resource-utilization.adoc",
+      "seconds": 91
+    },
+    {
+      "module": "troubleshooting-and-tooling",
+      "page": "diagnostic-strategies-for-java-deployments-in-openshift.adoc",
+      "seconds": 109
+    },
+    {
+      "module": "troubleshooting-and-tooling",
+      "page": "java-diagnostics-jcmd.adoc",
+      "seconds": 119
+    },
+    {
+      "module": "hands-on-lab",
+      "page": "hands-on-lab.adoc",
+      "seconds": 19
+    },
+    {
+      "module": "hands-on-lab",
+      "page": "tuning-java-heap-settings-percentage-based-on-container-limits.adoc",
+      "seconds": 146
+    },
+    {
+      "module": "hands-on-lab",
+      "page": "monitoring-cpu-and-memory-usage-using-container-aware-tools.adoc",
+      "seconds": 160
+    },
+    {
+      "module": "hands-on-lab",
+      "page": "troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.adoc",
+      "seconds": 146
+    },
+    {
+      "module": "appendix",
+      "page": "appendix.adoc",
+      "seconds": 25
+    }
+  ]
+}
