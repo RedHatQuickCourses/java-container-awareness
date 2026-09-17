@@ -28,6 +28,19 @@ For a DevOps team, relying on container-aware Java simplifies the deployment pip
 
 If before the users set Xmx and the container size, currently they just need to know the adequate percentage and the heap will adapt to the container size automatically at start up.
 
+== Red Hat build of OpenJDK containers
+
+Specifically the default OpenJDK container image, the default ENTRYPOINT will be run-java.sh, which is a script that provides default settings, such as ParallelGC as expected GC, but also environment virables that can be used at runtime:
+
+For a deep dive into how these changes specifically affect Java runtimes specifically for cgroups v2, review the scenarios outlined in the following developer article:
+
+* https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-net-and-nodejs-openshift-4#scenarios_with_java[How does cgroups v2 impact Java, .NET, and Node.js in OpenShift 4? - Scenarios with Java]
+
+**Key Takeaways for Java Developers**
+- OpenJDK 8u372+, 11.0.16+, 17, and 21 natively support cgroups v2 detection.
+- Red Hat container images now rely on native OpenJDK C++ container detection rather than legacy `run-java.sh` wrapper scripts for setting memory limits.
+- The `MaxRAMPercentage` property (defaulting to 80% in these images) allows the JVM to dynamically size its heap based on the cgroups v2 boundaries.
+
 [IMPORTANT]
 ====
 While cgroup detection prevents the JVM from over-allocating heap space by setting the Heap Percentage automatically and allowing the user to tune it, it does **not** manage off-heap memory (Metaspace, Code Cache, Thread stacks, etc.). Because the heap is only a portion of the total memory usage, administrators must still account for the non-heap overhead seperately. Failing to leave enough room for off-heap memory can still result in a cgroup OOMKill, even if the heap appears to be within the allowed percentage.
