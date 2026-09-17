@@ -2,16 +2,16 @@
 :page-audio-src: tuning-java-heap-settings-percentage-based-on-container-limits.wav
 :page-transcript-src: tuning-java-heap-settings-percentage-based-on-container-limits.txt
 
-In modern containerized environments like Red Hat OpenShift, the JVM no longer treats the host machine's total physical memory as its boundary. Instead, it respects the `cgroup` limits assigned to the container. Tuning the Java heap using percentages is the industry-standard approach to ensure the JVM remains "elastic" relative to the container’s resource allocation.
+In containerized environments orchestrators, Red Hat OpenShift, Red Hat OpenJDK is able to detect the container boundaries. Instead, it respects the `cgroup` limits assigned to the container. Tuning the Java heap using percentages is the recommended and standard approach to ensure the JVM remains flexible and associated with the container’s resource allocation.
 
 == The Shift to Percentage-Based Memory Management
 
-Historically, developers used the `-Xmx` flag to set an absolute heap size (e.g., `-Xmx2g`). In a container, this creates a static configuration that ignores the actual memory limit of the pod. If the container limit is lowered, the JVM may attempt to exceed it, leading to a `cgroup` OOM-Kill.
+Historically since Java inception, developers used the `-Xmx` flag to set an absolute heap size (e.g., `-Xmx2g`). In a container, this creates a static configuration that ignores the actual memory limit of the container. If the container limit is lowered, the JVM may attempt to exceed it, leading to a `cgroup` OOM-Kill.
 
 By using **RAM Percentage flags**, you decouple the specific memory limit from the application code, allowing the JVM to calculate its heap size dynamically based on the container's available memory.
 
 === Key Configuration Flags
-*   `-XX:MaxRAMPercentage=N`: Sets the maximum heap size as a percentage of the container's memory limit. The default is typically 25%, though specialized container images (like Red Hat’s `run-java.sh` scripts) often default to 50% or 80%.
+*   `-XX:MaxRAMPercentage=N`: Sets the maximum heap size as a percentage of the container's memory limit. The default upstream limit is25%, though specialized container images (like Red Hat’s `run-java.sh` scripts) will default to 80%.
 *   `-XX:InitialRAMPercentage=N`: Sets the initial heap size as a percentage of the container limit.
 *   `-XX:MinRAMPercentage=N`: Defines the minimum heap size used when the container memory limit is small.
 
@@ -73,7 +73,7 @@ oc get pods
 oc exec <pod-name> -- jcmd 1 VM.flags
 ----
 
-*Observe the output:* You should see the `-XX:MaxRAMPercentage` flag active. If you check `VM.max_heap_size`, you will see an absolute byte value calculated based on the 75% ratio of your current container limit.
+*Observe the output:* You should see the `-XX:MaxRAMPercentage` flag active. If you check `VM.max_heap_size`, you will see an absolute byte value calculated based on the 75% ratio of your current container limit. jcmd VM.info will bring much more details and container size/settings.
 
 ### Step 4: Monitoring
 Use the OpenShift web console or CLI to monitor memory usage. Compare the "Memory Usage" metric against the "Container Limit." Ensure that the "Usage" remains below the total limit, accounting for the gap required for native off-heap memory.
@@ -82,3 +82,14 @@ Use the OpenShift web console or CLI to monitor memory usage. Compare the "Memor
 ====
 If you observe `java.lang.OutOfMemoryError: Metaspace` or native crashes, your `MaxRAMPercentage` is too aggressive. Lower the value by 5-10% and redeploy.
 ====
+
+== Reference Documentation
+For complete details and subscriber-exclusive guidance on analyzing these diagnostic artifacts, refer to the official Red Hat knowledgebase article:
+
+* https://access.redhat.com/solutions/6973111[Red Hat Solution 6973111: Interpreting VM.info file in OpenJDK/OracleJDK]
+
+== Common Properties
+The `VM.info` file typically includes:
+- JVM build details and version strings
+- Operating system environment specifications
+- Ergonomics and default sizing parameters
