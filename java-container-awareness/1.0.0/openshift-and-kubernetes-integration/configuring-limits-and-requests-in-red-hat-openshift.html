@@ -300,7 +300,7 @@
 </td>
 <td class="content">
 <div class="paragraph">
-<p>While Java workloads are burstable (threads dynamically demand kernel time), the JVM performs its cgroup reading at <strong>startup</strong>. Consequently, the JVM is inelastic. If the user changes limits at runtime without restarting the Pod, the JVM will <strong>not</strong> automatically adjust its internal heuristics to match the new constraints.</p>
+<p>While Java workloads are burstable (threads dynamically demand kernel time), the JVM performs its cgroup reading at <strong>startup</strong> only once. Consequently, the JVM is inelastic, i.e. changing a container limits dynamically and expect the JVM to change its settings without restart. If the user changes limits at runtime without restarting the Pod, the JVM will <strong>not</strong> automatically adjust its internal heuristics to match the new constraints.</p>
 </div>
 </td>
 </tr>
@@ -314,13 +314,16 @@
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Avoid Overcommitting Critical Workloads:</strong> For production-critical applications, consider Guaranteed Quality of Service (QoS). A pod is considered Guaranteed when both requests and limits are set to the same value for all containers in the pod.</p>
+<p><strong>Avoid Overcommitting Critical Workloads:</strong> For production-critical applications, consider Guaranteed Quality of Service (QoS) - this will put the application as the last to be evicted. A pod is considered Guaranteed when both requests and limits are set to the same value for all containers in the pod.</p>
+</li>
+<li>
+<p><strong>Avoid Undercommiting Workloads:</strong> Benchmark the application to use the correct heap percentage (MaxRAMPercentage) to make sure heap and off-heap have space to grow accordingly.</p>
 </li>
 <li>
 <p><strong>Limit vs. Request Parity:</strong> If you are unsure of the application&#8217;s baseline, start by setting requests lower than limits to allow for burstable performance, but ensure the limit is high enough to accommodate peak load to prevent CPU throttling.</p>
 </li>
 <li>
-<p><strong>Memory Awareness:</strong> Always set memory limits to prevent a single Java container from consuming all available node memory, which would trigger the node-level OOM killer and impact other pods on the same node.</p>
+<p><strong>Memory Awareness:</strong> Prefer using memory limits into containers to prevent a single Java container from consuming a large chunck of available node memory and CPU, which can impact other pods on the same node. Unbounded deployments can be very useful, but need to be used in specific scenarios.</p>
 </li>
 </ul>
 </div>
@@ -354,7 +357,7 @@
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>Deploy a sample Java application</strong> with defined limits and requests:</p>
+<p><strong>Deploy a sample Java application</strong> with defined limits and requests (below is just an example - it won&#8217;t deploy)</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: apps/v1
@@ -398,7 +401,8 @@ spec:
 <p><strong>Observe Java&#8217;s internal detection</strong> of these limits:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">java -XshowSettings:vm -version</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">java -XshowSettings:vm -version
+jcmd VM.info</code></pre>
 </div>
 </div>
 <div class="paragraph">
