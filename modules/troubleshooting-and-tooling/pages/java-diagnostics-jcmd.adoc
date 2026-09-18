@@ -21,7 +21,7 @@ The main tool for Java investigations inside a container is VM.info, which is av
 It prints several details on the Java process itself, from the JVM perspective.
 See full review on https://access.redhat.com/solutions/6973111[Interpreting VM.info file in OpenJDK/OracleJDK].
 
-When a container is suffering from `OutOfMemory` (OOM) errors or unexpected latency, you can execute `jcmd` directly inside the pod to gather data.
+When a container is suffering from `OutOfMemory` (OOM) errors or unexpected latency, you can execute `jcmd` directly inside the containerf to gather data.
 
 [source,bash]
 ----
@@ -39,9 +39,43 @@ jcmd <PID> GC.run
 ----
 
 === Analyzing Native Memory
-One of the most critical aspects of containerized Java is distinguishing between the **Java Heap** and **Off-Heap memory**. If the container is being killed by the OOMKiller but the heap appears healthy, the issue often resides in native memory (e.g., Metaspace, code cache, or direct buffers).
 
-Enable Native Memory Tracking (NMT) via the JVM argument `-XX:NativeMemoryTracking=summary` to use `jcmd` to identify leaks:
+One of the most critical aspects of containerized Java is distinguishing between the **Java Heap** and **Off-Heap memory**. If the container is being killed by the OOMKiller but the heap appears healthy, the issue may reside in native memory (e.g., libraries, Metaspace, code cache, or direct buffers).
+
+==== Dynamic memory tracking
+
+For tracking Dynamic memory allocation see `Dynamic Libraries` section in `VM.info`:
++
+[source,bash]
+----
+$ oc exec hotrod-app-ID -- jcmd 1 VM.info 
+...
+...
+Dynamic libraries:
+c0000000-c1580000 rw-p 00000000 00:00 0 
+c1580000-eab00000 ---p 00000000 00:00 0 
+eab00000-eb500000 rw-p 00000000 00:00 0 
+eb500000-100000000 ---p 00000000 00:00 0 
+56381ca00000-56381ca01000 r-xp 00000000 08:24 281334450                  /usr/lib/jvm/java-17-openjdk-17.0.20.1.1-1.2.el9.x86_64/bin/java
+56381cc01000-56381cc02000 r--p 00001000 08:24 281334450                  /usr/lib/jvm/java-17-openjdk-17.0.20.1.1-1.2.el9.x86_64/bin/java
+56381cc02000-56381cc03000 rw-p 00002000 08:24 281334450                  /usr/lib/jvm/java-17-openjdk-17.0.20.1.1-1.2.el9.x86_64/bin/java
+...
+7f1e89b37000-7f1e89b39000 r-xp 00000000 08:24 190036142                  /usr/lib/jvm/java-17-openjdk-17.0.20.1.1-1.2.el9.x86_64/lib/libextnet.so
+7f1e89b39000-7f1e89d38000 ---p 00002000 08:24 190036142                  /usr/lib/jvm/java-17-openjdk-17.0.20.1.1-1.2.el9.x86_64/lib/libextnet.so
+7f1e89d38000-7f1e89d39000 r--p 00001000 08:24 190036142                  /usr/lib/jvm/java-17-openjdk-17.0.20.1.1-1.2.el9.x86_64/lib/libextnet.so
+7f1e89d39000-7f1e8a13b000 rw-p 00000000 00:00 0 
+7f1e8a13b000-7f1e8a13c000 ---p 00000000 00:00 0 
+7f1e8a13c000-7f1e8a140000 ---p 00000000 00:00 0 
+7f1e8a140000-7f1e8a23c000 rw-p 00000000 00:00 0 
+7f1e8a23c000-7f1e8a24d000 r-xp 00000000 08:24 88439696                   /tmp/libnetty_transport_native_epoll_x86_64461322831611121641.so (deleted)
+7f1e8a24d000-7f1e8a44c000 ---p 00011000 08:24 88439696                   /tmp/libnetty_transport_native_epoll_x86_64461322831611121641.so (deleted)
+7f1e8a44c000-7f1e8a44e000 r--p 00010000 08:24 88439696                   /tmp/libnetty_transport_native_epoll_x86_64461322831611121641.so (deleted)
+7f1e8a44e000-7f1e8a44f000 rw-p 00000000 00:00 0 
+----
+
+==== Native Memory Tracking
+
+Enable Native Memory Tracking (NMT) via the JVM argument `-XX:NativeMemoryTracking=summary` to use `jcmd` is useful to track native memory allocation.
 
 [source,bash]
 ----
@@ -51,10 +85,10 @@ jcmd <PID> VM.native_memory summary
 
 == Best Practices for Diagnostics in OpenShift
 
-1.  **Accessing the Pod:** Use `oc rsh <pod-name>` to gain shell access to the running container.
+1.  **Accessing the Pod:** Use `oc rsh <pod-name>` to gain shell access to the running container, otherwise, use `exec` to have the output executed outside the container.
 2.  **Tooling Availability:** Ensure your container base image includes the `jcmd` binary (standard in most OpenJDK-based images).
 3.  **Non-intrusive Data Collection:** Use `jcmd` for point-in-time snapshots. Avoid high-frequency polling, as diagnostics can consume CPU cycles within the container's limited quota.
-4.  **Verification:** Compare the output of `GC.heap_info` against your pod's `resources.limits.memory` to verify if the JVM is respecting the container's memory boundaries.
+4.  **Verification:** Compare the output of `GC.heap_info` against the container's `resources.limits.memory` to verify if the JVM is respecting the container's memory boundaries.
 
 == Hands-on Lab: Inspecting JVM Resources
 FIXME: Can this also be general instructions instead of hands-on activity?
@@ -72,7 +106,7 @@ oc rsh deployment/my-java-app
 +
 [source,bash]
 ----
-jcmd -l
+$ jcmd
 ----
 
 3. **Inspect the current heap configuration:**
@@ -80,16 +114,16 @@ Use the following command to check how the JVM is interpreting the container mem
 +
 [source,bash]
 ----
-jcmd <PID> VM.flags
+$ jcmd <PID> VM.flags
 ----
-*Look for `-XX:MaxHeapSize` or `-XX:InitialHeapSize`.*
+*Look for `Heap Address` line, section `size` and `GC Precious Log`, section `Heap Max Capacity`.
 
 4. **Analyze GC performance:**
 Check if the Garbage Collector is struggling due to container constraints:
 +
 [source,bash]
 ----
-jcmd <PID> GC.class_histogram
+$ jcmd <PID> GC.class_histogram
 ----
 
-*Troubleshooting Tip:* If `jcmd` reports a heap size significantly different from your OpenShift memory limits, check your deployment YAML to ensure you are not manually overriding the heap size with `-Xmx`, which might be conflicting with the container-aware auto-tuning.
+*Troubleshooting Tip:* If `jcmd` reports a heap size significantly different from your container memory limits, check your deployment YAML to ensure you are not manually overriding the heap size with `-Xmx` or if the Java is adequately detecting cgroups (8u472+, 11.0.16+ for cgroups v2).
