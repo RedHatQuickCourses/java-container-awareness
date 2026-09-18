@@ -369,34 +369,38 @@ oc exec &lt;pod-name&gt; -- jcmd 1 VM.flags</code></pre>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>Simulate a kill:</strong>
-Deploy a pod with a very low memory limit (e.g., 64Mi) and a JVM heap requirement that exceeds directly set via Xmx. Observe the kill:</p>
-<div class="literalblock">
+<p><strong>Simulate a kill:</strong></p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Deploy a pod with a very low memory limit (e.g., 64Mi) and a JVM heap requirement that exceeds directly set via Xmx. Observe the kill:</p>
+<div class="listingblock">
 <div class="content">
-<pre>[source,bash]
-----
-oc get pods
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods
 # Look for OOMKilled status
-----</pre>
+oc get events
+# Look at events happening</code></pre>
 </div>
+</div>
+</li>
+</ol>
 </div>
 </li>
 <li>
 <p><strong>Inspect the exit code:</strong></p>
-<div class="literalblock">
+<div class="listingblock">
 <div class="content">
-<pre>[source,bash]
-----
-oc get pod &lt;pod-name&gt; -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}'
-----</pre>
-</div>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>*If the result is `OOMKilled`, the kernel terminated the process because it exceeded the cgroup memory limit.*</pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pod &lt;pod-name&gt; -o jsonpath='{.status.containerStatuses[0].state.terminated.reason}'</code></pre>
 </div>
 </div>
 </li>
+</ol>
+</div>
+<div class="paragraph">
+<p><strong>If the result is <code>OOMKilled</code>, the kernel terminated the process because it exceeded the cgroup memory limit.</strong></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
 <p><strong>Verify the limits:</strong>
 Check the deployment configuration to see the discrepancy between your <code>limit</code> and the JVM&#8217;s <code>-Xmx</code> setting.</p>
@@ -404,14 +408,11 @@ Check the deployment configuration to see the discrepancy between your <code>lim
 <li>
 <p><strong>Remediate:</strong>
 Adjust the deployment YAML to either increase the container memory limit or update the JVM flags using the <code>JAVA_OPTS</code> (or <code>JAVA_OPTS_APPEND</code>) environment variables to reflect a lower heap percentage - both are available in run-java.sh script ENTRYPOINT.</p>
-<div class="literalblock">
+<div class="listingblock">
 <div class="content">
-<pre>[source,bash]
-----
-env:
-  - name: JAVA_OPTS_APPEND
-    value: "-XX:MaxRAMPercentage=50.0"
-----</pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">  env:
+   - name: JAVA_OPTS_APPEND
+       value: "-XX:MaxRAMPercentage=50.0"</code></pre>
 </div>
 </div>
 </li>
