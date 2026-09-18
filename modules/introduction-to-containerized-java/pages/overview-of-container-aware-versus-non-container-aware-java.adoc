@@ -18,7 +18,20 @@ Before the introduction of container awareness, the JVM would query the host mac
 | OOM Risk | High (dissociated with the container size) | Lower (associated with the contianer size)
 |===
 
-Container awareness is the default (already enabled) and the user needs to manually set the flag -UseContainerSupport when starting Java to disable it. That is to say: the default is +UseContainerSupport, so Java is container aware by default: if you do not set this flag, OpenJDK will be container aware.
+Container awareness is the default (already enabled) and the user needs to manually set the flag `-UseContainerSupport` when starting Java to disable it:
+
+[cols="1,2,2", options="header"]
+|===
+| State | JVM Flag | Behavior
+
+| *Default (Enabled)*
+| `-XX:+UseContainerSupport` (Implicit)
+| Container awareness is enabled by default. If you do not set any flag, OpenJDK automatically detects container limits.
+
+| *Disabled*
+| `-XX:-UseContainerSupport`
+| Container awareness is explicitly disabled. The user must manually pass this flag when starting Java to turn the feature off.
+|===
 
 === Non-Container-Aware Java: The Visibility Gap
 In a non-container-aware environment, if you deploy a Java application with a default heap size (e.g., `-Xmx` not explicitly defined) into a container with a 1GB limit, the JVM will the host's 64GB of RAM and attempt to allocate a heap significantly larger than 1GB, causing issues. 
