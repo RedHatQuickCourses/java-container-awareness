@@ -245,7 +245,7 @@ sh-5.3$ nproc
 sh-5.3$ 
 ----
 +
-If you deploy a container with limits (not just requests, but limits) and `active_processor_count` (jcmd or java -XshowSettings:system) returns that limit, the application is correctly container-aware. Otherwise, in case it returns the host values, this indicates the application is likely not container-aware (nproc shows host details).
+If you deploy a container with limits (not requests, but limits) and `active_processor_count` (jcmd or java -XshowSettings:system) returns that limit, the application is correctly container-aware. Otherwise, in case it returns the host values, this indicates the application is likely not container-aware (nproc shows host details).
 
 . Set the resource limits on the deployment.
 +
@@ -281,5 +281,5 @@ Notes: Given the fact only integers can be used as CPU boundaries:
 
 * Values below 1 CPU, are rounded to 1.
 * Fractional values are rounded to the lowest integer, so 2200 millicores, becomes 2 CPU.
-* Java doesn't care about requests, only limits.
+* Java does not care about requests, only limits.
 * Java workaround needs CPU and Memory limits to avoid issues.
