@@ -16,7 +16,7 @@ The current approach focuses on **relative size configuration** so the size of J
 To ensure your Java application scales gracefully within an OpenShift or Kubernetes pod, follow these best practices for memory management.
 
 === 1. Use Percentage-Based Flags
-Instead of hardcoding memory values, utilize percentage-based flags. These ensure the JVM dynamically adjusts its heap size relative to the memory limits defined in your Pod specification.
+Container awareness comes by default, therefore: instead of hardcoding memory values, utilize percentage-based flags. These ensure the JVM dynamically adjusts its heap size relative to the memory limits defined in your Pod specification.
 
 *   **`-XX:MaxRAMPercentage=N`**: Set by default. Defines the maximum heap size as a percentage of the container's memory limit. For most applications, a value between `50.0` and `80.0` is usually adequate, leaving the remaining space for off-heap requirements. Off-heap heavy application may require a low percentage.
 *   **`-XX:InitialRAMPercentage=N`**: Sets the initial heap size as a percentage of the container limit.
@@ -25,6 +25,7 @@ Instead of hardcoding memory values, utilize percentage-based flags. These ensur
 === 2. Understanding the Heap and off-Heap allocation
 The memory not occupied by the JVM heap is not wasted — it is necessary for the stability of the Java application. When you configure your heap, you must leave sufficient headroom for:
 
+*   **Dynamic libraries and instrumentation**: Dynamic libraries and observability tools will take off-heap space
 *   **Metaspace**: Stores class metadata.
 *   **Code Cache**: Stores JIT-compiled native code.
 *   **Thread Stacks**: Each thread requires native memory; a large number of threads can lead to unexpected native memory pressure.
