@@ -290,33 +290,30 @@
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top">Feature</th>
 <th class="tableblock halign-left valign-top">Legacy Behavior (Pre-8u191)</th>
+<th class="tableblock halign-left valign-top">Modern Behavior (8u191+)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Modern Behavior (8u191+)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Memory Source</strong></p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Queries <code>/proc/meminfo</code> (Host RAM)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Queries cgroups (Container Limit)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Heap Sizing</strong></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Requires manual <code>-Xmx</code> configuration</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Automatically scales based on <code>-XX:MaxRAMPercentage</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Operational Impact</strong></p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Operational Impact</strong></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Decoupled; changing container size requires manual JVM tuning</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Coupled; scaling container limits automatically adjusts heap</p></td>
 </tr>
