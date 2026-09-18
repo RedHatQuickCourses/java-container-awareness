@@ -36,13 +36,28 @@ In this lab, you will configure a Java application to use container-aware memory
 *   Access to an OpenShift cluster or a local Docker environment.
 *   A containerized Java application image.
 
-### Step 1: Inspect Current Configuration
+### Step 1: Inspect Current Runtime Configuration
 First, verify that your application is currently running without explicit `-Xmx` flags or is using percentage-based flags. Check the environment variables or the deployment configuration:
 
 [source,bash]
 ----
 # Check the deployment environment
 oc set env deployment/<deployment-name> --list
+----
+
+The step above will not show building ENV variables such as the example below (which shouldn't be used)
+
+[source,dockerfile]
+----
+FROM registry.access.redhat.com/ubi9/openjdk-17:latest
+
+# Copy the compiled JAR into the standard deployments folder
+COPY target/hotrod-app.jar /deployments/hotrod-app.jar
+
+# Pass memory constraints using JAVA_OPTS_APPEND (parsed by run-java.sh) - DO NOT DO THIS:
+ENV JAVA_OPTS_APPEND="-XX:MaxRAMPercentage=50.0"
+
+# No ENTRYPOINT required; the base image automatically executes run-java.sh
 ----
 
 ### Step 2: Tune Percentage-Based Heap
