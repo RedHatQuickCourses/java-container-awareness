@@ -72,17 +72,31 @@ jcmd <pid> VM.flags
 ----
 
 === Step 3: Troubleshooting a constraint
-If the application is slow, check if CPU throttling is occurring due to the Kubernetes `cpu` limit:
+If the application is slow, check if CPU throttling is occurring due to the Kubernetes `cpu` limit/requests vs the utilization on the kernel (kernel is the one throttling, not Kubernetes):
 
 1.  Check the `cpu.stat` file within the container:
++
+[source,bash]
+----
+cat /sys/fs/cgroup/cpu.stat <--------- cgroups v2
+usage_usec 9123943
+user_usec 8159424
+system_usec 964518
+core_sched.force_idle_usec 0
+nr_periods 2125
+nr_throttled 21
+throttled_usec 878173
+nr_bursts 0
+burst_usec 0
+----
 
-    [source,bash]
-    ----
-    cat /sys/fs/cgroup/cpu/cpu.stat
-    ----
 
+2.  Look for `nr_throttled`. If this number is increasing rapidly, the CPU `limit` may be too low, and the kernel is throttling your application, causing latency. Therefore tuning the ratio (requests vs limits) can be adequate.
 
-2.  Look for `nr_throttled`. If this number is increasing rapidly, your CPU `limit` is too low, and the kernel is throttling your application, causing latency.
+[source,bash]
+----
+$ oc set resources deployment/hotrod-app --limits=cpu="2" --requests=cpu="1"
+----
 
 == Best Practices Summary
 
