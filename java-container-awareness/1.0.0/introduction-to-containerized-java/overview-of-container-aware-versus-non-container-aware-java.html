@@ -270,8 +270,34 @@ This friction stemmed from a fundamental mismatch: the Java Virtual Machine (JVM
 </tbody>
 </table>
 <div class="paragraph">
-<p>Container awareness is the default (already enabled) and the user needs to manually set the flag -UseContainerSupport when starting Java to disable it. That is to say: the default is +UseContainerSupport, so Java is container aware by default: if you do not set this flag, OpenJDK will be container aware.</p>
+<p>Container awareness is the default (already enabled) and the user needs to manually set the flag <code>-UseContainerSupport</code> when starting Java to disable it:</p>
 </div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">State</th>
+<th class="tableblock halign-left valign-top">JVM Flag</th>
+<th class="tableblock halign-left valign-top">Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Default (Enabled)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+UseContainerSupport</code> (Implicit)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Container awareness is enabled by default. If you do not set any flag, OpenJDK automatically detects container limits.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Disabled</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:-UseContainerSupport</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Container awareness is explicitly disabled. The user must manually pass this flag when starting Java to turn the feature off.</p></td>
+</tr>
+</tbody>
+</table>
 <div class="sect2">
 <h3 id="_non_container_aware_java_the_visibility_gap"><a class="anchor" href="#_non_container_aware_java_the_visibility_gap"></a>Non-Container-Aware Java: The Visibility Gap</h3>
 <div class="paragraph">
