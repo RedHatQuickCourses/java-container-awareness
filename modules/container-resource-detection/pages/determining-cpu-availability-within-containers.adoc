@@ -61,13 +61,100 @@ cpu_shares: 51
 * **Monitor `active_processor_count`:** If `active_processor_count` does not match your expectations, ensure you are running a supported OpenJDK version (8u191 or higher). If you are forced to use an older, non-aware version, you must manually set `-XX:ActiveProcessorCount` to match your container limit.
 
 == Hands-on Exercise: Inspecting CPU Awareness
-In this short task, you will verify the JVM's CPU detection.
 
-. **Create new project:**
+In this short task, you will verify the JVM's CPU detection. To make this work we will need an container image with an application already there, otherwise the container will fail on the spot.
+
+. **Create an application project:**
++
+Use the following command to fetch a project and build a OpenJDK project locally from it via s2i toolkit:
++
+[source,bash]
+----
+$ git clone https://github.com/alexbarbosa1989/hotrodspringboot.git
+$ s2i --loglevel 5 build hotrodspringboot/ registry.access.redhat.com/ubi8/openjdk-17:latest openjdk-hotrod:example 
+----
+
+. **Confirm the image was created:**
++
+Use the following command to list the images there:
++
+[source,bash]
+----
+$ docker image ls
+IMAGE                                                    ID             DISK USAGE   CONTENT SIZE   EXTRA      
+openjdk-hotrod:example                                   5b49f9aebc56        591MB             0B
+----
+
+. **Deploy application in Docker:**
++
+Use the following command to deploy the image locally (Docker or podman):
++
+[source,bash]
+----
+$ docker run -p 8081:8080 openjdk-hotrod:example
+Starting the Java application using /opt/jboss/container/java/run/run-java.sh ...
+INFO exec -a "java" java -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -cp "." -jar /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar 
+INFO running in /deployments
+INFO running in /deployments
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v2.7.0)
+
+2026-09-18 14:53:36.607  INFO 1 --- [           main] c.r.h.h.HotrodspringbootApplication      : Starting HotrodspringbootApplication v0.0.1-SNAPSHOT using Java 17.0.20.1 on 8e34f75421fc with PID 1 (/deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar started by jboss in /deployments)
+----
+
+. **Verify the CPU limits used by the application above (NO CPU limits):**
++
+Create a new terminal and use the following commands docker ps (to track the container id) and jcmd VM.info:
++
+[source,bash]
+----
+$ docker ps
+CONTAINER ID   IMAGE                    COMMAND                CREATED              STATUS              PORTS                                                   NAMES
+_ID_   openjdk-hotrod:example   "/usr/local/s2i/run"   About a minute ago   Up About a minute   8443/tcp, 0.0.0.0:8081->8080/tcp, [::]:8081->8080/tcp   mystifying_morse
+$ sudo docker exec -it _ID_ /bin/bash
+[jboss@d7942a2c3041 ~]$ jcmd
+1 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+179 jdk.jcmd/sun.tools.jcmd.JCmd
+[jboss@d7942a2c3041 ~]$ jcmd 1 VM.info |  grep active_processor_count
+active_processor_count: 16 <-------------------------------- that's the full CPU limits
+----
+
+. **Verify the CPU limits used by the application above (now with CPU limits):**
++
+Deploy the OpenJDK image with LIMITS:
++
+[source,bash]
+----
+$ docker run -p 8081:8080 --cpus="2" openjdk-hotrod:example
+----
+
++
+Verify the limits (container has CPU argument) 
++
+[source,bash]
+----
+$ docker ps
+CONTAINER ID   IMAGE                    COMMAND                CREATED              STATUS              PORTS                                                   NAMES
+_ID_   openjdk-hotrod:example   "/usr/local/s2i/run"   About a minute ago   Up About a minute   8443/tcp, 0.0.0.0:8081->8080/tcp, [::]:8081->8080/tcp   mystifying_morse
+$ sudo docker exec -it _ID_ /bin/bash
+[jboss@d7942a2c3041 ~]$ jcmd
+1 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+179 jdk.jcmd/sun.tools.jcmd.JCmd
+[jboss@d7942a2c3041 ~]$ jcmd 1 VM.info |  grep active_processor_count
+active_processor_count: 2 <-------------------------------- that's the full CPU limits
+----
+
+. **Deployment in Openshift - create new project:**
 +
 Use the following command to create a new OpenShift project:
 +
-[source,bash]
+[source,bash]sudo docker run -p 8081:8080 -e MY_VARIABLE=my_value openjdk-hotrod:example
 ----
 oc new-project my-java-app
 ----
@@ -102,11 +189,9 @@ jps
 Example output:
 +
 ----
-sh-5.3$ jps
-1 JShellToolProvider
-84 Jps
-27 RemoteExecutionControl
-sh-5.3$ 
+$ jcmd
+1 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar <--- java application
+179 jdk.jcmd/sun.tools.jcmd.JCmd 
 ----
 
 . **Query the VM metadata:**
@@ -122,7 +207,7 @@ Example output:
 +
 ----
 sh-5.3$ jcmd 1 VM.info | grep active_processor_count
-active_processor_count: 32
+active_processor_count: 2
 sh-5.3$ 
 ----
 
