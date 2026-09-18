@@ -533,35 +533,43 @@ burst_usec 0</code></pre>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 66.6666%;">
-<col style="width: 33.3334%;">
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
 </colgroup>
 <thead>
 <tr>
-<th class="tableblock halign-left valign-top">Scenario</th>
-<th class="tableblock halign-left valign-top">Exit Code</th>
+<th class="tableblock halign-left valign-top">JVM Flag</th>
+<th class="tableblock halign-left valign-top">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+HeapDumpOnOutOfMemoryError</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+ErrorFileToStdout</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sends the crash output directly to standard output, making it visible in pod logs (<code>oc logs</code>).</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+ExitOnOutOfMemoryError</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:ErrorFile=&lt;path&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets the destination path for the fatal crash log file (<code>hs_err_pid.log</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:HeapDumpPath=&lt;path&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">When used alongside <code>-XX:+HeapDumpOnOutOfMemoryError</code>, this sets the directory or exact file path where the heap dump will be written to.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+CrashOnOutOfMemoryError</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Crashes the JVM (generating a crash log and core dump) instead of throwing a standard <code>OutOfMemoryError</code>.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>kill -11 &lt;PID&gt;</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+ExitOnOutOfMemoryError</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Forces the JVM to exit immediately on an out-of-memory exception.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Setting <code>-Xmx</code>/<code>-Xms</code> &gt; container size (plus <code>-XX:+AlwaysPreTouch</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">137</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:OnOutOfMemoryError="&lt;cmd&gt;"</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Defines a specific action (command or script) to execute when an <code>OutOfMemoryError</code> happens.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:OnError="&lt;cmd&gt;"</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Defines a specific action (command or script) to execute when a fatal JVM crash occurs.</p></td>
 </tr>
 </tbody>
 </table>
