@@ -253,11 +253,21 @@
 <div class="sect2">
 <h3 id="_1_validating_resource_visibility"><a class="anchor" href="#_1_validating_resource_visibility"></a>1. Validating Resource Visibility</h3>
 <div class="paragraph">
-<p>Always verify that the JVM sees the limits defined in your OpenShift <code>DeploymentConfig</code> or <code>Deployment</code>. You can inspect this by executing into the pod and checking the container&#8217;s perceived memory and CPU:</p>
+<p>Verify that the JVM sees the limits defined in your OpenShift <code>DeploymentConfig</code> or <code>Deployment</code>. You can inspect this by executing into the pod and checking the container&#8217;s perceived memory and CPU:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check perceived max heap from within the pod
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check perceived heap from within the pod
+$ oc exec hotrod-app-ID -- jcmd 1 VM.info | grep  "Heap address"
+Heap address: 0x00000000c0000000, size: 1024 MB, Compressed Oops mode: 32-bit</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the JVM limits being detected:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check perceived limit from within the pod
 oc exec &lt;pod-name&gt; -- jcmd 1 VM.info | grep -A18 "container (cgroup) information:"
 container_type: cgroupv2 &lt;-------------------------- cgroups v2
 cpu_cpuset_cpus: not supported
@@ -277,20 +287,36 @@ memory_usage_in_bytes: 186764 k &lt;---------------------- Usage</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_2_utilizing_jcmd"><a class="anchor" href="#_2_utilizing_jcmd"></a>2. Utilizing <code>jcmd</code></h3>
+<h3 id="_2_utilizing_java_diagnostics_jcmd"><a class="anchor" href="#_2_utilizing_java_diagnostics_jcmd"></a>2. Utilizing Java Diagnostics - <code>jcmd</code></h3>
 <div class="paragraph">
-<p><code>jcmd</code> is the gold standard for Java diagnostics within OpenShift. It allows you to perform heap dumps, thread dumps, and analyze VM flags without requiring a restart.</p>
+<p>Java diagnostics, jcmd, is very useful for Java and Java inside containers in general. It allows you to perform JVM dump, heap dumps, thread dumps, and analyze JVM flags without requiring a restart.</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Thread Dumps:</strong> Identify if the application is hitting thread limits or experiencing deadlocks.</p>
-</li>
-<li>
-<p><strong>GC Performance:</strong> Use <code>jcmd &lt;pid&gt; GC.run</code> to trigger garbage collection or <code>jcmd &lt;pid&gt; VM.flags</code> to verify if <code>-XX:MaxRAMPercentage</code> is correctly configured.</p>
-</li>
-</ul>
-</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Diagnostic Tool</th>
+<th class="tableblock halign-left valign-top">Purpose / Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Thread Dumps</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Identify if the application is hitting thread limits or experiencing deadlocks.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GC Performance</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use <code>jcmd &lt;pid&gt; GC.run</code> to trigger garbage collection or <code>jcmd &lt;pid&gt; VM.flags</code> to verify if <code>-XX:MaxRAMPercentage</code> is adequately set (too high or too low).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">VM.info</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use <code>jcmd &lt;pid&gt; VM.info</code> to verify if <code>-XX:MaxRAMPercentage</code>, Native allocation, cgroups details and a lot more.</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="sect2">
 <h3 id="_3_analyzing_cgroup_constraints"><a class="anchor" href="#_3_analyzing_cgroup_constraints"></a>3. Analyzing cgroup Constraints</h3>

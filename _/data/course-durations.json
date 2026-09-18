@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 3995,
+  "totalSeconds": 4048,
   "pageCount": 28,
   "pages": [
     {
@@ -110,7 +110,7 @@
     {
       "module": "troubleshooting-and-tooling",
       "page": "diagnostic-strategies-for-java-deployments-in-openshift.adoc",
-      "seconds": 137
+      "seconds": 190
     },
     {
       "module": "troubleshooting-and-tooling",
