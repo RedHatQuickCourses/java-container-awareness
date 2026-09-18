@@ -490,20 +490,13 @@ Heap address: 0x00000000c0000000, size: 1024 MB, Compressed Oops mode: 32-bit</c
 <div class="paragraph">
 <p>However, observe Java&#8217;s internal detection of these limits - executing directly java command (25% expected):</p>
 </div>
-<div class="paragraph">
-<p>+</p>
-</div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">java -XshowSettings:vm -version</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">java -XshowSettings:vm -version &lt;------------ direct execution inside a container</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>+
-Example output:</p>
-</div>
-<div class="paragraph">
-<p>+</p>
+<p>Example output:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -517,7 +510,7 @@ OpenJDK 64-Bit Server VM (Red_Hat-25.0.4.1.1-0) (build 25.0.4.1+1, mixed mode, s
 </div>
 </div>
 <div class="paragraph">
-<p>The above is fully expected: Java is not using the java-run.sh ENTRYPOINT and as expected - and already explained on this course - the MaxRAM percentage at 80% comes specifically from the <code>run-java.sh</code> ENTRYPOINT (s2i with OpenJDK injects that ENTRYPOINT by default.</p>
+<p>The above is fully expected: Java is not using the java-run.sh ENTRYPOINT and as expected - and already explained on this course - the MaxRAM percentage at 80% comes specifically from the <code>run-java.sh</code> ENTRYPOINT (s2i with OpenJDK injects that <code>ENTRYPOINT</code> by default.</p>
 </div>
 <div class="paragraph">
 <p>In the above example, java straight execution, it will bring 25% beucase it is the default upstream limit.
