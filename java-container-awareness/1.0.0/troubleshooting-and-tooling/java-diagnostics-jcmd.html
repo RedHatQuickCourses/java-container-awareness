@@ -262,7 +262,7 @@ It prints several details on the Java process itself, from the JVM perspective.
 See full review on <a href="https://access.redhat.com/solutions/6973111">Interpreting VM.info file in OpenJDK/OracleJDK</a>.</p>
 </div>
 <div class="paragraph">
-<p>When a container is suffering from <code>OutOfMemory</code> (OOM) errors or unexpected latency, you can execute <code>jcmd</code> directly inside the pod to gather data.</p>
+<p>When a container is suffering from <code>OutOfMemory</code> (OOM) errors or unexpected latency, you can execute <code>jcmd</code> directly inside the containerf to gather data.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -282,15 +282,54 @@ jcmd &lt;PID&gt; GC.run</code></pre>
 <div class="sect2">
 <h3 id="_analyzing_native_memory"><a class="anchor" href="#_analyzing_native_memory"></a>Analyzing Native Memory</h3>
 <div class="paragraph">
-<p>One of the most critical aspects of containerized Java is distinguishing between the <strong>Java Heap</strong> and <strong>Off-Heap memory</strong>. If the container is being killed by the OOMKiller but the heap appears healthy, the issue often resides in native memory (e.g., Metaspace, code cache, or direct buffers).</p>
+<p>One of the most critical aspects of containerized Java is distinguishing between the <strong>Java Heap</strong> and <strong>Off-Heap memory</strong>. If the container is being killed by the OOMKiller but the heap appears healthy, the issue may reside in native memory (e.g., libraries, Metaspace, code cache, or direct buffers).</p>
+</div>
+<div class="sect3">
+<h4 id="_dynamic_memory_tracking"><a class="anchor" href="#_dynamic_memory_tracking"></a>Dynamic memory tracking</h4>
+<div class="paragraph">
+<p>For tracking Dynamic memory allocation see <code>Dynamic Libraries</code> section in <code>VM.info</code>:</p>
 </div>
 <div class="paragraph">
-<p>Enable Native Memory Tracking (NMT) via the JVM argument <code>-XX:NativeMemoryTracking=summary</code> to use <code>jcmd</code> to identify leaks:</p>
+<p>+</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ oc exec hotrod-app-ID -- jcmd 1 VM.info
+...
+...
+Dynamic libraries:
+c0000000-c1580000 rw-p 00000000 00:00 0
+c1580000-eab00000 ---p 00000000 00:00 0
+eab00000-eb500000 rw-p 00000000 00:00 0
+eb500000-100000000 ---p 00000000 00:00 0
+56381ca00000-56381ca01000 r-xp 00000000 08:24 281334450                  /usr/lib/jvm/java-17-openjdk-17.0.20.1.1-1.2.el9.x86_64/bin/java
+56381cc01000-56381cc02000 r--p 00001000 08:24 281334450                  /usr/lib/jvm/java-17-openjdk-17.0.20.1.1-1.2.el9.x86_64/bin/java
+56381cc02000-56381cc03000 rw-p 00002000 08:24 281334450                  /usr/lib/jvm/java-17-openjdk-17.0.20.1.1-1.2.el9.x86_64/bin/java
+...
+7f1e89b37000-7f1e89b39000 r-xp 00000000 08:24 190036142                  /usr/lib/jvm/java-17-openjdk-17.0.20.1.1-1.2.el9.x86_64/lib/libextnet.so
+7f1e89b39000-7f1e89d38000 ---p 00002000 08:24 190036142                  /usr/lib/jvm/java-17-openjdk-17.0.20.1.1-1.2.el9.x86_64/lib/libextnet.so
+7f1e89d38000-7f1e89d39000 r--p 00001000 08:24 190036142                  /usr/lib/jvm/java-17-openjdk-17.0.20.1.1-1.2.el9.x86_64/lib/libextnet.so
+7f1e89d39000-7f1e8a13b000 rw-p 00000000 00:00 0
+7f1e8a13b000-7f1e8a13c000 ---p 00000000 00:00 0
+7f1e8a13c000-7f1e8a140000 ---p 00000000 00:00 0
+7f1e8a140000-7f1e8a23c000 rw-p 00000000 00:00 0
+7f1e8a23c000-7f1e8a24d000 r-xp 00000000 08:24 88439696                   /tmp/libnetty_transport_native_epoll_x86_64461322831611121641.so (deleted)
+7f1e8a24d000-7f1e8a44c000 ---p 00011000 08:24 88439696                   /tmp/libnetty_transport_native_epoll_x86_64461322831611121641.so (deleted)
+7f1e8a44c000-7f1e8a44e000 r--p 00010000 08:24 88439696                   /tmp/libnetty_transport_native_epoll_x86_64461322831611121641.so (deleted)
+7f1e8a44e000-7f1e8a44f000 rw-p 00000000 00:00 0</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_native_memory_tracking"><a class="anchor" href="#_native_memory_tracking"></a>Native Memory Tracking</h4>
+<div class="paragraph">
+<p>Enable Native Memory Tracking (NMT) via the JVM argument <code>-XX:NativeMemoryTracking=summary</code> to use <code>jcmd</code> is useful to track native memory allocation.</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># View native memory summary
 jcmd &lt;PID&gt; VM.native_memory summary</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -302,7 +341,7 @@ jcmd &lt;PID&gt; VM.native_memory summary</code></pre>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>Accessing the Pod:</strong> Use <code>oc rsh &lt;pod-name&gt;</code> to gain shell access to the running container.</p>
+<p><strong>Accessing the Pod:</strong> Use <code>oc rsh &lt;pod-name&gt;</code> to gain shell access to the running container, otherwise, use <code>exec</code> to have the output executed outside the container.</p>
 </li>
 <li>
 <p><strong>Tooling Availability:</strong> Ensure your container base image includes the <code>jcmd</code> binary (standard in most OpenJDK-based images).</p>
@@ -311,7 +350,7 @@ jcmd &lt;PID&gt; VM.native_memory summary</code></pre>
 <p><strong>Non-intrusive Data Collection:</strong> Use <code>jcmd</code> for point-in-time snapshots. Avoid high-frequency polling, as diagnostics can consume CPU cycles within the container&#8217;s limited quota.</p>
 </li>
 <li>
-<p><strong>Verification:</strong> Compare the output of <code>GC.heap_info</code> against your pod&#8217;s <code>resources.limits.memory</code> to verify if the JVM is respecting the container&#8217;s memory boundaries.</p>
+<p><strong>Verification:</strong> Compare the output of <code>GC.heap_info</code> against the container&#8217;s <code>resources.limits.memory</code> to verify if the JVM is respecting the container&#8217;s memory boundaries.</p>
 </li>
 </ol>
 </div>
@@ -340,7 +379,7 @@ jcmd &lt;PID&gt; VM.native_memory summary</code></pre>
 <p><strong>Identify the PID of the Java process:</strong></p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jcmd -l</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ jcmd</code></pre>
 </div>
 </div>
 </li>
@@ -349,11 +388,11 @@ jcmd &lt;PID&gt; VM.native_memory summary</code></pre>
 Use the following command to check how the JVM is interpreting the container memory limits:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jcmd &lt;PID&gt; VM.flags</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ jcmd &lt;PID&gt; VM.flags</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p><strong>Look for <code>-XX:MaxHeapSize</code> or <code>-XX:InitialHeapSize</code>.</strong></p>
+<p>*Look for <code>Heap Address</code> line, section <code>size</code> and <code>GC Precious Log</code>, section <code>Heap Max Capacity</code>.</p>
 </div>
 </li>
 <li>
@@ -361,14 +400,14 @@ Use the following command to check how the JVM is interpreting the container mem
 Check if the Garbage Collector is struggling due to container constraints:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jcmd &lt;PID&gt; GC.class_histogram</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ jcmd &lt;PID&gt; GC.class_histogram</code></pre>
 </div>
 </div>
 </li>
 </ol>
 </div>
 <div class="paragraph">
-<p><strong>Troubleshooting Tip:</strong> If <code>jcmd</code> reports a heap size significantly different from your OpenShift memory limits, check your deployment YAML to ensure you are not manually overriding the heap size with <code>-Xmx</code>, which might be conflicting with the container-aware auto-tuning.</p>
+<p><strong>Troubleshooting Tip:</strong> If <code>jcmd</code> reports a heap size significantly different from your container memory limits, check your deployment YAML to ensure you are not manually overriding the heap size with <code>-Xmx</code> or if the Java is adequately detecting cgroups (8u472+, 11.0.16+ for cgroups v2).</p>
 </div>
 </div>
 </div>
