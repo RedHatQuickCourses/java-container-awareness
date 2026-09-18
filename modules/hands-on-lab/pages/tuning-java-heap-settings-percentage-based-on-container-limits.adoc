@@ -45,16 +45,36 @@ First, verify that your application is currently running without explicit `-Xmx`
 oc set env deployment/<deployment-name> --list
 ----
 
-### Step 2: Configure Percentage-Based Heap
-Update your deployment configuration to utilize `MaxRAMPercentage`. This ensures that if you increase the pod's memory limit in the future, the heap scales automatically without requiring a code or environment variable change.
+### Step 2: Tune Percentage-Based Heap
 
-Apply the following environment variables to your deployment:
+By default an OpenJDK application is container aware and already will detect the container and set the heap size from there. The difference will be on the percentage:
 
-[source,bash]
-----
-oc set env deployment/<deployment-name> \
-  JAVA_TOOLS_OPTIONS="-XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0"
-----
+[cols="1,1", options="header"]
+|===
+| Execution Method | Default Heap Allocation
+
+| Red Hat OpenJDK's run-java.sh ENTRYPOINT
+| 80% (previously was 50%)
+
+| Direct java ENTRYPOINT
+| 25%
+|===
+
+Given the percentage already comes by default, the user has to do nothing to set it up. However, in case they would like to tune it it is possible via environment variables. 
+
+Apply the following environment variables to your deployment according to the deployment method:
+
+[cols="1,2", options="header"]
+|===
+| Entrypoint | Environment Variable Configuration
+
+| run-java.sh ENTRYPOINT
+| `$ oc set env deployment/hotrod-app JAVA_OPTS_APPEND="-XX:MaxRAMPercentage=50.0"`
+
+| java APP ENTRYPOINT
+| `JAVA_TOOLS_OPTIONS="-XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0"`
+|===
+
 
 ### Step 3: Validate the Configuration
 After the deployment restarts, verify that the JVM has correctly calculated the heap size relative to your pod's memory limit.
