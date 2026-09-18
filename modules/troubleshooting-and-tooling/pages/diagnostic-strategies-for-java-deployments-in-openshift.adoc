@@ -154,6 +154,29 @@ $ oc set resources deployment/hotrod-app --limits=cpu="2" --requests=cpu="1"
 
 == Best Practices Summary
 
-*   **Never rely on `free` or `top`** inside a container for memory capacity planning.
+*   **Avoid reling on `free` or `top`** inside a container for memory capacity planning.
 *   **Always use `-XX:MaxRAMPercentage`** instead of fixed `-Xmx` values to ensure the heap scales dynamically with the container limit.
 *   **Prioritize `jcmd`** for all runtime analysis, as it is native to the OpenJDK and fully supports container-cgroup awareness.
+
+**The following JVM flags can be used for troubleshooting:**
+
+[cols="2,1", options="header"]
+|===
+| Scenario | Exit Code
+
+| `-XX:+HeapDumpOnOutOfMemoryError`
+| 3
+
+| `-XX:+ExitOnOutOfMemoryError`
+| 3
+
+| `-XX:+CrashOnOutOfMemoryError`
+| 0
+
+| `kill -11 <PID>`
+| 0
+
+| Setting `-Xmx`/`-Xms` > container size (plus `-XX:+AlwaysPreTouch`)
+| 137
+|===
+
