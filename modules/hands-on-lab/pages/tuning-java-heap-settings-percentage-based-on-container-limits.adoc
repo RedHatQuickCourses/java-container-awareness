@@ -109,7 +109,8 @@ For complete details and subscriber-exclusive guidance on analyzing these diagno
 * https://access.redhat.com/solutions/6973111[Red Hat Solution 6973111: Interpreting VM.info file in OpenJDK/OracleJDK]
 
 == Common Properties
-The `VM.info` file typically includes:
+The `VM.info` file will include:
+
 - JVM build details and version strings
 - Operating system environment specifications
 - Ergonomics and default sizing parameters
