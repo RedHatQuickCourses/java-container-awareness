@@ -313,12 +313,13 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_two_main_scenarios"><a class="anchor" href="#_two_main_scenarios"></a>Two main scenarios:</h2>
+<h2 id="_three_main_scenarios"><a class="anchor" href="#_three_main_scenarios"></a>Three main scenarios:</h2>
 <div class="sectionbody">
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>Underutilization:</strong> The application heap is significantly smaller than the container limit because it defaulted to a generic fraction of the host&#8217;s massive memory footprint, leading to frequent Garbage Collection (GC) pauses.</p>
+<p><strong>Underutilization:</strong>
+The application heap is significantly smaller than the container limit because it defaulted to a generic fraction of the host&#8217;s massive memory footprint, leading to frequent Garbage Collection (GC) pauses.</p>
 </li>
 <li>
 <p><strong>Overutilization:</strong> The application heap (plus off-heap) is significantly larger than the container limit, which will eventually lead:</p>
@@ -336,6 +337,22 @@
 </ul>
 </div>
 </li>
+<li>
+<p><strong>Misbehavior:</strong> The application runs nominally for a long time, however sundely it misbehaves.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>CPU Throttling: The application was deployed without CPU boundaries and now other applications are overstepping.</p>
+</li>
+<li>
+<p>JVM stuck: The application was deployed without CPU boundaries and now the Database is overloaded with requests.</p>
+</li>
+<li>
+<p>JVM Xmx hard-coded: The application was deployed with Xmx hard coded now the DevOps team cannot change at runtime.</p>
+</li>
+</ul>
+</div>
+</li>
 </ol>
 </div>
 <div class="sect2">
@@ -346,7 +363,7 @@
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Check the logs:</strong> Inspect your pod logs to confirm if <code>run-java.sh</code> or the standard OpenJDK startup scripts are being utilized, as these often contain logic to calculate heap sizes based on container limits.</p>
+<p><strong>Check the GC logs and pod logs:</strong> Inspect your pod logs to confirm if <code>run-java.sh</code> or the standard OpenJDK startup scripts are being utilized, as these often contain logic to calculate heap sizes based on container limits. Same with GC logs and pod logs for misbehaviors.</p>
 </li>
 <li>
 <p><strong>Verify <code>jcmd</code> output:</strong> Use <code>jcmd &lt;pid&gt; VM.info</code> to inspect the runtime configuration and verify <code>cgroup</code> memory controller details.</p>
