@@ -322,37 +322,52 @@
 </colgroup>
 <thead>
 <tr>
-<th class="tableblock halign-left valign-top">Scenario / Issue</th>
-<th class="tableblock halign-left valign-top">Description &amp; Consequence</th>
+<th class="tableblock halign-left valign-top">Scenario</th>
+<th class="tableblock halign-left valign-top">Description &amp; Consequences</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Underutilization</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The application heap is significantly smaller than the container limit because it defaulted to a generic fraction of the host’s massive memory footprint, leading to frequent Garbage Collection (GC) pauses. This causes waste of resources CPU and memory.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The application heap is significantly smaller than the container limit because it defaulted to a generic fraction of the host’s massive memory footprint, leading to frequent Garbage Collection (GC) pauses.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Overutilization</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The application heap (plus off-heap) is significantly larger than the container limit, which will eventually lead:</p>
-<p class="tableblock">* To <code>OOMKilled</code> events
-* To <code>OutOfMemoryError</code> (OOMException) events
-* To <code>SIGTERM</code>, in case the JVM is not responsive</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>The application heap (plus off-heap) is significantly larger than the container limit, which will eventually lead:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>To <code>OOMKilled</code> events</p>
+</li>
+<li>
+<p>To <code>OutOfMemoryError</code> (OOMException) events</p>
+</li>
+<li>
+<p>To <code>SIGTERM</code>, in case the JVM is not responsive</p>
+</li>
+</ul>
+</div></div></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Misbehavior</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The application runs nominally for a long time, however suddenly it misbehaves.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>CPU Throttling</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The application was deployed without CPU boundaries and now other applications are overstepping.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>JVM stuck</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The application was deployed without CPU boundaries and now the database is overloaded with requests.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>JVM Xmx hard-coded</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The application was deployed with <code>-Xmx</code> hard-coded; now the DevOps team cannot change the memory limits dynamically at runtime.</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>The application runs nominally for a long time, however suddenly it misbehaves. Examples include:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>CPU Throttling:</strong> The application was deployed without CPU boundaries and now other applications are overstepping.</p>
+</li>
+<li>
+<p><strong>JVM stuck:</strong> The application was deployed without CPU boundaries and now the Database is overloaded with requests.</p>
+</li>
+<li>
+<p><strong>JVM Xmx hard-coded:</strong> The application was deployed with <code>-Xmx</code> hard-coded; now the DevOps team cannot change the limits dynamically at runtime.</p>
+</li>
+</ul>
+</div></div></td>
 </tr>
 </tbody>
 </table>
