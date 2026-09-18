@@ -35,5 +35,7 @@ This course assumes that you have the following prior experience:
 * Experience with Java (in general) and heap (off-heap) allocation
 * Experience with container runtimes/engines such as podman or Docker
 * Experience with container orchestrators, such as Openshift in terms of deployment (Operators knowledge is not required and just build on top of deployments)
+
+
 NOTE: **Use of Artificial Intelligence:**
-This publication contains content or media that is generated or assisted by AI tools. The Training deliverables have primarily human authorship, and all content was reviewed by an human domain expert.
+This publication contains content or media that is assisted by AI tools generation. The Training deliverables have primarily human specialist authorship, and all content was reviewed by an human domain experts.
