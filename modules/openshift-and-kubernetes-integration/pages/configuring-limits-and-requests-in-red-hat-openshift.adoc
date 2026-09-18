@@ -143,7 +143,31 @@ current number of tasks: 54
 
 Above for the output related to `Max. Heap Size` and `active_processor_count`. You will notice these values are derived from the limits, not the requests.
 
-6.  **Observe Java's internal detection** of these limits - executing directly java command (25% expected):
+=== Default Red Hat OpenJDK's ENTRYPOINT vs direct Java execution
+
+The above example (hotrod deployment) has 80% as default values, because it has run-java.sh as ENTRYPOINT:
++
+[source,bash]
+----
+$ jcmd 1 VM.info | head
+1:
+#
+# JRE version: OpenJDK Runtime Environment (Red_Hat-17.0.20.1.1-1) (17.0.20.1+1) (build 17.0.20.1+1-LTS)
+# Java VM: OpenJDK 64-Bit Server VM (Red_Hat-17.0.20.1.1-1) (17.0.20.1+1-LTS, mixed mode, sharing, tiered, compressed oops, compressed class ptrs, parallel gc, linux-amd64)
+
+---------------  S U M M A R Y ------------
+
+Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -XX:MaxRAMPercentage=50.0 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+
+Host: Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz, 8 cores, 2G, Red Hat Enterprise Linux release 9.8 (Plow)
+---------------  P R O C E S S  ---------------
+
+Heap address: 0x00000000c0000000, size: 1024 MB, Compressed Oops mode: 32-bit
+----
+
+Above shows 50%  (MaxRAMPercentage at 50%) of 2Gi, which is 1024Mb.
+
+However, observe Java's internal detection of these limits - executing directly java command (25% expected):
 +
 [source,bash]
 ----
@@ -162,4 +186,7 @@ OpenJDK Runtime Environment (Red_Hat-25.0.4.1.1-0) (build 25.0.4.1+1)
 OpenJDK 64-Bit Server VM (Red_Hat-25.0.4.1.1-0) (build 25.0.4.1+1, mixed mode, sharing)
 ----
 
-As expected - and already explained on this course - the MaxRAM percentage at 80% comes from the `run-java.sh` ENTRYPOINT (s2i with OpenJDK injects that ENTRYPOINT by default. In the above example (straight execution of java, it will bring 25%), which is the default upstream limit. In other words, limit is set to 512Mi but the heap size displayed is 123.75M when executing java directly inside a Red Hat OpenJDK container.
+The above is fully expected: Java is not using the java-run.sh ENTRYPOINT and as expected - and already explained on this course - the MaxRAM percentage at 80% comes specifically from the `run-java.sh` ENTRYPOINT (s2i with OpenJDK injects that ENTRYPOINT by default.
+
+In the above example, java straight execution, it will bring 25% beucase it is the default upstream limit. 
+In other words, limit is set to 512Mi but the heap size displayed is 123.75M when executing java directly inside a Red Hat OpenJDK container.
