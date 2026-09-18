@@ -495,12 +495,12 @@ burst_usec 0</code></pre>
 </ol>
 </div>
 <div class="paragraph">
-<p>Above shows details for cgroups v2, for cgroups v1 use <code>/sys/fs/cgroup/cpuacct.usage</code>.</p>
+<p>Above shows details for cgroups v2, for cgroups v1 use <code>/sys/fs/cgroup/cpuacct.usage</code>. In case the JVM is not cgropus v2 compatible, cgroups won&#8217;t be detected <code>No metrics available for this platform</code> may be shown.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Look for <code>nr_throttled</code>. If this number is increasing rapidly, the CPU <code>limit</code> may be too low, and the kernel is throttling your application, causing latency. Therefore tuning the ratio (requests vs limits) can be adequate.</p>
+<p>For CPU throttling, verify <code>nr_throttled</code>. If this number is increasing rapidly, the CPU <code>limit</code> may be too low, and the kernel is throttling your application, causing latency. Therefore tuning the ratio (requests vs limits) can be adequate.</p>
 </li>
 </ol>
 </div>
