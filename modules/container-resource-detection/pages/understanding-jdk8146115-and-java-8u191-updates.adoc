@@ -27,14 +27,14 @@ Key changes introduced in 8u191 include:
 * **Default Ergonomics:** The default heap size calculation logic was updated to use a fraction of the container’s memory limit instead of the host's physical memory.
 * **New JVM Flags:** Introduction of flags such as `-XX:MaxRAMPercentage`, `-XX:MinRAMPercentage`, and `-XX:InitialRAMPercentage`, allowing developers to define heap sizes as a ratio of the container limit rather than hard-coded values.
 
-=== Impact on Modern Deployments
-With Java 8u191+, the relationship between the container and the JVM became **coupled**. 
+=== Impact on Current Deployments
+With Java 8u191+ (and later versions), the relationship between the container (cgroups) and the JVM became **coupled**. 
 
 [cols="1,1,1", options="header"]
 |===
 | Feature 
 | Legacy Behavior (Pre-8u191) 
-| Modern Behavior (8u191+)
+| Current Behavior (8u191+)
 
 | *Memory Source* 
 | Queries `/proc/meminfo` (Host RAM) 
