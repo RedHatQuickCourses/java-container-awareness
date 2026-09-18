@@ -35,7 +35,7 @@ The memory not occupied by the JVM heap is not wasted — it is necessary for th
 *Best Practice:* If your application relies heavily on off-heap memory (e.g., streaming or high-throughput messaging), use a lower `MaxRAMPercentage` (e.g., 50%) to prevent the total container usage from hitting the `cgroups` limit.
 
 === 3. Avoid MaxRAM Override
-Avoid setting the `-XX:MaxRAM` flag. When you set `MaxRAM` manually, you also effectively decouple the JVM's view of memory from the actual container `cgroups` limit. This removes completely the purpose of container awareness and can lead to the JVM attempting to allocate more memory than the container is permitted to use, resulting in an immediate OOM-Kill by the kernel.
+Avoid setting the `-XX:MaxRAM` flag. When you set `MaxRAM` one effectively decouple the JVM's view of memory from the actual container `cgroups` limit. This removes completely the purpose of container awareness and can lead to the JVM attempting to allocate more memory than the container is permitted to use, resulting in an immediate OOM-Kill by the kernel. `MaxRAM` sets the full size of the heap and off-heap and it is very useful in specific cases.
 
 === 4. Aligning with Container Orchestration
 Ensure your Pod resource requests and limits are configured to support your Java workload:
@@ -73,5 +73,6 @@ If your application is experiencing `OutOfMemoryException` or being killed by th
 1.  **Check `VM.info` file**: Use Java Diagnostics (jcmd) to print all details of Java concerning containers. 
 2.  **Orchestrator and host details**: Verify the events, deployment yaml status, and host logs (sos_report), which will record OOMKill events.
 3.  **Check `cgroups` usage**: Use `cat /sys/fs/cgroup/memory/memory.stat` inside the container to see if the container is hitting its hard limit. This file is usually used for Prometheus/cadAdvisor output scrapping.
-4.  **Analyze Native Memory Tracking (NMT)**: Enable `-XX:NativeMemoryTracking=summary` to identify if the memory leak is occurring in the heap or in native memory segments (e.g., excessive thread allocation).
-5.  **Benchmark**: Always performance-test with a memory profiler before finalizing your percentage values to ensure the off-heap headroom is sufficient for peak load.
+4.  **Analyze GC logs**: Verify `GC logs` about the cgroups details, GC allocation, and GC collector behavior.
+4.  **Analyze Native Memory Tracking (NMT)**: Enable `-XX:NativeMemoryTracking=summary` (or `details`) to identify if the memory leak is occurring in the heap or in native memory segments (e.g., excessive thread allocation).
+6.  **Benchmark**: Always performance-test with a memory profiler before finalizing your percentage values to ensure the off-heap headroom is sufficient for peak load.
