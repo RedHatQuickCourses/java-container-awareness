@@ -190,23 +190,29 @@ $ oc set resources deployment/hotrod-app --limits=cpu="2" --requests=cpu="1"
 
 **The following JVM flags can be used for troubleshooting:**
 
-[cols="2,1", options="header"]
+[cols="1,2", options="header"]
 |===
-| Scenario | Exit Code
+| JVM Flag | Description
 
-| `-XX:+HeapDumpOnOutOfMemoryError`
-| 3
+| `-XX:+ErrorFileToStdout`
+| Sends the crash output directly to standard output, making it visible in pod logs (`oc logs`).
 
-| `-XX:+ExitOnOutOfMemoryError`
-| 3
+| `-XX:ErrorFile=<path>`
+| Sets the destination path for the fatal crash log file (`hs_err_pid.log`).
+
+| `-XX:HeapDumpPath=<path>`
+| When used alongside `-XX:+HeapDumpOnOutOfMemoryError`, this sets the directory or exact file path where the heap dump will be written to.
 
 | `-XX:+CrashOnOutOfMemoryError`
-| 0
+| Crashes the JVM (generating a crash log and core dump) instead of throwing a standard `OutOfMemoryError`.
 
-| `kill -11 <PID>`
-| 0
+| `-XX:+ExitOnOutOfMemoryError`
+| Forces the JVM to exit immediately on an out-of-memory exception.
 
-| Setting `-Xmx`/`-Xms` > container size (plus `-XX:+AlwaysPreTouch`)
-| 137
+| `-XX:OnOutOfMemoryError="<cmd>"`
+| Defines a specific action (command or script) to execute when an `OutOfMemoryError` happens.
+
+| `-XX:OnError="<cmd>"`
+| Defines a specific action (command or script) to execute when a fatal JVM crash occurs.
 |===
 
