@@ -76,3 +76,32 @@ If your application is experiencing `OutOfMemoryException` or being killed by th
 4.  **Analyze GC logs**: Verify `GC logs` about the cgroups details, GC allocation, and GC collector behavior.
 5.  **Analyze Native Memory Tracking (NMT)**: Enable `-XX:NativeMemoryTracking=summary` (or `details`) to help identify memory leaks or native memory segments allocation.
 6.  **Benchmark**: Always performance-test with a memory profiler before finalizing your percentage values to ensure the off-heap headroom is sufficient for peak load.
+
+== Garbage collectors
+
+Although the core of this course is not to discuss Java's garbage collector, it does offer a possibility of discussing different GC collectors. As mentioned when using run-java.sh ENTRYPOINT (default ENTRYPOINT for Red Hat OpenJDK images), the default collector is ParallelGC however others can be used given enough CPUs. The discussion will depend on the CPU availability and application profile.
+
+[cols="1,2,3", options="header"]
+|===
+| Garbage Collector | JVM Flag | Description & Best Fit
+
+| *Serial GC*
+| `-XX:+UseSerialGC`
+| Uses a single thread for garbage collection. **Best for single-core containers** or microservices with very small heaps (< 100MB) where minimal GC overhead and memory footprint are required.
+
+| *Parallel GC*
+| `-XX:+UseParallelGC`
+| Focuses on maximizing throughput by using multiple threads to perform GC, but stops the application completely during collection. **Best for batch processing** or applications where latency (pause times) is not a critical concern.
+
+| *G1 GC (Garbage-First)*
+| `-XX:+UseG1GC`
+| The default GC since Java 9. Balances throughput and latency by dividing the heap into regions. **Best for general-purpose web applications** running on multi-core containers with heaps larger than 2GB.
+
+| *ZGC (Z Garbage Collector)*
+| `-XX:+UseZGC`
+| An ultra-low latency GC designed to keep pause times under 1 millisecond. **Best for latency-sensitive applications**, though it may require slightly more CPU and memory overhead. (Production ready since Java 15).
+
+| *Shenandoah GC*
+| `-XX:+UseShenandoahGC`
+|  Red Hat's ultra-low latency GC that performs evacuation work concurrently with the running Java threads. **Best for highly responsive applications** requiring consistent, predictable pause times regardless of heap size. For more details, see the https://developers.redhat.com/articles/2024/05/28/beginners-guide-shenandoah-garbage-collector[Beginner's guide to Shenandoah Garbage Collector].
+|===
