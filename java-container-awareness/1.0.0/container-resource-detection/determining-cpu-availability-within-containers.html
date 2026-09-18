@@ -580,7 +580,7 @@ sh-5.3$</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If you deploy a container with limits (not just requests, but limits) and <code>active_processor_count</code> (jcmd or java -XshowSettings:system) returns that limit, the application is correctly container-aware. Otherwise, in case it returns the host values, this indicates the application is likely not container-aware (nproc shows host details).</p>
+<p>If you deploy a container with limits (not requests, but limits) and <code>active_processor_count</code> (jcmd or java -XshowSettings:system) returns that limit, the application is correctly container-aware. Otherwise, in case it returns the host values, this indicates the application is likely not container-aware (nproc shows host details).</p>
 </div>
 </li>
 <li>
@@ -633,7 +633,7 @@ sh-5.3$</pre>
 <p>Fractional values are rounded to the lowest integer, so 2200 millicores, becomes 2 CPU.</p>
 </li>
 <li>
-<p>Java doesn&#8217;t care about requests, only limits.</p>
+<p>Java does not care about requests, only limits.</p>
 </li>
 <li>
 <p>Java workaround needs CPU and Memory limits to avoid issues.</p>
