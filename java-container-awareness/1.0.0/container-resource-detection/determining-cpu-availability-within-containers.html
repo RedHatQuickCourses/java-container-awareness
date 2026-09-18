@@ -238,10 +238,10 @@
 <div class="ulist">
 <ul>
 <li>
-<p>For cgroups v1, versions Java 8u191+ should be enough</p>
+<p>For cgroups v1, versions Java 8u191+ should be enough.</p>
 </li>
 <li>
-<p>For cgroups v2, versions Java 8u372+ Java 11.0.16+ are required.</p>
+<p>For cgroups v2, versions Java 8u372+ or Java 11.0.16+ are required.</p>
 </li>
 </ul>
 </div>
@@ -256,7 +256,7 @@
 <p><strong>CPU Shares (<code>cpu.shares</code>):</strong> This represents the relative weight of the container. If the host has 64 cores and your container has a share weight that equates to 2 cores, the JVM uses this to influence its internal parallelism.</p>
 </li>
 <li>
-<p><strong>CPU Quota and Period (<code>cpu.cfs_quota_us</code> and <code>cpu.cfs_period_us</code>):</strong> These define a hard limit. For example, if the quota is 200,000 and the period is 100,000, the container is limited to 2 cores ($200,000 / 100,000 = 2$).</p>
+<p><strong>CPU Quota and Period (<code>cpu.cfs_quota_us</code> and <code>cpu.cfs_period_us</code>):</strong> These define a hard limit. For example, if the quota is 200,000 and the period is 100,000, the container is limited to 2 cores (200,000 / 100,000 = 2).</p>
 </li>
 </ol>
 </div>
@@ -353,14 +353,14 @@ cpu_shares: 51</code></pre>
 <h2 id="_hands_on_exercise_inspecting_cpu_awareness"><a class="anchor" href="#_hands_on_exercise_inspecting_cpu_awareness"></a>Hands-on Exercise: Inspecting CPU Awareness</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>In this short task, you will verify the JVM&#8217;s CPU detection. To make this work we will need an container image with an application already there, otherwise the container will fail on the spot.</p>
+<p>In this short task, you will verify the JVM&#8217;s CPU detection. To make this work we will need a container image with an application already there, otherwise the container will fail on the spot.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
 <p><strong>Create an image container with the application:</strong></p>
 <div class="paragraph">
-<p>Use the following command to fetch a project and build a OpenJDK project locally from it via s2i toolkit:</p>
+<p>Use the following command to fetch a project and build an OpenJDK project locally from it via the s2i toolkit:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -377,8 +377,8 @@ $ s2i --loglevel 5 build hotrodspringboot/ registry.access.redhat.com/ubi8/openj
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ docker image ls
-IMAGE                                                    ID             DISK USAGE   CONTENT SIZE   EXTRA
-openjdk-hotrod:example                                   5b49f9aebc56        591MB             0B</code></pre>
+IMAGE                                                   ID             DISK USAGE   CONTENT SIZE   EXTRA
+openjdk-hotrod:example                                  5b49f9aebc56         591MB             0B</code></pre>
 </div>
 </div>
 </li>
@@ -415,10 +415,10 @@ INFO running in /deployments
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">### List containers running
 $ docker ps
-CONTAINER ID   IMAGE                    COMMAND                CREATED              STATUS              PORTS                                                   NAMES
+CONTAINER ID   IMAGE                    COMMAND              CREATED              STATUS              PORTS                                                  NAMES
 _ID_   openjdk-hotrod:example   "/usr/local/s2i/run"   About a minute ago   Up About a minute   8443/tcp, 0.0.0.0:8081-&gt;8080/tcp, [::]:8081-&gt;8080/tcp   mystifying_morse
 ####
-#### getting contianer ID
+#### getting container ID
 ####
 $ sudo docker exec -it _ID_ /bin/bash
 [jboss@d7942a2c3041 ~]$ jcmd
@@ -445,7 +445,7 @@ active_processor_count: 16 &lt;-------------------------------- that's the full 
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ docker ps
-CONTAINER ID   IMAGE                    COMMAND                CREATED              STATUS              PORTS                                                   NAMES
+CONTAINER ID   IMAGE                    COMMAND              CREATED              STATUS              PORTS                                                  NAMES
 _ID_   openjdk-hotrod:example   "/usr/local/s2i/run"   About a minute ago   Up About a minute   8443/tcp, 0.0.0.0:8081-&gt;8080/tcp, [::]:8081-&gt;8080/tcp   mystifying_morse
 ####
 #### Getting inside the container:
@@ -462,12 +462,12 @@ active_processor_count: 2 &lt;-------------------------------- that's the full C
 </ol>
 </div>
 <div class="paragraph">
-<p><strong>Deployment in Openshift - create new project:</strong></p>
+<p><strong>Deployment in OpenShift - create new project:</strong></p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Deployment in Openshift  via new project, one can use the binary upload:</p>
+<p>Deployment in OpenShift via a new project, one can use the binary upload:</p>
 <div class="paragraph">
 <p>Use the following command to create a new OpenShift project:</p>
 </div>
@@ -514,8 +514,7 @@ hotrod-app-ID   1/1     Running     0          5m26s</pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ oc rsh hotrod-app-ID
-$ jcmd
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$oc rsh hotrod-app-ID$ jcmd
 144 jdk.jcmd/sun.tools.jcmd.JCmd
 1 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar</code></pre>
 </div>
@@ -563,7 +562,7 @@ sh-5.3$</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If you deploy a container with limits (not just requests, but limits) and <code>active_processor_count</code> (jcmd or java -XshowSettings:system) returns that limit, the application is correctly container-aware. Otherwise, in case it returns the host values, this indicates the application is likely not container aware (nproc shows host details).</p>
+<p>If you deploy a container with limits (not just requests, but limits) and <code>active_processor_count</code> (jcmd or java -XshowSettings:system) returns that limit, the application is correctly container-aware. Otherwise, in case it returns the host values, this indicates the application is likely not container-aware (nproc shows host details).</p>
 </div>
 </li>
 <li>
@@ -613,7 +612,7 @@ sh-5.3$</pre>
 <p>Values below 1 CPU, are rounded to 1.</p>
 </li>
 <li>
-<p>Broken values are rounded to the lowest integer, so 2200 millicores, becomes 2 CPU.</p>
+<p>Fractional values are rounded to the lowest integer, so 2200 millicores, becomes 2 CPU.</p>
 </li>
 <li>
 <p>Java doesn&#8217;t care about requests, only limits.</p>
