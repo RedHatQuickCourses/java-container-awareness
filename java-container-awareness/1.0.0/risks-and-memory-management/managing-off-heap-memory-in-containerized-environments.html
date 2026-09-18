@@ -491,11 +491,11 @@ deployment.apps/hotrod-app resource requirements updated
 ###
 $ oc get pod
 NAME                          READY   STATUS      RESTARTS   AGE
-hotrod-app-866f679df9-px72z   1/1     Running     0          9s
+hotrod-app-ID                   1/1     Running     0          9s
 ###
 ### Go inside the pod
 ###
-$ oc rsh hotrod-app-866f679df9-px72z
+$ oc rsh hotrod-app-ID
 ###
 ### jcmd with VM.info
 ###
@@ -532,8 +532,7 @@ deployment.apps/hotrod-app updated
 ###
 $ oc get pod
 NAME                          READY   STATUS      RESTARTS   AGE
-hotrod-app-1-build            0/1     Completed   0          63m
-hotrod-app-549cc98dfd-4tpb5   1/1     Running     0          3s
+hotrod-app-ID   1/1     Running     0          3s
 ###
 ### Verify with VM.info
 ###
