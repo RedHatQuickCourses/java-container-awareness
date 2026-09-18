@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 4041,
+  "totalSeconds": 4053,
   "pageCount": 28,
   "pages": [
     {
@@ -55,7 +55,7 @@
     {
       "module": "risks-and-memory-management",
       "page": "risks-and-memory-management.adoc",
-      "seconds": 86
+      "seconds": 98
     },
     {
       "module": "risks-and-memory-management",
