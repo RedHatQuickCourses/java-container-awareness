@@ -11,7 +11,7 @@ Before Java became fully container-aware, it was common practice to explicitly d
 *   **Resource Underutilization:** If the `-Xmx` is set significantly lower than the container limit, the application cannot scale its memory usage to handle increased load, even if the container has plenty of headroom. This results in inefficient resource allocation and potential `OutOfMemoryException` (OOME) errors within the JVM, despite the container appearing to have available memory.
 *   **Off-heap limits:** DevOps teams/developers may often focus exclusively on the heap. However, native memory (off-heap) usage is not governed by `Xmx`, although `Xmx` caps the heap limit. The JVM is a combination of both heap and off-heap, and both segments together potentially cause the combined memory pressure to breach the container's hard limit.
 
-== Build the container with Xmx (manual settings is an Anti-Pattern
+== Build the container with Xmx (hard-coded manual setting) is an Anti-Pattern
 Building an application with JVM settings hard coded is an anti-pattnern. That's because a change on the JVM flag would require a new build, which breaks the main idea of Kubernetes.
 
 In other words, baking JVM configurations directly into an application artificat is an anti-pattern that severely limits the flexibility of the application directly and impacts its deployment.
