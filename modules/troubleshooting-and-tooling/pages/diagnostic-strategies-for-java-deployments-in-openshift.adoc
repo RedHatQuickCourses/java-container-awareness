@@ -16,11 +16,21 @@ A critical diagnostic step is distinguishing between container-aware and legacy 
 To effectively diagnose resource constraints or performance issues, follow these strategies:
 
 === 1. Validating Resource Visibility
-Always verify that the JVM sees the limits defined in your OpenShift `DeploymentConfig` or `Deployment`. You can inspect this by executing into the pod and checking the container's perceived memory and CPU:
+
+Verify that the JVM sees the limits defined in your OpenShift `DeploymentConfig` or `Deployment`. You can inspect this by executing into the pod and checking the container's perceived memory and CPU:
 
 [source,bash]
 ----
-# Check perceived max heap from within the pod
+# Check perceived heap from within the pod
+$ oc exec hotrod-app-ID -- jcmd 1 VM.info | grep  "Heap address"
+Heap address: 0x00000000c0000000, size: 1024 MB, Compressed Oops mode: 32-bit
+----
+
+Verify the JVM limits being detected:
+
+[source,bash]
+----
+# Check perceived limit from within the pod
 oc exec <pod-name> -- jcmd 1 VM.info | grep -A18 "container (cgroup) information:"
 container_type: cgroupv2 <-------------------------- cgroups v2
 cpu_cpuset_cpus: not supported
@@ -37,11 +47,22 @@ memory_usage_in_bytes: 186764 k <---------------------- Usage
 
 Check if Heap is calculated correctly based on the container memory limit rather than the worker node's total memory.
 
-=== 2. Utilizing `jcmd`
-`jcmd` is the gold standard for Java diagnostics within OpenShift. It allows you to perform heap dumps, thread dumps, and analyze VM flags without requiring a restart.
+=== 2. Utilizing Java Diagnostics - `jcmd` 
+Java diagnostics, jcmd, is very useful for Java and Java inside containers in general. It allows you to perform JVM dump, heap dumps, thread dumps, and analyze JVM flags without requiring a restart.
 
-*   **Thread Dumps:** Identify if the application is hitting thread limits or experiencing deadlocks.
-*   **GC Performance:** Use `jcmd <pid> GC.run` to trigger garbage collection or `jcmd <pid> VM.flags` to verify if `-XX:MaxRAMPercentage` is correctly configured.
+[cols="1,2", options="header"]
+|===
+| Diagnostic Tool | Purpose / Action
+
+| Thread Dumps
+| Identify if the application is hitting thread limits or experiencing deadlocks.
+
+| GC Performance
+| Use `jcmd <pid> GC.run` to trigger garbage collection or `jcmd <pid> VM.flags` to verify if `-XX:MaxRAMPercentage` is adequately set (too high or too low).
+
+| VM.info
+| Use `jcmd <pid> VM.info` to verify if `-XX:MaxRAMPercentage`, Native allocation, cgroups details and a lot more.
+|===
 
 === 3. Analyzing cgroup Constraints
 If a pod is frequently restarting, it may be hitting OOM (Out of Memory) kills. Since the OOM Killer is enforced at the cgroup level, standard Java `OutOfMemoryError` logs might not appear if the kernel terminates the process before the JVM can report it.
