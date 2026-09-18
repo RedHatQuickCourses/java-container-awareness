@@ -21,10 +21,21 @@ Always verify that the JVM sees the limits defined in your OpenShift `Deployment
 [source,bash]
 ----
 # Check perceived max heap from within the pod
-oc exec <pod-name> -- jcmd 1 VM.info | 
+oc exec <pod-name> -- jcmd 1 VM.info | grep -A18 "container (cgroup) information:"
+container_type: cgroupv2 <-------------------------- cgroups v2
+cpu_cpuset_cpus: not supported
+cpu_memory_nodes: not supported
+active_processor_count: 2 <-------------------------- CPU limits
+cpu_quota: 200000
+cpu_period: 100000
+cpu_shares: no shares
+memory_limit_in_bytes: 2097152 k  <------------------- Memory limits
+memory_and_swap_limit_in_bytes: 2097152 k
+memory_soft_limit_in_bytes: 0
+memory_usage_in_bytes: 186764 k <---------------------- Usage
 ----
 
-Check if `MaxHeapSize` is calculated correctly based on the container memory limit rather than the worker node's total memory.
+Check if Heap is calculated correctly based on the container memory limit rather than the worker node's total memory.
 
 === 2. Utilizing `jcmd`
 `jcmd` is the gold standard for Java diagnostics within OpenShift. It allows you to perform heap dumps, thread dumps, and analyze VM flags without requiring a restart.
@@ -70,8 +81,6 @@ Verify the output and see how it correlates with the host and container limits:
 | 25% of the host
 | non-container aware or unbounded deployment - verify if the container has limits
 |===
-
-```
 
 === Step 2: Use `jcmd` to analyze the process flags
 Access the container shell to utilize `jcmd`.
