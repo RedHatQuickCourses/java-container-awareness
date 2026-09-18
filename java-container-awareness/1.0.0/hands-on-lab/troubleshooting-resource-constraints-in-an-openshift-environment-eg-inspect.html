@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Troubleshooting Resource Constraints in OpenShift :: Java Container Awareness</title>
+    <title>Troubleshooting Resource Constraints in and out of OpenShift :: Java Container Awareness</title>
     <link rel="prev" href="monitoring-cpu-and-memory-usage-using-container-aware-tools.html">
     <link rel="next" href="../appendix/appendix.html">
     <meta name="generator" content="Antora 3.2.0-alpha.12">
@@ -166,7 +166,7 @@
     <a class="nav-link" href="monitoring-cpu-and-memory-usage-using-container-aware-tools.html">Monitoring CPU and Memory Usage with Container-Aware Tools</a>
   </li>
   <li class="nav-item is-current-page" data-depth="2">
-    <a class="nav-link" href="troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.html">Troubleshooting Resource Constraints in OpenShift</a>
+    <a class="nav-link" href="troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.html">Troubleshooting Resource Constraints in and out of OpenShift</a>
   </li>
 </ul>
   </li>
@@ -209,7 +209,7 @@
   <ul>
     <li><a href="../index.html">Java Container Awareness</a></li>
     <li><a href="hands-on-lab.html">Hands-on Lab</a></li>
-    <li><a href="troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.html">Troubleshooting Resource Constraints in OpenShift</a></li>
+    <li><a href="troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.html">Troubleshooting Resource Constraints in and out of OpenShift</a></li>
   </ul>
 </nav>
 </div>
@@ -218,7 +218,7 @@
   <div class="toc-menu"></div>
 </aside>
 <article class="doc" data-audio-src="troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.wav" data-transcript-src="troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.txt">
-<h1 class="page">Troubleshooting Resource Constraints in OpenShift</h1>
+<h1 class="page">Troubleshooting Resource Constraints in and out of OpenShift</h1>
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
@@ -295,8 +295,30 @@ cat /sys/fs/cgroup/memory/memory.limit_in_bytes</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p><strong>Note: In cgroup v2 environments, the path may be located under <code>/sys/fs/cgroup/memory.max</code>.</strong></p>
+<p>*Note: In cgroup v2 environments, the path will change:</p>
 </div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">cgroup Version</th>
+<th class="tableblock halign-left valign-top">Memory Limit File Path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cgroups v1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory/memory.max_usage_in_bytes</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cgroups v2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory.max</code></p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="sect2">
 <h3 id="_using_jcmd"><a class="anchor" href="#_using_jcmd"></a>Using <code>jcmd</code></h3>
@@ -312,10 +334,10 @@ oc exec &lt;pod-name&gt; -- jcmd 1 VM.flags</code></pre>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Look for:</strong> <code>MaxHeapSize</code></p>
+<p><strong>Look for:</strong> <code>Heap size</code></p>
 </li>
 <li>
-<p><strong>Verification:</strong> If <code>MaxHeapSize</code> is disproportionately large compared to your container limit, your application is at risk of being killed by the kernel.</p>
+<p><strong>Verification:</strong> If <code>Heap size</code> is disproportionately large compared to your container limit, your application is at risk of being killed by the kernel, the value must match the MaxRAMPercentage already set.</p>
 </li>
 </ul>
 </div>
@@ -387,7 +409,7 @@ Adjust the deployment YAML to either increase the container memory limit or upda
 <pre>[source,bash]
 ----
 env:
-  - name: JAVA_OPTS
+  - name: JAVA_OPTS_APPEND
     value: "-XX:MaxRAMPercentage=50.0"
 ----</pre>
 </div>
