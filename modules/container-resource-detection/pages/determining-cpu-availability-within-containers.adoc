@@ -79,7 +79,13 @@ Use the following command to fetch a project and build an OpenJDK project locall
 +
 [source,bash]
 ----
+###
+### Clone github:
+###
 $ git clone https://github.com/alexbarbosa1989/hotrodspringboot.git
+###
+### S2I process build
+###
 $ s2i --loglevel 5 build hotrodspringboot/ registry.access.redhat.com/ubi8/openjdk-17:latest openjdk-hotrod:example 
 ----
 
@@ -100,7 +106,9 @@ Use the following command to deploy the image locally (Docker or podman):
 +
 [source,bash]
 ----
+###
 ### Deploying
+###
 $ docker run -p 8081:8080 openjdk-hotrod:example
 Starting the Java application using /opt/jboss/container/java/run/run-java.sh ...
 INFO exec -a "java" java -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -cp "." -jar /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar 
@@ -122,7 +130,9 @@ Create a new terminal and use the following commands docker ps (to track the con
 +
 [source,bash]
 ----
+###
 ### List containers running
+### 
 $ docker ps
 CONTAINER ID   IMAGE                    COMMAND              CREATED              STATUS              PORTS                                                  NAMES
 _ID_   openjdk-hotrod:example   "/usr/local/s2i/run"   About a minute ago   Up About a minute   8443/tcp, 0.0.0.0:8081->8080/tcp, [::]:8081->8080/tcp   mystifying_morse
@@ -130,8 +140,10 @@ _ID_   openjdk-hotrod:example   "/usr/local/s2i/run"   About a minute ago   Up A
 #### getting container ID
 ####
 $ sudo docker exec -it _ID_ /bin/bash
-[jboss@d7942a2c3041 ~]$ jcmd
-1 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+###
+### jcmd
+### 
+[jboss@d7942a2c3041 ~]$ jcmd 1 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
 179 jdk.jcmd/sun.tools.jcmd.JCmd
 [jboss@d7942a2c3041 ~]$ jcmd 1 VM.info |  grep active_processor_count
 active_processor_count: 16 <-------------------------------- that's the full CPU limits
