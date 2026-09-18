@@ -343,9 +343,25 @@ cpu_shares: 51</code></pre>
 <p><strong>Avoid Oversizing:</strong> If you set a high CPU limit but your application is single-threaded, the JVM may spawn excessive GC threads, leading to context-switching overhead.</p>
 </li>
 <li>
-<p><strong>Monitor <code>active_processor_count</code>:</strong> If <code>active_processor_count</code> does not match your expectations, ensure you are running a supported OpenJDK version (8u191 or higher). If you are forced to use an older, non-aware version, you must manually set <code>-XX:ActiveProcessorCount</code> to match your container limit.</p>
+<p><strong>Monitor <code>active_processor_count</code>:</strong> If <code>active_processor_count</code> does not match your expectations, ensure you are running a supported OpenJDK container aware version.</p>
 </li>
 </ul>
+</div>
+<div class="sect2">
+<h3 id="_workaround_for_non_container_aware_jvms"><a class="anchor" href="#_workaround_for_non_container_aware_jvms"></a>Workaround for non-container aware JVMs</h3>
+<div class="paragraph">
+<p>As explained in <a href="https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-and-nodejs-openshift-4" class="bare">https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-and-nodejs-openshift-4</a>, in case you are running an older, non-container-aware JVM, an adequate workaround is to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Manually set <code>-XX:ActiveProcessorCount</code> to match your container CPU limit.</p>
+</li>
+<li>
+<p>Manually set <code>-Xmx</code> to an appropriate value based on your container memory limit (leaving a buffer for off-heap JVM memory to avoid OOMKilled errors).</p>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -616,6 +632,9 @@ sh-5.3$</pre>
 </li>
 <li>
 <p>Java doesn&#8217;t care about requests, only limits.</p>
+</li>
+<li>
+<p>Java workaround needs CPU and Memory limits to avoid issues.</p>
 </li>
 </ul>
 </div>
