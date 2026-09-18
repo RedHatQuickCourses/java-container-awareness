@@ -30,7 +30,7 @@ The industry shift occurred with the implementation of **JDK-8146115**, starting
 
 When running a container-aware JVM, the process performs the following detection:
 
-* **Memory Detection:** Instead of asking the OS for total physical RAM, the JVM reads the cgroups (cgroups v1:`memory.limit_in_bytes` and  cgroups v2 `/sys/fs/cgroup/memory.max`) file from the container's cgroup. It then calculates the default heap size as a percentage of this limit, rather than a percentage of the host's total RAM - automatically.
+* **Memory Detection:** Instead of asking the OS for total physical RAM, the JVM reads the cgroups (cgroups v1: `memory.limit_in_bytes` and  cgroups v2: `/sys/fs/cgroup/memory.max`) file from the container's cgroup boundaries. The JVM then calculates the default heap size as a percentage of this limit, rather than a percentage of the host's total RAM or a hard-coded value, automatically.
 * **CPU Detection:** The JVM queries the cgroups CPU files to determine how many CPU cores are available to the container. And calculates the thread pools from this value, rather than the host limits. Example:
 
 .Java cgroups v2 example detection
