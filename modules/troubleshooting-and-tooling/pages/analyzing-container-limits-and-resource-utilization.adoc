@@ -94,6 +94,10 @@ a| *Impact:* The JVM aborts immediately without running shutdown hooks and dumps
 ----
 |===
 
+== References / Further Reading
+
+* For more details on this behavior, refer to the Red Hat Knowledgebase article: https://access.redhat.com/solutions/6968671[Troubleshoot options for Data Grid pod crash]
+
 == Hands-on Activity: Inspecting JVM Resource Awareness
 FIXME: This can be general instructions and not hands-on activity to be followed by learner.
 
