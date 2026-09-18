@@ -358,7 +358,7 @@ cpu_shares: 51</code></pre>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>Create an application project:</strong></p>
+<p><strong>Create an image container with the application:</strong></p>
 <div class="paragraph">
 <p>Use the following command to fetch a project and build a OpenJDK project locally from it via s2i toolkit:</p>
 </div>
@@ -394,7 +394,6 @@ Starting the Java application using /opt/jboss/container/java/run/run-java.sh ..
 INFO exec -a "java" java -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -cp "." -jar /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
 INFO running in /deployments
 INFO running in /deployments
-
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
 ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
@@ -402,7 +401,6 @@ INFO running in /deployments
   '  |____| .__|_| |_|_| |_\__, | / / / /
  =========|_|==============|___/=/_/_/_/
  :: Spring Boot ::                (v2.7.0)
-
 2026-09-18 14:53:36.607  INFO 1 --- [           main] c.r.h.h.HotrodspringbootApplication      : Starting HotrodspringbootApplication v0.0.1-SNAPSHOT using Java 17.0.20.1 on 8e34f75421fc with PID 1 (/deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar started by jboss in /deployments)</code></pre>
 </div>
 </div>
@@ -453,32 +451,36 @@ active_processor_count: 2 &lt;-------------------------------- that's the full C
 </div>
 </div>
 </li>
-<li>
-<p><strong>Deployment in Openshift - create new project:</strong></p>
-<div class="paragraph">
-<p>Use the following command to create a new OpenShift project:</p>
-</div>
-<div class="paragraph">
-<p>[source,bash]sudo docker run -p 8081:8080 -e MY_VARIABLE=my_value openjdk-hotrod:example</p>
-</div>
-</li>
 </ol>
+</div>
+<div class="paragraph">
+<p><strong>Deployment in Openshift - create new project:</strong></p>
+</div>
+<div class="paragraph">
+<p>Deployment in Openshift  via new project, one can use the binary upload:</p>
+</div>
+<div class="paragraph">
+<p>+
+Use the following command to create a new OpenShift project:</p>
+</div>
+<div class="paragraph">
+<p>+</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>oc new-project my-java-app</pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ oc new-project hotrod-s2i-project</code></pre>
 </div>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>Launch the container:</strong></p>
+<p><strong>Deploy the container image with an application:</strong></p>
 <div class="paragraph">
 <p>Use the following command to launch a new container:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc create deployment my-java-app --image=quay.io/hummingbird/openjdk:latest</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ oc new-app registry.access.redhat.com/ubi9/openjdk-17~https://github.com/alexbarbosa1989/hotrodspringboot.git --name=hotrod-app</code></pre>
 </div>
 </div>
 </li>
@@ -489,8 +491,15 @@ active_processor_count: 2 &lt;-------------------------------- that's the full C
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>oc get pods
-oc rsh &lt;pod-name&gt;</pre>
+<pre>### deployment
+$ oc get deployment
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+hotrod-app   1/1     1            1           2m16s
+### get pod
+$ oc get pod
+NAME                          READY   STATUS      RESTARTS   AGE
+hotrod-app-1-build            0/1     Completed   0          6m25s
+hotrod-app-ID   1/1     Running     0          5m26s</pre>
 </div>
 </div>
 </li>
@@ -501,17 +510,10 @@ oc rsh &lt;pod-name&gt;</pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jps</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Example output:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ jcmd
-1 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar &lt;--- java application
-179 jdk.jcmd/sun.tools.jcmd.JCmd</pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ oc rsh hotrod-app-ID
+$ jcmd
+144 jdk.jcmd/sun.tools.jcmd.JCmd
+1 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar</code></pre>
 </div>
 </div>
 </li>
@@ -522,7 +524,7 @@ oc rsh &lt;pod-name&gt;</pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jcmd 1 VM.info | grep active_processor_count</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ jcmd 1 VM.info | grep active_processor_count</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -531,7 +533,7 @@ oc rsh &lt;pod-name&gt;</pre>
 <div class="listingblock">
 <div class="content">
 <pre>sh-5.3$ jcmd 1 VM.info | grep active_processor_count
-active_processor_count: 2
+active_processor_count: 8
 sh-5.3$</pre>
 </div>
 </div>
@@ -552,29 +554,19 @@ sh-5.3$</pre>
 <div class="listingblock">
 <div class="content">
 <pre>sh-5.3$ nproc
-32
+8
 sh-5.3$</pre>
 </div>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-If you deploy a container with limits (not just requests, but limits) and <code>active_processor_count</code> (jcmd or java -XshowSettings:system) returns that limit, the application is correctly container-aware.
-Otherwise, in case it returns the host values, this indicates the application is likely not container aware (nproc shows host).
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>If you deploy a container with limits (not just requests, but limits) and <code>active_processor_count</code> (jcmd or java -XshowSettings:system) returns that limit, the application is correctly container-aware. Otherwise, in case it returns the host values, this indicates the application is likely not container aware (nproc shows host details).</p>
 </div>
 </li>
 <li>
 <p>Set the resource limits on the deployment.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc set resources deployment/my-java-app --requests=cpu=1000m --limits=cpu=2000m</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc set resources deployment/hotrod-app --limits=cpu="2"</code></pre>
 </div>
 </div>
 </li>
@@ -603,10 +595,8 @@ jcmd 1 VM.info | grep active_processor_count</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>sh-5.3$ nproc
-1
-sh-5.3$ jcmd 1 VM.info | grep active_processor_count
-active_processor_count: 1
+<pre>sh-5.3$ jcmd 1 VM.info | grep active_processor_count
+active_processor_count: 2
 sh-5.3$</pre>
 </div>
 </div>
@@ -620,6 +610,9 @@ sh-5.3$</pre>
 </li>
 <li>
 <p>Broken values are rounded to the lowest integer, so 2200 millicores, becomes 2 CPU.</p>
+</li>
+<li>
+<p>Java doesn&#8217;t care about requests, only limits.</p>
 </li>
 </ul>
 </div>
