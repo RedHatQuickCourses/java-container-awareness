@@ -10,10 +10,10 @@ Prior to the integration of `JDK8146115` (introduced in Java 8u191), the JVM rel
 If the JVM perceives the node's total memory instead of the container's limit, it may attempt to allocate a heap size that exceeds the container's allowed threshold, resulting in an `OutOfMemoryException` or, more commonly, a `SIGKILL` by the Linux kernel's Out-Of-Memory (OOM) killer.
 
 == How the JVM Detects Container Limits
-When running in a container-aware environment, the JVM inspects the control group (`cgroup`) filesystem. By reading the files exposed within the container—specifically those under `/sys/fs/cgroup/memory` - the JVM determines the hard limits imposed by the container orchestrator.
+When running in a container-aware environment, the JVM inspects the control group (`cgroup`) filesystem. By reading the files exposed within the container - specifically those under `/sys/fs/cgroup/memory` - the JVM determines the hard limits imposed by the container orchestrator.
 
 === Verification Tools
-To determine if your Java application is correctly "seeing" the container limits, you should utilize built-in JVM diagnostic flags rather than relying on standard Linux utilities like `free -m`.
+To determine if your Java application is correctly detecting the container limits, you should utilize built-in JVM diagnostic flags rather than relying on standard Linux utilities like `free -m`.
 
 [IMPORTANT]
 ====
