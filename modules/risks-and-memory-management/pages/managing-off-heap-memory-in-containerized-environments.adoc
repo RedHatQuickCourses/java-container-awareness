@@ -71,9 +71,6 @@ FROM registry.access.redhat.com/ubi9/openjdk-17:latest
 # Copy the compiled JAR into the standard deployments folder
 COPY target/hotrod-app.jar /deployments/hotrod-app.jar
 
-# Pass memory constraints using JAVA_OPTS_APPEND (parsed by run-java.sh)
-ENV JAVA_OPTS_APPEND="-XX:MaxRAMPercentage=50.0"
-
 # No ENTRYPOINT required; the base image automatically executes run-java.sh
 ----
 
