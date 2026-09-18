@@ -163,6 +163,7 @@ memory_and_swap_limit_in_bytes: unlimited
 ----
 
 **Let's set a limit on the container memory and verify the percentage:**
+
 . Set 2Gi at limit on the container and leave it at default 80%
 +
 [source,bash]
@@ -177,7 +178,6 @@ deployment.apps/hotrod-app resource requirements updated
 ### 
 $ oc get pod
 NAME                          READY   STATUS      RESTARTS   AGE
-hotrod-app-1-build            0/1     Completed   0          58m
 hotrod-app-866f679df9-px72z   1/1     Running     0          9s
 ###
 ### Go inside the pod
@@ -226,7 +226,8 @@ $ jcmd 1 VM.info
 
 ---------------  S U M M A R Y ------------
 
-Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -XX:MaxRAMPercentage=50.0 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -XX:MaxRAMPercentage=50.0 <--------------- 50% is appended
+/deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
 ---------------  P R O C E S S  ---------------
 Heap address: 0x00000000c0000000, size: 1024 MB, Compressed Oops mode: 32-bit <---- 1024MB of 2000MB
 ----
@@ -360,7 +361,7 @@ oc rsh <pod-name>
 jcmd 1 VM.native_memory summary
 ----
 +
-Examle output:
+Example output:
 +
 [source,bash]
 ----
@@ -387,10 +388,11 @@ Total: reserved=33545316KB, committed=288676KB
 
 ----
 
-. Analyze the output. Look specifically at:
+. Analyze the output. For off-heap, look at sections such as:
+
 * **Internal:** Memory used by the JVM internal structures.
 * **Symbol:** Memory used for string interning.
-* **Thread:** Memory consumed by stack spaces.
+* **Thread:** Memory consumed by thread/stack spaces.
 
 === Step 2: Simulate Constraint Pressure
 To ensure your configuration is resilient, verify that your application does not exceed the container limit.
@@ -403,6 +405,7 @@ To ensure your configuration is resilient, verify that your application does not
 cat /sys/fs/cgroup/memory/memory.limit_in_bytes
 ### CGROUPS V2
 cat /sys/fs/cgroup/memory.max
+
 ----
 
 2. Compare this value against your calculated Heap + Off-Heap usage. If your application's `Total` committed memory (as seen in NMT) + heap usage exceeds this limit, one must adjust your `MaxRAMPercentage` downward or increase the container's memory limit in OpenShift `Deployment` YAML.
