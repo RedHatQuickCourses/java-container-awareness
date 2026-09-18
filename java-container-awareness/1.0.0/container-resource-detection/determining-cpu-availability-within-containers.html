@@ -274,25 +274,25 @@
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
 </colgroup>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Tool Category</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Examples</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Insight</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Non-Container Aware</strong></p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Non-Container Aware</strong></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>lscpu</code>, <code>nproc</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Returns the total CPU count of the <strong>underlying OpenShift Node</strong>. This is often misleading for capacity planning.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Container Aware</strong></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VM.info</code>, <code>-XX:+PrintFlagsFinal</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the <code>active_processor_count</code> as perceived by the JVM based on cgroup limits.</p></td>
 </tr>
 </tbody>
 </table>
