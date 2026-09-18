@@ -241,12 +241,12 @@
 <h2 id="_how_the_jvm_detects_container_limits"><a class="anchor" href="#_how_the_jvm_detects_container_limits"></a>How the JVM Detects Container Limits</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>When running in a container-aware environment, the JVM inspects the control group (<code>cgroup</code>) filesystem. By reading the files exposed within the container—specifically those under <code>/sys/fs/cgroup/memory</code> - the JVM determines the hard limits imposed by the container orchestrator.</p>
+<p>When running in a container-aware environment, the JVM inspects the control group (<code>cgroup</code>) filesystem. By reading the files exposed within the container - specifically those under <code>/sys/fs/cgroup/memory</code> - the JVM determines the hard limits imposed by the container orchestrator.</p>
 </div>
 <div class="sect2">
 <h3 id="_verification_tools"><a class="anchor" href="#_verification_tools"></a>Verification Tools</h3>
 <div class="paragraph">
-<p>To determine if your Java application is correctly "seeing" the container limits, you should utilize built-in JVM diagnostic flags rather than relying on standard Linux utilities like <code>free -m</code>.</p>
+<p>To determine if your Java application is correctly detecting the container limits, you should utilize built-in JVM diagnostic flags rather than relying on standard Linux utilities like <code>free -m</code>.</p>
 </div>
 <div class="admonitionblock important">
 <table>
