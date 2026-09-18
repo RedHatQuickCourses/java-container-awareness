@@ -44,7 +44,54 @@ Default OpenJDK container uses run-java.sh as ENTRYPOINT, this has several impli
 |===
 
 
-**References**
+In a table with the direct implications for deployment:
+
+[cols="1a,1a", options="header"]
+|===
+| `run-java.sh` ENTRYPOINT (Red Hat Default) 
+| `java` ENTRYPOINT (Direct)
+
+|
+* Built-in wrapper script provided by Red Hat UBI Java images.
+* Automatically detects runnable JAR files in the `/deployments` directory.
+* Parses specific environment variables like `JAVA_OPTS_APPEND`.
+* Automatically calculates JVM memory limits based on container size if not explicitly set.
+
+|
+* Bypasses the Red Hat wrapper script, executing the Java binary directly.
+* Requires manually defining the working directory and execution command.
+* Requires using standard Java variables (like `JAVA_TOOL_OPTIONS`) or passing arguments directly in the ENTRYPOINT to tune the JVM.
+* Does not provide automatic memory calculation based on container bounds.
+
+|
+[source,dockerfile]
+----
+FROM registry.access.redhat.com/ubi9/openjdk-17:latest
+
+# Copy the compiled JAR into the standard deployments folder
+COPY target/hotrod-app.jar /deployments/hotrod-app.jar
+
+# Pass memory constraints using JAVA_OPTS_APPEND (parsed by run-java.sh)
+ENV JAVA_OPTS_APPEND="-XX:MaxRAMPercentage=50.0"
+
+# No ENTRYPOINT required; the base image automatically executes run-java.sh
+----
+
+|
+[source,dockerfile]
+----
+FROM registry.access.redhat.com/ubi9/openjdk-17:latest
+
+# Create a working directory and copy the JAR
+WORKDIR /app
+COPY target/hotrod-app.jar /app/hotrod-app.jar
+
+# Explicitly define the Java entrypoint
+ENTRYPOINT ["java", "-jar", "hotrod-app.jar"]
+----
+|===
+
+==**References**
 
 For comprehensive details on configuring Red Hat Universal Base Image (UBI) OpenJDK containers, including supported environment variables across different UBI versions, consult the official documentation:
 
