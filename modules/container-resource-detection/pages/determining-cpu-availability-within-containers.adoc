@@ -23,7 +23,7 @@ The JVM calculates the number of processors as the minimum of the host's process
 
 == Diagnostic Tools: Container-Aware vs. Non-Aware
 
-To verify how your Java application perceives CPU availability, you must distinguish between tools that see the "Host" view versus the "Container" view.
+To verify how your Java application perceives CPU availability, you must distinguish between tools that see the Host limits versus the Container settings.
 
 [cols="1,1,1"]
 |===
