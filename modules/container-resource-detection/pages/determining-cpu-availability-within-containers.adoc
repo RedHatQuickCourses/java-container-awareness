@@ -71,6 +71,8 @@ As explained in https://developers.redhat.com/articles/2025/11/27/how-does-cgrou
 
 In this short task, you will verify the JVM's CPU detection. To make this work we will need a container image with an application already there, otherwise the container will fail on the spot.
 
+=== Local Docker Example via S2I Toolkit
+
 . **Create an image container with the application:**
 +
 Use the following command to fetch a project and build an OpenJDK project locally from it via the s2i toolkit:
@@ -162,7 +164,7 @@ $ sudo docker exec -it _ID_ /bin/bash
 active_processor_count: 2 <-------------------------------- that's the full CPU limits
 ----
 
-**Deployment in OpenShift - create new project:**
+=== Deployment in OpenShift via S2I
 
 . Deployment in OpenShift via a new project, one can use the binary upload:
 +
