@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 4002,
+  "totalSeconds": 4003,
   "pageCount": 28,
   "pages": [
     {
@@ -25,7 +25,7 @@
     {
       "module": "introduction-to-containerized-java",
       "page": "overview-of-container-aware-versus-non-container-aware-java.adoc",
-      "seconds": 164
+      "seconds": 165
     },
     {
       "module": "introduction-to-containerized-java",

@@ -349,7 +349,7 @@ This friction stemmed from a fundamental mismatch: the Java Virtual Machine (JVM
 </ul>
 </div>
 <div class="paragraph">
-<p>The default value of <code>MaxRAMPercentage</code> is 25% for upstream deployment (straight java command inside a container), however Red Hat build of OpenJDK will allowtaking advantage of <code>run-java.sh</code> (as container <code>ENTRYPOINT</code>) will have the following impacts:</p>
+<p>The default value of <code>MaxRAMPercentage</code> is 25% for upstream deployment (straight java command inside a container), however Red Hat build of OpenJDK takes advantage of <code>run-java.sh</code> (as container <code>ENTRYPOINT</code>) to add the following features:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -373,7 +373,7 @@ This friction stemmed from a fundamental mismatch: the Java Virtual Machine (JVM
 <td class="content">
 <div class="paragraph">
 <p>While container awareness resolves around JVM limits association with the container size, such as memory (heap) and CPU (for thread calculation), where the heap and the thread pools will be calculated from there. However, off-heap values e.g. metaspace, code cache, direct buffers, or native memory of dynamic libraries, are not counted under <code>MaxRAMPercentage</code> - because it sets only heap percentage.
-Therefore, even with container aware Java, one must benchmark your application to ensure that the ratio of heap to off-heap memory is sufficient resources are allocated to avoid OOMkills events</p>
+Therefore, even with container aware Java, one must benchmark thorouhgly the application to ensure that the ratio of heap to off-heap memory is sufficient resources are allocated to avoid OOMkills events</p>
 </div>
 </td>
 </tr>
