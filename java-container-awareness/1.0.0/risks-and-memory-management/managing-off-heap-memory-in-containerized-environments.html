@@ -473,12 +473,12 @@ memory_and_swap_limit_in_bytes: unlimited</code></pre>
 </ol>
 </div>
 <div class="paragraph">
-<p><strong>Let&#8217;s set a limit on the container memory and verify the percentage:</strong>
-. Set 2Gi at limit on the container and leave it at default 80%</p>
+<p><strong>Let&#8217;s set a limit on the container memory and verify the percentage:</strong></p>
 </div>
-<div class="paragraph">
-<p>+</p>
-</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Set 2Gi at limit on the container and leave it at default 80%</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">###
@@ -491,7 +491,6 @@ deployment.apps/hotrod-app resource requirements updated
 ###
 $ oc get pod
 NAME                          READY   STATUS      RESTARTS   AGE
-hotrod-app-1-build            0/1     Completed   0          58m
 hotrod-app-866f679df9-px72z   1/1     Running     0          9s
 ###
 ### Go inside the pod
@@ -510,6 +509,9 @@ Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=
 ---------------  P R O C E S S  ---------------
 Heap address: 0x0000000099800000, size: 1640 MB &lt;---------------------- 1640 of 2000MB</code></pre>
 </div>
+</div>
+</li>
+</ol>
 </div>
 <div class="paragraph">
 <p><strong>Assuming 80% is an inadequate value, let&#8217;s set for a lower value:</strong></p>
@@ -543,7 +545,8 @@ $ jcmd 1 VM.info
 
 ---------------  S U M M A R Y ------------
 
-Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -XX:MaxRAMPercentage=50.0 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -XX:MaxRAMPercentage=50.0 &lt;--------------- 50% is appended
+/deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
 ---------------  P R O C E S S  ---------------
 Heap address: 0x00000000c0000000, size: 1024 MB, Compressed Oops mode: 32-bit &lt;---- 1024MB of 2000MB</code></pre>
 </div>
@@ -706,7 +709,7 @@ metadata:
 </div>
 </div>
 <div class="paragraph">
-<p>Examle output:</p>
+<p>Example output:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -734,7 +737,7 @@ Total: reserved=33545316KB, committed=288676KB
 </div>
 </li>
 <li>
-<p>Analyze the output. Look specifically at:</p>
+<p>Analyze the output. For off-heap, look at sections such as:</p>
 <div class="ulist">
 <ul>
 <li>
@@ -744,7 +747,7 @@ Total: reserved=33545316KB, committed=288676KB
 <p><strong>Symbol:</strong> Memory used for string interning.</p>
 </li>
 <li>
-<p><strong>Thread:</strong> Memory consumed by stack spaces.</p>
+<p><strong>Thread:</strong> Memory consumed by thread/stack spaces.</p>
 </li>
 </ul>
 </div>
