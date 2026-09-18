@@ -74,5 +74,5 @@ If your application is experiencing `OutOfMemoryException` or being killed by th
 2.  **Orchestrator and host details**: Verify the events, deployment yaml status, and host logs (sos_report), which will record OOMKill events.
 3.  **Check `cgroups` usage**: Use `cat /sys/fs/cgroup/memory/memory.stat` inside the container to see if the container is hitting its hard limit. This file is usually used for Prometheus/cadAdvisor output scrapping.
 4.  **Analyze GC logs**: Verify `GC logs` about the cgroups details, GC allocation, and GC collector behavior.
-5.  **Analyze Native Memory Tracking (NMT)**: Enable `-XX:NativeMemoryTracking=summary` (or `details`) to help identify memory leaks or in native memory segments allocation.
+5.  **Analyze Native Memory Tracking (NMT)**: Enable `-XX:NativeMemoryTracking=summary` (or `details`) to help identify memory leaks or native memory segments allocation.
 6.  **Benchmark**: Always performance-test with a memory profiler before finalizing your percentage values to ensure the off-heap headroom is sufficient for peak load.
