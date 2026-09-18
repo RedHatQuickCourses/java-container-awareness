@@ -63,61 +63,87 @@ Note: When deploying with an Operator, the Operator will control the deployment 
 
 **Steps:**
 
-1.  **Deploy a sample Java application** with defined limits and requests (below is just an example - it won't deploy)
+1.  **Deploy a sample Java application (which will use run-java.sh as ENTRYPOINT) ** with defined limits and requests:
 +
 [source,yaml]
 ----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: java-resource-demo
-spec:
-
-  selector:
-    matchLabels:
-      app: java-resource-demo
-
-  template:
-    metadata:
-      labels:
-        app: java-resource-demo
-    spec:
-      containers:
-      - name: java-resource-demo
-        image: quay.io/hummingbird/openjdk:latest
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "500m"
-          limits:
-            memory: "512Mi"
-            cpu: "1000m"
+###
+### Create a specific namespace for deployment
+###
+$ oc new-project hotrod-s2i-project
+###
+### Deployment of the applicatoin
+###
+$ oc new-app registry.access.redhat.com/ubi9/openjdk-17~https://github.com/alexbarbosa1989/hotrodspringboot.git --name=hotrod-app
+###
+### Set the limits and requests differently
+###
+$ oc set resources deployment/hotrod-app --limits=cpu="2",memory="2Gi" --requests=cpu="1",memory="1Gi"
+deployment.apps/hotrod-app resource requirements updated
 ----
+
 
 2.  **Access the running Pod** to inspect the cgroup limits:
 +
 [source,bash]
 ----
-oc rsh <pod-name>
+$ oc get pod
+NAME                          READY   STATUS      RESTARTS   AGE
+hotrod-app-ID                 1/1     Running     0          24m
+oc rsh <hotrod-app-ID>
 ----
 
-3.  **Check the CPU quota** enforced by the kernel:
+3. **Check the CPU details**:
 +
 [source,bash]
 ----
-# FIXME: The below file is not found in the container
-$ cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us
+$ cat /sys/fs/cgroup/cpu.max <----------------- cgroups v2
+200000 100000 <-------------------------------- limit 2 CPU, request 1 CPU
 # This will return 100000 (100ms), confirming the 1000m CPU limit.
 $ jcmd 1 VM.info | grep active_processor_count
-----
-+
-Example Output:
-+
-----
-active_processor_count: 1 <-- shows 1 CPU
+active_processor_count: 2 <-------------------- confirms 2 CPUs limit (request is ignored)
 ----
 
-4.  **Observe Java's internal detection** of these limits:
+
+4. **Check the Memory details**:
++
+[source,bash]
+----
+sh-5.1$ cat /sys/fs/cgroup/memory.max <-------- cgroups v2
+2147483648 <----------------------------------- that's 2Gi
+$ jcmd 1 VM.info | grep "Heap address: 0x00000000c0000000"
+Heap address: 0x00000000c0000000, size: 1024 MB <------ that's 50% of 2Gi
+----
+
+5.  VM.info brings speciifc section for cgroups: 
++
+[source,bash]
+----
+$ jcmd 1 VM.info | grep -A18 "container (cgroup) information:"
+container (cgroup) information:
+container_type: cgroupv2 <--------------------------------- cgroups v2
+cpu_cpuset_cpus: not supported
+cpu_memory_nodes: not supported
+active_processor_count: 2 <--------------------------------- 2 CPU limits
+cpu_quota: 200000 <----------------------------------------- 2 CPU limit
+cpu_period: 100000 <---------------------------------------- 1 CPU request
+cpu_shares: no shares
+memory_limit_in_bytes: 2097152 k <--------------------------- 2Gi limit
+memory_and_swap_limit_in_bytes: 2097152 k 
+memory_soft_limit_in_bytes: 0
+memory_usage_in_bytes: 169868 k <--------------------------- current usage
+memory_max_usage_in_bytes: not supported
+rss_usage_in_bytes: 165596 k
+cache_usage_in_bytes: 160 k
+memory_swap_current_in_bytes: 0
+memory_swap_max_limit_in_bytes: 0
+maximum number of tasks: unlimited
+current number of tasks: 54
+----
+
+Above for the output related to `Max. Heap Size` and `active_processor_count`. You will notice these values are derived from the limits, not the requests.
+
+6.  **Observe Java's internal detection** of these limits - executing directly java command (25% expected):
 +
 [source,bash]
 ----
@@ -136,6 +162,4 @@ OpenJDK Runtime Environment (Red_Hat-25.0.4.1.1-0) (build 25.0.4.1+1)
 OpenJDK 64-Bit Server VM (Red_Hat-25.0.4.1.1-0) (build 25.0.4.1+1, mixed mode, sharing)
 ----
 
-FIXME: Limit is set to 512Mi but the heap size displayed is 123.75M. Output contradicts the below explanation.
-
-*Look for the output related to `Max. Heap Size` and `active_processor_count`. You will notice these values are derived from the limits, not the requests.*
+As expected - and already explained on this course - the MaxRAM percentage at 80% comes from the `run-java.sh` ENTRYPOINT (s2i with OpenJDK injects that ENTRYPOINT by default. In the above example (straight execution of java, it will bring 25%), which is the default upstream limit. In other words, limit is set to 512Mi but the heap size displayed is 123.75M when executing java directly inside a Red Hat OpenJDK container.
