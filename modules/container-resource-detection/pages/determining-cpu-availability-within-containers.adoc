@@ -25,7 +25,7 @@ The JVM calculates the number of processors as the minimum of the host's process
 
 To verify how your Java application perceives CPU availability, you must distinguish between tools that see the "Host" view versus the "Container" view.
 
-[cols="1,3"]
+[cols="1,1,1"]
 |===
 | Tool Category | Examples | Insight
 | **Non-Container Aware** | `lscpu`, `nproc` | Returns the total CPU count of the **underlying OpenShift Node**. This is often misleading for capacity planning.
