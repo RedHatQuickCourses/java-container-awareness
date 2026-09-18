@@ -334,6 +334,53 @@ memory_usage_in_bytes: 186764 k &lt;---------------------- Usage</code></pre>
 </ul>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_4_usage_of_jvm_flags_for_scenarios"><a class="anchor" href="#_4_usage_of_jvm_flags_for_scenarios"></a>4. Usage of JVM flags for scenarios</h3>
+<div class="paragraph">
+<p>For specific scenarios, it is possible to use certain flags to verify the issue:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 16.6666%;">
+<col style="width: 50.0001%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Scenario</th>
+<th class="tableblock halign-left valign-top">Exit Code</th>
+<th class="tableblock halign-left valign-top">When to Use It</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+HeapDumpOnOutOfMemoryError</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use when you need to diagnose memory leaks. It captures the exact state of the heap into a <code>.hprof</code> file at the moment the <code>OutOfMemoryError</code> occurs for offline analysis.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+ExitOnOutOfMemoryError</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use as a best practice in Kubernetes/OpenShift. It forces the JVM to terminate immediately upon an OOM exception, allowing the kubelet to restart the pod instead of leaving it running in a broken, unresponsive state.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+CrashOnOutOfMemoryError</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use for deep native-level debugging. Instead of just exiting, the JVM produces a fatal crash log (<code>hs_err_pid.log</code>) and a core dump, bypassing standard shutdown hooks.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>kill -11 &lt;PID&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use during testing to simulate a native segmentation fault (SIGSEGV). This verifies how your container and OpenShift handle sudden, catastrophic C/C++ level crashes.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Setting <code>-Xmx</code>/<code>-Xms</code> &gt; container size (plus <code>-XX:+AlwaysPreTouch</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">137</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use to intentionally trigger an OS-level <code>OOMKilled</code> event. This is helpful to test OpenShift resource quota enforcement, eviction behavior, or monitoring and alerting rules.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 <div class="sect1">
