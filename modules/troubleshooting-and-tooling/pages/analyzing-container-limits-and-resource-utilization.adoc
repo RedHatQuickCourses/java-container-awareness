@@ -46,6 +46,54 @@ When analyzing resource constraints, follow these steps:
     *   **Container-aware:** Use `kubectl top pod` or the OpenShift Web Console metrics.
     *   **Non-container-aware:** Avoid using legacy `top` or `free` commands inside the container, as they often report host-level data rather than container-constrained data.
 
+== Troubleshooting table
+
+[cols="1,2,2", options="header"]
+|===
+| Event / Characteristic | Source & Trigger | Impact & Log Signature
+
+| *OOMKilled*
+(Linux Kernel / cgroups)
+| Triggered by the operating system when the container's total memory footprint (Heap + Native Memory) exceeds the cgroup hard limit.
+a| *Impact:* The kernel abruptly terminates the process (SIGKILL, exit code 137). Container exits.
+*Log Signature:* 
+[source,text]
+----
+[16840841.104477] Killed process 117061 (java), UID 1000... anon-rss:6178796kB
+----
+
+| *OutOfMemoryError*
+(Java / JVM)
+| Triggered by the JVM when it exhausts internally configured memory pools (e.g., Heap or Metaspace), even if the container has physical memory left.
+a| *Impact:* Java throws an exception. Container may stay alive in a broken state unless `-XX:+ExitOnOutOfMemoryError` is used.
+*Log Signature:* 
+[source,text]
+----
+java.lang.OutOfMemoryError: Java heap space
+----
+
+| *SIGTERM*
+(Graceful Shutdown)
+| Triggered by OpenShift/Kubernetes when scaling down, deploying a new version, or deleting a Pod.
+a| *Impact:* The JVM receives Signal 15 and triggers shutdown hooks. If it takes longer than `terminationGracePeriodSeconds` (default 30s), it is force-killed (SIGKILL). Container exits gracefully (often exit code 143).
+*Log Signature:* 
+[source,text]
+----
+INFO: JVM running shutdown hooks...
+----
+
+| *JVM Crash*
+(`hs_err_pid` file)
+| Triggered by a segmentation fault (SIGSEGV), native library bug (JNI), or internal JVM bug. It is a failure at the C/C++ level of the runtime.
+a| *Impact:* The JVM aborts immediately without running shutdown hooks and dumps a crash log (`hs_err_pid<pid>.log`) to the working directory. Container exits.
+*Log Signature:* 
+[source,text]
+----
+# A fatal error has been detected by the Java Runtime Environment:
+#  SIGSEGV (0xb) at pc=0x00007f3a8b411c52...
+----
+|===
+
 == Hands-on Activity: Inspecting JVM Resource Awareness
 FIXME: This can be general instructions and not hands-on activity to be followed by learner.
 
