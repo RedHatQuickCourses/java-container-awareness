@@ -24,7 +24,7 @@ FIXME: Content for Appendix...
 
 | Nov 27, 2025
 | How does cgroups v2 impact Java, .NET, and Node.js in OpenShift 4?
-| https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-net-and-nodejs-openshift-4[Read Article]
+| https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-net-and-nodejs-openshift-4#scenarios_with_java[Read Article]
 
 | Jun 18, 2026
 | Troubleshoot application misbehavior after an OpenShift upgrade
