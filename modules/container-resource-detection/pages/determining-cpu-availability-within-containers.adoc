@@ -58,7 +58,14 @@ cpu_shares: 51
 == Best Practices for CPU Configuration
 * **Define Requests and Limits:** Always explicitly define `resources.limits.cpu` in your OpenShift deployment YAML. This ensures the cgroup values are populated correctly.
 * **Avoid Oversizing:** If you set a high CPU limit but your application is single-threaded, the JVM may spawn excessive GC threads, leading to context-switching overhead.
-* **Monitor `active_processor_count`:** If `active_processor_count` does not match your expectations, ensure you are running a supported OpenJDK version (8u191 or higher). If you are forced to use an older, non-aware version, you must manually set `-XX:ActiveProcessorCount` to match your container limit.
+* **Monitor `active_processor_count`:** If `active_processor_count` does not match your expectations, ensure you are running a supported OpenJDK container aware version. 
+
+=== Workaround for non-container aware JVMs
+
+As explained in https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-and-nodejs-openshift-4, in case you are running an older, non-container-aware JVM, an adequate workaround is to:
+
+* Manually set `-XX:ActiveProcessorCount` to match your container CPU limit.
+* Manually set `-Xmx` to an appropriate value based on your container memory limit (leaving a buffer for off-heap JVM memory to avoid OOMKilled errors).
 
 == Hands-on Exercise: Inspecting CPU Awareness
 
@@ -273,3 +280,4 @@ Notes: Given the fact only integers can be used as CPU boundaries:
 * Values below 1 CPU, are rounded to 1.
 * Fractional values are rounded to the lowest integer, so 2200 millicores, becomes 2 CPU.
 * Java doesn't care about requests, only limits.
+* Java workaround needs CPU and Memory limits to avoid issues.
