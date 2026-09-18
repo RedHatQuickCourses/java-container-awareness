@@ -1,4 +1,4 @@
-= Troubleshooting Resource Constraints in OpenShift
+= Troubleshooting Resource Constraints in and out of OpenShift
 :page-audio-src: troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.wav
 :page-transcript-src: troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.txt
 
@@ -42,7 +42,18 @@ oc debug pod/<pod-name> --image=registry.access.redhat.com/ubi9/ubi-minimal
 cat /sys/fs/cgroup/memory/memory.limit_in_bytes
 ----
 
-*Note: In cgroup v2 environments, the path may be located under `/sys/fs/cgroup/memory.max`.*
+*Note: In cgroup v2 environments, the path will change:
+
+[cols="1,2", options="header"]
+|===
+| cgroup Version | Memory Limit File Path
+
+| cgroups v1
+| `/sys/fs/cgroup/memory/memory.max_usage_in_bytes`
+
+| cgroups v2
+| `/sys/fs/cgroup/memory.max`
+|===
 
 === Using `jcmd`
 The `jcmd` utility is the standard diagnostic tool for Java. Since Java 8u191+, the JVM is container-aware. You can use `jcmd` to verify how the JVM "sees" the container.
@@ -53,8 +64,8 @@ The `jcmd` utility is the standard diagnostic tool for Java. Since Java 8u191+, 
 oc exec <pod-name> -- jcmd 1 VM.flags
 ----
 
-*   **Look for:** `MaxHeapSize`
-*   **Verification:** If `MaxHeapSize` is disproportionately large compared to your container limit, your application is at risk of being killed by the kernel.
+*   **Look for:** `Heap size`
+*   **Verification:** If `Heap size` is disproportionately large compared to your container limit, your application is at risk of being killed by the kernel, the value must match the MaxRAMPercentage already set.
 
 == Hands-on Lab: Troubleshooting a Resource-Constrained Pod
 
@@ -94,7 +105,7 @@ In this exercise, you will diagnose a pod experiencing memory constraints.
    [source,bash]
    ----
    env:
-     - name: JAVA_OPTS
+     - name: JAVA_OPTS_APPEND
        value: "-XX:MaxRAMPercentage=50.0"
    ----
 
