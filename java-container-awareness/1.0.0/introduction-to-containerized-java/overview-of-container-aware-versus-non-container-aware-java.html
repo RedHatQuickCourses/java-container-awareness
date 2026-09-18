@@ -287,18 +287,45 @@ This friction stemmed from a fundamental mismatch: the Java Virtual Machine (JVM
 <p>The industry shift occurred with the implementation of <strong>JDK-8146115</strong>, starting with Java 8u191 and then other subsequent jiras on all current LTS releases (e.g., Java 11, 17, 21, 25) that now rely on cgroups natively. In other words, those updates enabled the JVM to detect its container <code>cgroup</code> filesystem directly natively.</p>
 </div>
 <div class="paragraph">
-<p>When running a container-aware JVM, the process performs the following:</p>
+<p>When running a container-aware JVM, the process performs the following detection:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Memory Sensing:</strong> Instead of asking the OS for total physical RAM, the JVM reads the <code>memory.limit_in_bytes</code> file from the container&#8217;s cgroup. It then calculates the default heap size as a percentage of this limit, rather than a percentage of the host&#8217;s total RAM.</p>
+<p><strong>Memory Detection:</strong> Instead of asking the OS for total physical RAM, the JVM reads the cgroups (cgroups v1:`memory.limit_in_bytes` and  cgroups v2 <code>/sys/fs/cgroup/memory.max</code>) file from the container&#8217;s cgroup. It then calculates the default heap size as a percentage of this limit, rather than a percentage of the host&#8217;s total RAM - automatically.</p>
 </li>
 <li>
-<p><strong>CPU Awareness:</strong> The JVM queries the <code>cpu.shares</code> or <code>cpu.cfs_quota_us</code> files to determine how many CPU cores are available to the container. And calculates the thread pools from this value, rather than the host limits.</p>
+<p><strong>CPU Detection:</strong> The JVM queries the cgroups CPU files to determine how many CPU cores are available to the container. And calculates the thread pools from this value, rather than the host limits. Example:</p>
 </li>
 </ul>
 </div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Java cgroups v2 example detection</caption>
+<colgroup>
+<col style="width: 40%;">
+<col style="width: 20%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Command</th>
+<th class="tableblock halign-left valign-top">Raw Output</th>
+<th class="tableblock halign-left valign-top">Interpreted Limit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>$ cat /sys/fs/cgroup/cpu.max</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>200000 100000</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>2 CPUs</strong> (Quota: 200,000 / Period: 100,000)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>$ cat /sys/fs/cgroup/memory.max</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>2147483648</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>2 GiB</strong> (2,147,483,648 bytes)</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
@@ -322,18 +349,18 @@ This friction stemmed from a fundamental mismatch: the Java Virtual Machine (JVM
 </ul>
 </div>
 <div class="paragraph">
-<p>The default value of <code>MaxRAMPercentage</code> is 25% for upstream deployment (straight java command inside a container), however Red Hat build of OpenJDK will allowtaking advantage of run-java.sh will have the following impacts:</p>
+<p>The default value of <code>MaxRAMPercentage</code> is 25% for upstream deployment (straight java command inside a container), however Red Hat build of OpenJDK will allowtaking advantage of <code>run-java.sh</code> (as container <code>ENTRYPOINT</code>) will have the following impacts:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>The JVM achieves container awareness (memory and CPU).</p>
-</li>
-<li>
 <p>The heap will be calculated at 50% of the container size (not the host). Later images will default to 80%.</p>
 </li>
 <li>
-<p>The user can use JAVA_OPTS and other environment variables from run-java.sh, such as <code>JAVA_OPTS</code>, <code>JAVA_OPTS_APPEND</code>, <code>GC_MAX_METASPACE_SIZE</code>.</p>
+<p>The user can use <code>JAVA_OPTS</code> and other environment variables from run-java.sh, such as <code>JAVA_OPTS</code>, <code>JAVA_OPTS_APPEND</code>, <code>GC_MAX_METASPACE_SIZE</code> for runtime tuning.</p>
+</li>
+<li>
+<p>The user will have ParallelGC as default GC collector and other JVM settings (which can be overwritten with <code>JAVA_OPTS</code>).</p>
 </li>
 </ul>
 </div>
@@ -345,7 +372,7 @@ This friction stemmed from a fundamental mismatch: the Java Virtual Machine (JVM
 </td>
 <td class="content">
 <div class="paragraph">
-<p>While container awareness resolves around JVM limits association with the container size, such as memory (heap) and CPU (for thread calculation). It does not necessarily account for full memory utilization, especially <strong>off-heap</strong> memory (e.g., metaspace, code cache, direct buffers, or native memory of dynamic libraries).
+<p>While container awareness resolves around JVM limits association with the container size, such as memory (heap) and CPU (for thread calculation), where the heap and the thread pools will be calculated from there. However, off-heap values e.g. metaspace, code cache, direct buffers, or native memory of dynamic libraries, are not counted under <code>MaxRAMPercentage</code> - because it sets only heap percentage.
 Therefore, even with container aware Java, one must benchmark your application to ensure that the ratio of heap to off-heap memory is sufficient resources are allocated to avoid OOMkills events</p>
 </div>
 </td>
