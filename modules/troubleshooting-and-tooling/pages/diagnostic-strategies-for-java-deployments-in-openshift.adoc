@@ -156,6 +156,7 @@ If the application is impacted, check if CPU throttling is occurring due to the 
 $ jcmd PID Thread.print <-- see the threads
 ----
 
+
 2.  Then, in case CPU throttling impacting, see the `cpu.stat` file within the container:
 +
 [source,bash]
@@ -172,9 +173,9 @@ nr_bursts 0
 burst_usec 0
 ----
 
-Above shows details for cgroups v2, for cgroups v1 use `/sys/fs/cgroup/cpuacct.usage`.
+Above shows details for cgroups v2, for cgroups v1 use `/sys/fs/cgroup/cpuacct.usage`. In case the JVM is not cgropus v2 compatible, cgroups won't be detected `No metrics available for this platform` may be shown.
 
-3.  Look for `nr_throttled`. If this number is increasing rapidly, the CPU `limit` may be too low, and the kernel is throttling your application, causing latency. Therefore tuning the ratio (requests vs limits) can be adequate.
+3.  For CPU throttling, verify `nr_throttled`. If this number is increasing rapidly, the CPU `limit` may be too low, and the kernel is throttling your application, causing latency. Therefore tuning the ratio (requests vs limits) can be adequate.
 
 [source,bash]
 ----
