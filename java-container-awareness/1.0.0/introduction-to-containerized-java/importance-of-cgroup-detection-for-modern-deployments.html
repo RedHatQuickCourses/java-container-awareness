@@ -290,7 +290,7 @@
 <h2 id="_red_hat_build_of_openjdk_containers"><a class="anchor" href="#_red_hat_build_of_openjdk_containers"></a>Red Hat build of OpenJDK containers</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Specifically the default OpenJDK container image, the default ENTRYPOINT will be run-java.sh, which is a script that provides default settings, such as ParallelGC as expected GC, but also environment virables that can be used at runtime:</p>
+<p>Specifically the default OpenJDK container image, the default <code>ENTRYPOINT</code> will be run-java.sh, which is a script that provides default settings, such as ParallelGC as expected GC, but also environment virables that can be used at runtime:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -327,10 +327,10 @@
 </tbody>
 </table>
 <div class="paragraph">
-<p><code>JAVA_TOOL_OPTIONS</code> and <code>_JAVA_OPTIONS</code> are not inherit from the run-java.sh and should be avoided, it will be used for any Java environment variable, although can be used regardless of run-java.sh. Example with jcmd itself:</p>
+<p>Although the ENTRYPOINT script adds those environment variables above, Java already provides other such as: <code>JAVA_TOOL_OPTIONS</code> and <code>_JAVA_OPTIONS</code>. Meaning, those are not inherit from the run-java.sh. Those extra environment variables are usually not recommended because they are used for any Java process inside the container</p>
 </div>
 <div class="listingblock">
-<div class="title">Example: Why JAVA_TOOL_OPTIONS should be avoided</div>
+<div class="title">Example: Why JAVA_TOOL_OPTIONS should be usually avoided</div>
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ export JAVA_TOOL_OPTIONS="EXAMPLE"
 $ openjdk/app-injection$ jcmd
@@ -339,6 +339,9 @@ Unrecognized option: EXAMPLE
 Error: Could not create the Java Virtual Machine.
 Error: A fatal exception has occurred. Program will exit.</code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>That is to say that if you set <code>JAVA_TOOL_OPTIONS</code>, any Java process will pick it up: jcmd, jps, jstack for instance are all Java processes and will pick those variables.</p>
 </div>
 <div class="paragraph">
 <p>For a deep dive into how these changes specifically affect Java runtimes specifically for cgroups v2, review the scenarios outlined in the following developer article:</p>
@@ -351,10 +354,20 @@ Error: A fatal exception has occurred. Program will exit.</code></pre>
 </ul>
 </div>
 <div class="paragraph">
-<p><strong>Key Takeaways for Java Developers</strong>
-- OpenJDK 8u372+, 11.0.16+, 17, and 21 natively support cgroups v2 detection.
-- Red Hat container images now rely on native OpenJDK C++ container detection rather than legacy <code>run-java.sh</code> wrapper scripts for setting memory limits.
-- The <code>MaxRAMPercentage</code> property (defaulting to 80% in these images) allows the JVM to dynamically size its heap based on the cgroups v2 boundaries.</p>
+<p><strong>Key Takeaways for Java Developers</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>OpenJDK 8u372+, 11.0.16+, 17, and 21 natively support cgroups v2 detection.</p>
+</li>
+<li>
+<p>Red Hat container images now rely on native OpenJDK C++ container detection rather than legacy <code>run-java.sh</code> wrapper scripts for setting memory limits.</p>
+</li>
+<li>
+<p>The <code>MaxRAMPercentage</code> property (defaulting to 80% in these images) allows the JVM to dynamically size its heap based on the cgroups v2 boundaries.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
