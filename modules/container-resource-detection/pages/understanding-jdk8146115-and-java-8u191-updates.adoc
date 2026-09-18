@@ -30,12 +30,23 @@ Key changes introduced in 8u191 include:
 === Impact on Modern Deployments
 With Java 8u191+, the relationship between the container and the JVM became **coupled**. 
 
-[cols="1,1", options="header"]
+[cols="1,1,1", options="header"]
 |===
-| Feature | Legacy Behavior (Pre-8u191) | Modern Behavior (8u191+)
-| **Memory Source** | Queries `/proc/meminfo` (Host RAM) | Queries cgroups (Container Limit)
-| **Heap Sizing** | Requires manual `-Xmx` configuration | Automatically scales based on `-XX:MaxRAMPercentage`
-| **Operational Impact** | Decoupled; changing container size requires manual JVM tuning | Coupled; scaling container limits automatically adjusts heap
+| Feature 
+| Legacy Behavior (Pre-8u191) 
+| Modern Behavior (8u191+)
+
+| *Memory Source* 
+| Queries `/proc/meminfo` (Host RAM) 
+| Queries cgroups (Container Limit)
+
+| *Heap Sizing* 
+| Requires manual `-Xmx` configuration 
+| Automatically scales based on `-XX:MaxRAMPercentage`
+
+| *Operational Impact* 
+| Decoupled; changing container size requires manual JVM tuning 
+| Coupled; scaling container limits automatically adjusts heap
 |===
 
 By aligning the JVM's view of resources with the container orchestration layer, these updates eliminated the decoupling problem (container not matching the Java's heap size). 
