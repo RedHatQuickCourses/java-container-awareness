@@ -52,29 +52,24 @@ If your application exhibits the following symptoms, the JVM is likely failing t
 
 [cols="1,2", options="header"]
 |===
-| Scenario / Issue | Description & Consequence
+| Scenario | Description & Consequences
 
 | *Underutilization*
-| The application heap is significantly smaller than the container limit because it defaulted to a generic fraction of the host’s massive memory footprint, leading to frequent Garbage Collection (GC) pauses. This causes waste of resources CPU and memory.
+| The application heap is significantly smaller than the container limit because it defaulted to a generic fraction of the host’s massive memory footprint, leading to frequent Garbage Collection (GC) pauses.
 
 | *Overutilization*
-| The application heap (plus off-heap) is significantly larger than the container limit, which will eventually lead:
+a| The application heap (plus off-heap) is significantly larger than the container limit, which will eventually lead:
 
 * To `OOMKilled` events
 * To `OutOfMemoryError` (OOMException) events
 * To `SIGTERM`, in case the JVM is not responsive
 
 | *Misbehavior*
-| The application runs nominally for a long time, however suddenly it misbehaves.
+a| The application runs nominally for a long time, however suddenly it misbehaves. Examples include:
 
-| *CPU Throttling*
-| The application was deployed without CPU boundaries and now other applications are overstepping.
-
-| *JVM stuck*
-| The application was deployed without CPU boundaries and now the database is overloaded with requests.
-
-| *JVM Xmx hard-coded*
-| The application was deployed with `-Xmx` hard-coded; now the DevOps team cannot change the memory limits dynamically at runtime.
+* *CPU Throttling:* The application was deployed without CPU boundaries and now other applications are overstepping.
+* *JVM stuck:* The application was deployed without CPU boundaries and now the Database is overloaded with requests.
+* *JVM Xmx hard-coded:* The application was deployed with `-Xmx` hard-coded; now the DevOps team cannot change the limits dynamically at runtime.
 |===
 
 === Diagnostic Strategy
