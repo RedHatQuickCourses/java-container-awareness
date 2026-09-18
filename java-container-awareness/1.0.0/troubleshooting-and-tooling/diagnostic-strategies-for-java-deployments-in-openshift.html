@@ -258,7 +258,7 @@
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check perceived max heap from within the pod
-oc exec &lt;pod-name&gt; -- java -XshowSettings:vm -version</code></pre>
+oc exec &lt;pod-name&gt; -- jcmd 1 VM.info |</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -326,42 +326,69 @@ oc exec &lt;pod-name&gt; -- java -XshowSettings:vm -version</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Run the VM settings check
-oc exec &lt;pod-name&gt; -- java -XX:+PrintFlagsFinal -version | grep MaxHeapSize</code></pre>
+oc exec &lt;pod-name&gt; -- java 1 VM.info | grep -A18 "container (cgroup) information"</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Observe the output. If you have defined a <code>memory</code> limit of 512Mi in your manifest, the <code>MaxHeapSize</code> should be a fraction of that limit (if using <code>MaxRAMPercentage</code>).</p>
+<p>Verify the output and see how it correlates with the host and container limits:</p>
 </div>
-</div>
-<div class="sect2">
-<h3 id="_step_2_use_jcmd_to_analyze_the_process"><a class="anchor" href="#_step_2_use_jcmd_to_analyze_the_process"></a>Step 2: Use <code>jcmd</code> to analyze the process</h3>
-<div class="paragraph">
-<p>Access the container shell to utilize <code>jcmd</code>.</p>
-</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Output/Resource Allocation</th>
+<th class="tableblock halign-left valign-top">Deployment Condition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">50% of the container</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">run-java.sh as ENTRYPOINT and container aware  - previous MaxRAMPercentage</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">80% of the container</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">run-java.sh as ENTRYPOINT and container aware - current MaxRAMPercentage</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">25% of the host</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">non-container aware or unbounded deployment - verify if the container has limits</p></td>
+</tr>
+</tbody>
+</table>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc rsh &lt;pod-name&gt;
+<pre class="highlightjs highlight"><code class="language-none hljs">=== Step 2: Use `jcmd` to analyze the process flags
+Access the container shell to utilize `jcmd`.
+
+[source,bash]
+----
+oc rsh &lt;pod-name&gt;
 
 # List running Java processes
 jcmd
 
 # Get a detailed report of the VM's perceived memory constraints
-jcmd &lt;pid&gt; VM.flags</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_step_3_troubleshooting_a_constraint"><a class="anchor" href="#_step_3_troubleshooting_a_constraint"></a>Step 3: Troubleshooting a constraint</h3>
-<div class="paragraph">
-<p>If the application is slow, check if CPU throttling is occurring due to the Kubernetes <code>cpu</code> limit/requests vs the utilization on the kernel (kernel is the one throttling, not Kubernetes):</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Check the <code>cpu.stat</code> file within the container:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cat /sys/fs/cgroup/cpu.stat &lt;--------- cgroups v2
+jcmd &lt;pid&gt; VM.flags
+----
+
+=== Step 3: Troubleshooting a constraint
+If the application is impacted, check if CPU throttling is occurring due to the Kubernetes `cpu` limit/requests vs the utilization on the kernel (kernel is the one throttling, not Kubernetes):
+
+1.  Verify first if the Java threads are nominal
++
+[source,bash]
+----
+$ jcmd PID Thread.print &lt;-- see the threads
+----
+
+2.  Then, in case CPU throttling impacting, see the `cpu.stat` file within the container:
++
+[source,bash]
+----
+cat /sys/fs/cgroup/cpu.stat &lt;--------- cgroups v2
 usage_usec 9123943
 user_usec 8159424
 system_usec 964518
@@ -370,38 +397,25 @@ nr_periods 2125
 nr_throttled 21
 throttled_usec 878173
 nr_bursts 0
-burst_usec 0</code></pre>
+burst_usec 0
+----
+
+Above shows details for cgroups v2, for cgroups v1 use `/sys/fs/cgroup/cpuacct.usage`.
+
+3.  Look for `nr_throttled`. If this number is increasing rapidly, the CPU `limit` may be too low, and the kernel is throttling your application, causing latency. Therefore tuning the ratio (requests vs limits) can be adequate.
+
+[source,bash]
+----
+$ oc set resources deployment/hotrod-app --limits=cpu="2" --requests=cpu="1"
+----
+
+== Best Practices Summary
+
+*   **Never rely on `free` or `top`** inside a container for memory capacity planning.
+*   **Always use `-XX:MaxRAMPercentage`** instead of fixed `-Xmx` values to ensure the heap scales dynamically with the container limit.
+*   **Prioritize `jcmd`** for all runtime analysis, as it is native to the OpenJDK and fully supports container-cgroup awareness.</code></pre>
 </div>
 </div>
-</li>
-<li>
-<p>Look for <code>nr_throttled</code>. If this number is increasing rapidly, the CPU <code>limit</code> may be too low, and the kernel is throttling your application, causing latency. Therefore tuning the ratio (requests vs limits) can be adequate.</p>
-</li>
-</ol>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ oc set resources deployment/hotrod-app --limits=cpu="2" --requests=cpu="1"</code></pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_best_practices_summary"><a class="anchor" href="#_best_practices_summary"></a>Best Practices Summary</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Never rely on <code>free</code> or <code>top</code></strong> inside a container for memory capacity planning.</p>
-</li>
-<li>
-<p><strong>Always use <code>-XX:MaxRAMPercentage</code></strong> instead of fixed <code>-Xmx</code> values to ensure the heap scales dynamically with the container limit.</p>
-</li>
-<li>
-<p><strong>Prioritize <code>jcmd</code></strong> for all runtime analysis, as it is native to the OpenJDK and fully supports container-cgroup awareness.</p>
-</li>
-</ul>
 </div>
 </div>
 </div>
