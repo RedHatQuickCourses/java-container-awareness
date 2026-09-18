@@ -88,7 +88,7 @@ ENTRYPOINT ["java", "-jar", "hotrod-app.jar"]
 ----
 |===
 
-==**References**
+== **References for environment variables**
 
 For comprehensive details on configuring Red Hat Universal Base Image (UBI) OpenJDK containers, including supported environment variables across different UBI versions, consult the official documentation:
 
