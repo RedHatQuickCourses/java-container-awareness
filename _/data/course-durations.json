@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 4273,
+  "totalSeconds": 4316,
   "pageCount": 28,
   "pages": [
     {
@@ -125,7 +125,7 @@
     {
       "module": "hands-on-lab",
       "page": "tuning-java-heap-settings-percentage-based-on-container-limits.adoc",
-      "seconds": 141
+      "seconds": 184
     },
     {
       "module": "hands-on-lab",

@@ -309,7 +309,7 @@
 </div>
 </div>
 <div class="sect2">
-<h3 id="_step_1_inspect_current_configuration"><a class="anchor" href="#_step_1_inspect_current_configuration"></a>Step 1: Inspect Current Configuration</h3>
+<h3 id="_step_1_inspect_current_runtime_configuration"><a class="anchor" href="#_step_1_inspect_current_runtime_configuration"></a>Step 1: Inspect Current Runtime Configuration</h3>
 <div class="paragraph">
 <p>First, verify that your application is currently running without explicit <code>-Xmx</code> flags or is using percentage-based flags. Check the environment variables or the deployment configuration:</p>
 </div>
@@ -317,6 +317,22 @@
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check the deployment environment
 oc set env deployment/&lt;deployment-name&gt; --list</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The step above will not show building ENV variables such as the example below (which shouldn&#8217;t be used)</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-dockerfile hljs" data-lang="dockerfile">FROM registry.access.redhat.com/ubi9/openjdk-17:latest
+
+# Copy the compiled JAR into the standard deployments folder
+COPY target/hotrod-app.jar /deployments/hotrod-app.jar
+
+# Pass memory constraints using JAVA_OPTS_APPEND (parsed by run-java.sh) - DO NOT DO THIS:
+ENV JAVA_OPTS_APPEND="-XX:MaxRAMPercentage=50.0"
+
+# No ENTRYPOINT required; the base image automatically executes run-java.sh</code></pre>
 </div>
 </div>
 </div>
