@@ -3,6 +3,7 @@
 :page-transcript-src: navigating-kubernetes-resource-management-for-java.txt
 
 In Kubernetes and OpenShift environments, resource management is governed by the orchestration layer: kubeAPI, which creates deployments with CPU settings. In case this fails (at container creation or deployment) events will show the cause.
+
 * The specific cgroups boundaries are maintained by the Host kernel. In case this fail (memory grows too much) the kernel will trigger an OOMKill event.
 * For Java applications, the primary challenge lies in the abstraction gap: the JVM manages its own memory (heap, code cache, metaspace) and CPU (GC threads, JIT compiler threads). In case this fails, the JVM will cause OOExceptions or Errors (crashes).
 * Kubernetes manages the container’s total resource footprint and keeps the overall applications running nominally via probes, which in case they fail cause SIGTERMs.
@@ -41,7 +42,7 @@ While recent Kubernetes versions (1.27+) and OpenShift 4.4+ introduced features 
 To ensure stability in a Kubernetes-managed environment, adhere to the following configurations:
 
 *   **Explicit Heap Definition:** Even with container awareness, Java is already contianer aware and this ensures the heap scales proportionally if the container limit is adjusted in the deployment manifest. The best practice is for the user to tune this value (e.g., `-XX:MaxRAMPercentage=75.0`), rather than setting directly Xmx, which overwites anything else.
-*   **Account for Off-Heap Memory:** Remember that the total container memory limit must accommodate the Java heap, Metaspace, Code Cache, Thread stacks, and Native memory (NMT). Tune `-XX:MaxRAMPercentage` conservatively (e.g., 60-75%) to prevent OOM Exceptions events at heap level.
+*   **Account for Off-Heap Memory:** Remember that the total container memory limit must accommodate the Java heap, Metaspace, Code Cache, Thread stacks, and Native memory (NMT). Tune `-XX:MaxRAMPercentage` conservatively (e.g., 50-75%) to prevent OOM Exceptions events at heap level.
 *   **CPU Throttling:** Be aware that setting strict CPU limits can lead to CPU throttling, where the kernel pauses threads when the quota is reached. Monitor `container_cpu_cfs_throttled_periods_total` in Prometheus to identify performance bottlenecks. The application's threads will be paused during this throttling process, which will show as a plateau in Prometheus CPU usage.
 
 [TIP]
