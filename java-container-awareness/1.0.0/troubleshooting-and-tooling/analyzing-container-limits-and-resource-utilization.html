@@ -312,6 +312,84 @@ memory_usage_in_bytes: 125108224</code></pre>
 </div>
 </div>
 <div class="sect1">
+<h2 id="_troubleshooting_table"><a class="anchor" href="#_troubleshooting_table"></a>Troubleshooting table</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Event / Characteristic</th>
+<th class="tableblock halign-left valign-top">Source &amp; Trigger</th>
+<th class="tableblock halign-left valign-top">Impact &amp; Log Signature</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>OOMKilled</strong>
+(Linux Kernel / cgroups)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Triggered by the operating system when the container&#8217;s total memory footprint (Heap + Native Memory) exceeds the cgroup hard limit.</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>Impact:</strong> The kernel abruptly terminates the process (SIGKILL, exit code 137). Container exits.
+<strong>Log Signature:</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">[16840841.104477] Killed process 117061 (java), UID 1000... anon-rss:6178796kB</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>OutOfMemoryError</strong>
+(Java / JVM)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Triggered by the JVM when it exhausts internally configured memory pools (e.g., Heap or Metaspace), even if the container has physical memory left.</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>Impact:</strong> Java throws an exception. Container may stay alive in a broken state unless <code>-XX:+ExitOnOutOfMemoryError</code> is used.
+<strong>Log Signature:</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">java.lang.OutOfMemoryError: Java heap space</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>SIGTERM</strong>
+(Graceful Shutdown)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Triggered by OpenShift/Kubernetes when scaling down, deploying a new version, or deleting a Pod.</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>Impact:</strong> The JVM receives Signal 15 and triggers shutdown hooks. If it takes longer than <code>terminationGracePeriodSeconds</code> (default 30s), it is force-killed (SIGKILL). Container exits gracefully (often exit code 143).
+<strong>Log Signature:</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">INFO: JVM running shutdown hooks...</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>JVM Crash</strong>
+(<code>hs_err_pid</code> file)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Triggered by a segmentation fault (SIGSEGV), native library bug (JNI), or internal JVM bug. It is a failure at the C/C++ level of the runtime.</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>Impact:</strong> The JVM aborts immediately without running shutdown hooks and dumps a crash log (<code>hs_err_pid&lt;pid&gt;.log</code>) to the working directory. Container exits.
+<strong>Log Signature:</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text"># A fatal error has been detected by the Java Runtime Environment:
+#  SIGSEGV (0xb) at pc=0x00007f3a8b411c52...</code></pre>
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
 <h2 id="_hands_on_activity_inspecting_jvm_resource_awareness"><a class="anchor" href="#_hands_on_activity_inspecting_jvm_resource_awareness"></a>Hands-on Activity: Inspecting JVM Resource Awareness</h2>
 <div class="sectionbody">
 <div class="paragraph">

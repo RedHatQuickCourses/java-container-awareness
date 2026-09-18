@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 4182,
+  "totalSeconds": 4220,
   "pageCount": 28,
   "pages": [
     {
@@ -105,7 +105,7 @@
     {
       "module": "troubleshooting-and-tooling",
       "page": "analyzing-container-limits-and-resource-utilization.adoc",
-      "seconds": 91
+      "seconds": 129
     },
     {
       "module": "troubleshooting-and-tooling",
