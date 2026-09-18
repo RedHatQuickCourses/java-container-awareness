@@ -430,10 +430,11 @@ $ oc rsh &lt;hotrod-app -ID&gt;</code></pre>
 </div>
 </li>
 <li>
-<p>Confirming the default MaxRAMPercentage value at 80%:</p>
+<p>Confirming the default MaxRAMPercentage value at 80% via jcmd VM.info&#8217;s <code>command line</code>:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError  /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ jcmd 1 VM.info
+Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError  /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar</code></pre>
 </div>
 </div>
 </li>
@@ -447,17 +448,17 @@ $ oc rsh &lt;hotrod-app -ID&gt;</code></pre>
 # JRE version: OpenJDK Runtime Environment (Red_Hat-17.0.20.1.1-1)
 ---------------  S U M M A R Y ------------
 Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
-Host: Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz, 8 cores, 31G, Red Hat Enterprise Linux release 9.8 (Plow)
+Host: Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz, 8 cores, 31G &lt;----- 31G
 Time: Fri Sep 18 16:07:52 2026 UTC elapsed time: 14.701644 seconds (0d 0h 0m 14s)
 ---------------  P R O C E S S  ---------------
-Heap address: 0x00000001bba00000, size: 25670 MB
+Heap address: 0x00000001bba00000, size: 25670 MB &lt;------------------- 25Gb (80% of 31G)
 ...
 ...
 
 ...
 ...
 container (cgroup) information:
-container_type: cgroupv2
+container_type: cgroupv2 &lt;------------------------------------------ verifying cgroups v2
 cpu_cpuset_cpus: not supported
 cpu_memory_nodes: not supported
 active_processor_count: 8
@@ -516,7 +517,7 @@ Heap address: 0x0000000099800000, size: 1640 MB &lt;---------------------- 1640 
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Set 50% MaxRAM:</p>
+<p>Set 50% MaxRAMPercentage:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">###
