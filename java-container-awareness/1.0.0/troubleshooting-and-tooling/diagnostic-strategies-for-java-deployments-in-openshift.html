@@ -471,7 +471,7 @@ burst_usec 0</code></pre>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Never rely on <code>free</code> or <code>top</code></strong> inside a container for memory capacity planning.</p>
+<p><strong>Avoid reling on <code>free</code> or <code>top</code></strong> inside a container for memory capacity planning.</p>
 </li>
 <li>
 <p><strong>Always use <code>-XX:MaxRAMPercentage</code></strong> instead of fixed <code>-Xmx</code> values to ensure the heap scales dynamically with the container limit.</p>
@@ -481,6 +481,43 @@ burst_usec 0</code></pre>
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p><strong>The following JVM flags can be used for troubleshooting:</strong></p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 66.6666%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Scenario</th>
+<th class="tableblock halign-left valign-top">Exit Code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+HeapDumpOnOutOfMemoryError</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+ExitOnOutOfMemoryError</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+CrashOnOutOfMemoryError</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>kill -11 &lt;PID&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Setting <code>-Xmx</code>/<code>-Xms</code> &gt; container size (plus <code>-XX:+AlwaysPreTouch</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">137</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <nav class="pagination">
