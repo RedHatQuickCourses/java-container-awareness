@@ -389,7 +389,8 @@ openjdk-hotrod:example                                   5b49f9aebc56        591
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ docker run -p 8081:8080 openjdk-hotrod:example
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">### Deploying
+$ docker run -p 8081:8080 openjdk-hotrod:example
 Starting the Java application using /opt/jboss/container/java/run/run-java.sh ...
 INFO exec -a "java" java -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -cp "." -jar /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
 INFO running in /deployments
@@ -412,9 +413,13 @@ INFO running in /deployments
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ docker ps
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">### List containers running
+$ docker ps
 CONTAINER ID   IMAGE                    COMMAND                CREATED              STATUS              PORTS                                                   NAMES
 _ID_   openjdk-hotrod:example   "/usr/local/s2i/run"   About a minute ago   Up About a minute   8443/tcp, 0.0.0.0:8081-&gt;8080/tcp, [::]:8081-&gt;8080/tcp   mystifying_morse
+####
+#### getting contianer ID
+####
 $ sudo docker exec -it _ID_ /bin/bash
 [jboss@d7942a2c3041 ~]$ jcmd
 1 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
@@ -442,6 +447,9 @@ active_processor_count: 16 &lt;-------------------------------- that's the full 
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ docker ps
 CONTAINER ID   IMAGE                    COMMAND                CREATED              STATUS              PORTS                                                   NAMES
 _ID_   openjdk-hotrod:example   "/usr/local/s2i/run"   About a minute ago   Up About a minute   8443/tcp, 0.0.0.0:8081-&gt;8080/tcp, [::]:8081-&gt;8080/tcp   mystifying_morse
+####
+#### Getting inside the container:
+####
 $ sudo docker exec -it _ID_ /bin/bash
 [jboss@d7942a2c3041 ~]$ jcmd
 1 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
