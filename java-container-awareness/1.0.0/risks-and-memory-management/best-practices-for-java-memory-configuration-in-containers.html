@@ -251,7 +251,7 @@
 <div class="sect2">
 <h3 id="_1_use_percentage_based_flags"><a class="anchor" href="#_1_use_percentage_based_flags"></a>1. Use Percentage-Based Flags</h3>
 <div class="paragraph">
-<p>Instead of hardcoding memory values, utilize percentage-based flags. These ensure the JVM dynamically adjusts its heap size relative to the memory limits defined in your Pod specification.</p>
+<p>Container awareness comes by default, therefore: instead of hardcoding memory values, utilize percentage-based flags. These ensure the JVM dynamically adjusts its heap size relative to the memory limits defined in your Pod specification.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -274,6 +274,9 @@
 </div>
 <div class="ulist">
 <ul>
+<li>
+<p><strong>Dynamic libraries and instrumentation</strong>: Dynamic libraries and observability tools will take off-heap space</p>
+</li>
 <li>
 <p><strong>Metaspace</strong>: Stores class metadata.</p>
 </li>
