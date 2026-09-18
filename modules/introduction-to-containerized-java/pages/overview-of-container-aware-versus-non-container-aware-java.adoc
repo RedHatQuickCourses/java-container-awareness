@@ -54,7 +54,7 @@ Transitioning to container-aware Java is not merely a technical optimization; it
 * **Deterministic Behavior:** By aligning the JVM's view of resources with the container's reality, you reduce the likelihood OOM kills that occur when the JVM allocates memory, given it won't over-allocate (above the container size).
 * **Operational Efficiency:** Container-aware Java allows DevOps teams to set resource requests and limits in OpenShift with the confidence that the application will scale its internal memory management to fit the provided space.
 
-The default value of `MaxRAMPercentage` is 25% for upstream deployment (straight java command inside a container), however Red Hat build of OpenJDK will allowtaking advantage of `run-java.sh` (as container `ENTRYPOINT`) will have the following impacts:
+The default value of `MaxRAMPercentage` is 25% for upstream deployment (straight java command inside a container), however Red Hat build of OpenJDK takes advantage of `run-java.sh` (as container `ENTRYPOINT`) to add the following features:
 
 * The heap will be calculated at 50% of the container size (not the host). Later images will default to 80%.
 * The user can use `JAVA_OPTS` and other environment variables from run-java.sh, such as `JAVA_OPTS`, `JAVA_OPTS_APPEND`, `GC_MAX_METASPACE_SIZE` for runtime tuning.
@@ -63,5 +63,5 @@ The default value of `MaxRAMPercentage` is 25% for upstream deployment (straight
 [IMPORTANT]
 ====
 While container awareness resolves around JVM limits association with the container size, such as memory (heap) and CPU (for thread calculation), where the heap and the thread pools will be calculated from there. However, off-heap values e.g. metaspace, code cache, direct buffers, or native memory of dynamic libraries, are not counted under `MaxRAMPercentage` - because it sets only heap percentage.
-Therefore, even with container aware Java, one must benchmark your application to ensure that the ratio of heap to off-heap memory is sufficient resources are allocated to avoid OOMkills events
+Therefore, even with container aware Java, one must benchmark thorouhgly the application to ensure that the ratio of heap to off-heap memory is sufficient resources are allocated to avoid OOMkills events
 ====
