@@ -44,6 +44,7 @@ To ensure stability in a Kubernetes-managed environment, adhere to the following
 *   **Explicit Heap Definition:** Even with container awareness, Java is already contianer aware and this ensures the heap scales proportionally if the container limit is adjusted in the deployment manifest. The best practice is for the user to tune this value (e.g., `-XX:MaxRAMPercentage=75.0`), rather than setting directly Xmx, which overwites anything else.
 *   **Account for Off-Heap Memory:** Remember that the total container memory limit must accommodate the Java heap, Metaspace, Code Cache, Thread stacks, and Native memory (NMT). Tune `-XX:MaxRAMPercentage` conservatively (e.g., 50-75%) to prevent OOM Exceptions events at heap level.
 *   **CPU Throttling:** Be aware that setting strict CPU limits can lead to CPU throttling, where the kernel pauses threads when the quota is reached. Monitor `container_cpu_cfs_throttled_periods_total` in Prometheus to identify performance bottlenecks. The application's threads will be paused during this throttling process, which will show as a plateau in Prometheus CPU usage.
+*    **Adequate CPU settings:** Lack of memory will cause OOME but lack cpu will not cause a crash, but instead the threads will take so long to execute (given the kernel will give so little kernel time for the threads).
 
 [TIP]
 ====
