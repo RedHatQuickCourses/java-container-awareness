@@ -11,6 +11,25 @@ OpenShift utilizes Kubernetes-native resource management, defined within the con
 *   **Requests:** These are used by the OpenShift scheduler to place a Pod on a node. They represent the minimum amount of CPU and memory guaranteed to the container. If a node does not have enough unallocated resources to satisfy the request, the scheduler will not place the Pod on that node.
 *   **Limits:** These define the hard ceiling for resource consumption. If a container exceeds its memory limit, it risks being terminated by the kernel (OOMKilled). CPU limits act as a throttling mechanism, restricting the container's execution time within a defined period.
 
+The above will impact also the Quality of Service, QoS, of the pods. The QoS is used directly for eviction threshold:
+
+[cols="1,2,1", options="header"]
+|===
+| QoS Class | Configuration Criteria | Eviction Priority
+
+| *Guaranteed*
+| Every container in the Pod must have both memory and CPU `limits` and `requests` configured, and the `requests` must equal the `limits`.
+| *Lowest Priority* (Last to be evicted during node resource pressure).
+
+| *Burstable*
+| The Pod does not meet the criteria for Guaranteed, but at least one container has a memory or CPU `request` defined. (e.g., `requests` are lower than `limits`, or limits are not set).
+| *Medium Priority* (Evicted if no BestEffort pods remain and the node is under pressure).
+
+| *BestEffort*
+| No containers in the Pod have any memory or CPU `requests` or `limits` defined.
+| *Highest Priority* (First to be evicted when the node runs out of resources).
+|===
+
 === Resource Allocation Table
 
 [cols="1,2,2", options="header"]
@@ -24,9 +43,20 @@ OpenShift utilizes Kubernetes-native resource management, defined within the con
 
 It is vital to understand that different layers of your infrastructure interpret these settings differently:
 
-1.  **OpenShift/Kubernetes Layer:** The scheduler uses *requests* to manage cluster density and node capacity. It ignores *limits* for scheduling decisions.
-2.  **Kernel Layer:** The kernel enforces *limits* via Control Groups (cgroups). Quotas and periods derived from the container spec are translated into filesystem values in `/sys/fs/cgroup`.
-3.  **Java Layer (OpenJDK):** Modern versions of OpenJDK (post-8u191) are container-aware. However, **Java only considers limits, not requests.** Even if you define CPU requests in your YAML, the JVM will ignore them for internal heap sizing and thread pool calculations.
+[cols="1,3", options="header"]
+|===
+| Layer | Behavior
+
+| OpenShift/Kubernetes Layer
+| The scheduler uses requests to manage cluster density and node capacity. It ignores limits for scheduling decisions.
+
+| Kernel Layer
+| The kernel enforces limits via Control Groups (cgroups). Quotas and periods derived from the container spec are translated into filesystem values in `/sys/fs/cgroup`.
+
+| Java Layer (OpenJDK)
+| Current versions of OpenJDK (post-8u191) are container-aware. However, Java only considers limits, not requests. Even if you define CPU requests in your YAML, the JVM will ignore them for internal heap sizing and thread pool calculations.
+|===
+
 
 [IMPORTANT]
 ====
