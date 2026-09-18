@@ -58,7 +58,7 @@ If your application exhibits the following symptoms, the JVM is likely failing t
 | The application heap is significantly smaller than the container limit because it defaulted to a generic fraction of the host’s massive memory footprint, leading to frequent Garbage Collection (GC) pauses. This causes waste of resources CPU and memory.
 
 | *Overutilization*
-a| The application heap (plus off-heap) is significantly larger than the container limit, which will eventually lead:
+| The application heap (plus off-heap) is significantly larger than the container limit, which will eventually lead:
 
 * To `OOMKilled` events
 * To `OutOfMemoryError` (OOMException) events
