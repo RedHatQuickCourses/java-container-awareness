@@ -7,7 +7,7 @@ When deploying Java in containerized environments, improper memory configuration
 *   **Decoupling Risks:** Hard-coding heap sizes (e.g., via `-Xmx`) without considering container limits can lead to memory mismatches. If the JVM ignores container boundaries, it may trigger cgroups OOM-Kills, causing the kernel to terminate the application.
 *   **Off-Heap Considerations:** Container-aware Java calculates heap size as a percentage of available container memory. It is essential to account for off-heap usage (e.g., metaspace, thread stacks, native buffers) to ensure the total memory footprint does not exceed the container limit.
 *   **Resource Underutilization:** Inadequate configuration can lead to inefficient resource usage, where the JVM reserves significantly less memory than the container provides, leaving allocated infrastructure resources idle.
-*   **Non-container aware allocation:** Allocating a certain percentage for container, but not benchmarking/tracking non-container aware components inside the Java application. For example, jemalloand glibc's malloc that are below the JVM and are both not container aware.
+*   **Non-container aware allocation:** Allocating a certain percentage for JVM container, but not benchmarking/tracking non-container aware components inside the Java application. For example, jemalloand glibc's malloc that are below the JVM and are both not container aware.
 
 **Best Practices:**
 
@@ -18,10 +18,21 @@ When deploying Java in containerized environments, improper memory configuration
     *   Use limits in the container settings to make sure Java won't use host details.
     *   Understand Quality of Service (QoS) and how it impacts (Java) deployments.
 
-**Java ENTRYPOINT Practices:**
+**Red Hat OpenJDK's ENTRYPOINT Details:**
 
 Default OpenJDK container uses run-java.sh as ENTRYPOINT, this has several implications:
 
 * MAXRAMPercentage is set at 80%
 * ParallelGC is the default container (regardless of CPU)
-* Environment variables: `JAVA_OPTS`, `JAVA_OPTS_APPEND` is the default container (regardless of CPU)
+* Environment variables: `JAVA_OPTS`, `JAVA_OPTS_APPEND` 
+* PID 1 will be the default Java process
+
+Example:
+
+[source,bash]
+----
+$ sudo docker run -p 8081:8080 --cpus="2" openjdk-hotrod:example
+[sudo] password for fdemeloj: 
+Starting the Java application using /opt/jboss/container/java/run/run-java.sh ...
+INFO exec -a "java" java -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -cp "." -jar /deployments/hotrodspringboot.jar 
+----
