@@ -92,7 +92,7 @@ To prevent `OOMKills`, you must treat the container's memory limit as the total 
 +
 [source,bash]
 ----
--XX:MaxRAMPercentage=70.0
+-XX:MaxRAMPercentage=80.0 (default value)
 ----
 +
 _Note: If your application is highly dependent on Off-Heap (e.g., uses large Direct Buffers or high thread counts), you should reduce this percentage to 50% or 60% to ensure enough spare space/breathing room for native memory allocations._
@@ -105,85 +105,244 @@ _Note: If your application is highly dependent on Off-Heap (e.g., uses large Dir
 -XX:NativeMemoryTracking=summary (or detail)
 ----
 
-== Hands-on Activity: Analyzing Off-Heap Requirements
+== Hands-on Activity: Analyzing Heap and Off-Heap Settings
 
-This activity guides you through identifying the native memory footprint of your Java process.
+This activity guides you through identifying the memory footprint of your Java process.
 
-=== Step 1: Enable NMT and Inspect Memory
-Use `jcmd` to inspect the memory distribution of your running containerized application.
+=== Step 2: Heap details
 
-. Access the terminal of your running pod:
+Use `jcmd` to inspect the memory distribution of the running containerized application at runtime.
+
+. Assuming the same application as before, the terminal of your running pod:
 +
 [source,bash]
 ----
-oc rsh <pod-name>
+$ oc get deployment
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+hotrod-app   1/1     1            1           2m16s
+$ oc rsh <hotrod-app -ID>
 ----
 
-. Run the NMT summary command:
+. Confirming the default MaxRAMPercentage value at 80%:
 +
 [source,bash]
 ----
-jcmd 1 VM.native_memory summary
+Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError  /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
 ----
+
+. Although one may have CPU, without setting memory limits, the container will be limitless, and Java will take the limit from the host size (MaxRAMPercentage at 80% of the host):
 +
-Example output:
+[source,bash]
+----
+$ jcmd 1 VM.info 
+1:
+#
+# JRE version: OpenJDK Runtime Environment (Red_Hat-17.0.20.1.1-1) 
+---------------  S U M M A R Y ------------
+Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+Host: Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz, 8 cores, 31G, Red Hat Enterprise Linux release 9.8 (Plow)
+Time: Fri Sep 18 16:07:52 2026 UTC elapsed time: 14.701644 seconds (0d 0h 0m 14s)
+---------------  P R O C E S S  ---------------
+Heap address: 0x00000001bba00000, size: 25670 MB
+...
+...
+
+...
+...
+container (cgroup) information:
+container_type: cgroupv2
+cpu_cpuset_cpus: not supported
+cpu_memory_nodes: not supported
+active_processor_count: 8
+cpu_quota: no quota
+cpu_period: 100000
+cpu_shares: 28
+memory_limit_in_bytes: unlimited <------------------ unlimited
+memory_and_swap_limit_in_bytes: unlimited
+----
+
+**Let's set a limit on the container memory and verify the percentage:**
+. Set 2Gi at limit on the container and leave it at default 80%
++
+[source,bash]
+----
+###
+### Set resources in deployment at 2Gi
+### 
+$ oc set resources deployment/hotrod-app --limits=memory="2Gi"
+deployment.apps/hotrod-app resource requirements updated
+###
+### Go inside the pod
+### 
+$ oc get pod
+NAME                          READY   STATUS      RESTARTS   AGE
+hotrod-app-1-build            0/1     Completed   0          58m
+hotrod-app-866f679df9-px72z   1/1     Running     0          9s
+###
+### Go inside the pod
+### 
+$ oc rsh hotrod-app-866f679df9-px72z
+###
+### jcmd with VM.info
+### 
+sh-5.1$ jcmd 1 VM.info 
+1:
+#
+# JRE version: OpenJDK Runtime Environment (Red_Hat-17.0.20.1.1-1) (17.0.20.1+1) (build 17.0.20.1+1-LTS)
+# Java VM: OpenJDK 64-Bit Server VM (Red_Hat-17.0.20.1.1-1) (17.0.20.1+1-LTS, mixed mode, sharing, tiered, compressed oops, compressed class ptrs, parallel gc, linux-amd64)
+---------------  S U M M A R Y ------------
+Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+---------------  P R O C E S S  ---------------
+Heap address: 0x0000000099800000, size: 1640 MB <---------------------- 1640 of 2000MB
+----
+
+**Assuming 80% is an inadequate value, let's set for a lower value:**
+
+. Set 50% MaxRAM:
++
+[source,bash]
+----
+###
+### Set MaxRAMPercentage at 50% (rather than 80%)
+### 
+$ oc set env deployment/hotrod-app JAVA_OPTS_APPEND="-XX:MaxRAMPercentage=50.0"
+deployment.apps/hotrod-app updated
+###
+### Get the pod
+### 
+$ oc get pod
+NAME                          READY   STATUS      RESTARTS   AGE
+hotrod-app-1-build            0/1     Completed   0          63m
+hotrod-app-549cc98dfd-4tpb5   1/1     Running     0          3s
+###
+### Verify with VM.info
+### 
+$ jcmd 1 VM.info
+1:
+#
+# JRE version: OpenJDK Runtime Environment (Red_Hat-17.0.20.1.1-1) (17.0.20.1+1) (build 17.0.20.1+1-LTS)
+# Java VM: OpenJDK 64-Bit Server VM (Red_Hat-17.0.20.1.1-1) (17.0.20.1+1-LTS, mixed mode, sharing, tiered, compressed oops, compressed class ptrs, parallel gc, linux-amd64)
+
+---------------  S U M M A R Y ------------
+
+Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -XX:MaxRAMPercentage=50.0 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+---------------  P R O C E S S  ---------------
+Heap address: 0x00000000c0000000, size: 1024 MB, Compressed Oops mode: 32-bit <---- 1024MB of 2000MB
+----
+
+=== Step 2: Off-heap details
+
+For more details on off-heap settings, deploy with NativeMemoryTracking (NMT) as below:
+
+. Deploy the application with NativeMemoryTracking summary (or details)
++
+[source,bash]
+----
+$ oc set env deployment/hotrod-app JAVA_OPTS_APPEND="-XX:NativeMemoryTracking=summary"
+----
+
+
+. Confirm the application has the correct JVM argument, NativeMemoryTracking, applied:
++
+[source,bash]
+----
+VM Arguments:
+jvm_args: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -XX:NativeMemoryTracking=summary  <--------------------------- HERE
+java_command: /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+java_class_path (initial): /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+Launcher Type: SUN_STANDARD
+----
+
++
+Full example output for VM.native summary:
 +
 ----
 sh-5.3$ jcmd 1 VM.native_memory summary
 1:
-Native memory tracking is not enabled
-sh-5.3$ 
+$ jcmd 1 VM.native_memory
+1:
+Native Memory Tracking: (Omitting categories weighting less than 1KB)
+Total: reserved=28725786KB, committed=1518126KB
+       malloc: 62206KB #254051
+       mmap:   reserved=28663580KB, committed=1455920KB
+
+-                 Java Heap (reserved=26286080KB, committed=514048KB)
+                            (mmap: reserved=26286080KB, committed=514048KB) 
+ 
+-                     Class (reserved=1049363KB, committed=5779KB)
+                            (classes #8643)
+                            (  instance classes #8081, array classes #562)
+                            (malloc=787KB #18256) (at peak) 
+                            (mmap: reserved=1048576KB, committed=4992KB) 
+                            (  Metadata:   )
+                            (    reserved=65536KB, committed=32256KB)
+                            (    used=32053KB)
+                            (    waste=203KB =0.63%)
+                            (  Class space:)
+                            (    reserved=1048576KB, committed=4992KB)
+                            (    used=4780KB)
+                            (    waste=212KB =4.25%)
+ 
+-                    Thread (reserved=39016KB, committed=2836KB)
+                            (thread #39)
+                            (stack: reserved=38912KB, committed=2732KB)
+                            (malloc=61KB #232) (peak=72KB #242) 
+                            (arena=43KB #74) (peak=471KB #42)
+ 
+-                      Code (reserved=248583KB, committed=14187KB)
+                            (malloc=895KB #5162) (peak=895KB #5163) 
+                            (mmap: reserved=247688KB, committed=13292KB) 
+ 
+-                        GC (reserved=989213KB, committed=905329KB)
+                            (malloc=28853KB #134) (peak=28861KB #136) 
+                            (mmap: reserved=960360KB, committed=876476KB) 
+ 
+-                  Compiler (reserved=195KB, committed=195KB)
+                            (malloc=30KB #355) (peak=66KB #139) 
+                            (arena=165KB #5) (peak=54165KB #23)
+ 
+-                  Internal (reserved=12650KB, committed=12650KB)
+                            (malloc=12614KB #5439) (peak=12741KB #5348) 
+                            (mmap: reserved=36KB, committed=36KB) 
+ 
+-                     Other (reserved=4892KB, committed=4892KB)
+                            (malloc=4892KB #20) (peak=4902KB #22) 
+ 
+-                    Symbol (reserved=9203KB, committed=9203KB)
+                            (malloc=8524KB #220921) (at peak) 
+                            (arena=680KB #1) (at peak)
 ----
 +
 NOTE: If you see "Native memory tracking is not enabled", you must enable it by adding the following JVM option:
 ----
--XX:NativeMemoryTracking=summary
+### Option 1
+-XX:NativeMemoryTracking=summary 
+### Option 2
+-XX:NativeMemoryTracking=details
 ----
 
-. Delete the current deployment
+. Update the current deployment with this setting
 +
 [source,bash]
 ----
-oc delete deployment my-java-app
+$ oc set env deployment/hotrod-app JAVA_OPTS_APPEND="-XX:NativeMemoryTracking=details"
 ----
 
-. Create a deployment configuration to enable NMT in the container (example below will never work, it is just an example - you need an actual application):
+. Example:
 +
 [source,bash]
 ----
-cat > my-java-app.yaml << EOF
+cat > hotrod-app.yaml << EOF
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-java-app
-spec:
-  replicas: 1
-
-  selector:
-    matchLabels:
-      app: my-java-app
-
-  template:
-    metadata:
-      labels:
-        app: my-java-app
-
+  name: hotrod-app
     spec:
       containers:
-        - name: java-app
-          image: quay.io/hummingbird/openjdk:latest
-
+...
           env:
             - name: JAVA_OPTS_APPEND
-              value: "-XX:NativeMemoryTracking=summary"
-EOF
-----
-
-. Create the deployment:
-+
-[source,bash]
-----
-oc apply -f my-java-app.yaml
+              value: "-XX:NativeMemoryTracking=details"
 ----
 
 . Access the terminal of your new running pod:
@@ -201,13 +360,13 @@ jcmd 1 VM.native_memory summary
 ----
 +
 Examle output:
++
+[source,bash]
 ----
 sh-5.3$ jcmd 1 VM.native_memory summary 
 Picked up JAVA_OPTS_APPEND: -XX:NativeMemoryTracking=summary
 1:
-
 Native Memory Tracking:
-
 (Omitting categories weighting less than 1KB)
 
 Total: reserved=33545316KB, committed=288676KB
