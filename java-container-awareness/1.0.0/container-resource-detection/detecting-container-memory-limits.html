@@ -333,22 +333,10 @@
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Overutilization</strong></p></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>The application heap (plus off-heap) is significantly larger than the container limit, which will eventually lead:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>To <code>OOMKilled</code> events</p>
-</li>
-<li>
-<p>To <code>OutOfMemoryError</code> (OOMException) events</p>
-</li>
-<li>
-<p>To <code>SIGTERM</code>, in case the JVM is not responsive</p>
-</li>
-</ul>
-</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The application heap (plus off-heap) is significantly larger than the container limit, which will eventually lead:</p>
+<p class="tableblock">* To <code>OOMKilled</code> events
+* To <code>OutOfMemoryError</code> (OOMException) events
+* To <code>SIGTERM</code>, in case the JVM is not responsive</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Misbehavior</strong></p></td>
