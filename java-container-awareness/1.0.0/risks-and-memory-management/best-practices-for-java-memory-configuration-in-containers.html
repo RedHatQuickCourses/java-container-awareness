@@ -301,7 +301,7 @@
 <div class="sect2">
 <h3 id="_3_avoid_maxram_override"><a class="anchor" href="#_3_avoid_maxram_override"></a>3. Avoid MaxRAM Override</h3>
 <div class="paragraph">
-<p>Avoid setting the <code>-XX:MaxRAM</code> flag. When you set <code>MaxRAM</code> manually, you also effectively decouple the JVM&#8217;s view of memory from the actual container <code>cgroups</code> limit. This removes completely the purpose of container awareness and can lead to the JVM attempting to allocate more memory than the container is permitted to use, resulting in an immediate OOM-Kill by the kernel.</p>
+<p>Avoid setting the <code>-XX:MaxRAM</code> flag. When you set <code>MaxRAM</code> one effectively decouple the JVM&#8217;s view of memory from the actual container <code>cgroups</code> limit. This removes completely the purpose of container awareness and can lead to the JVM attempting to allocate more memory than the container is permitted to use, resulting in an immediate OOM-Kill by the kernel. <code>MaxRAM</code> sets the full size of the heap and off-heap and it is very useful in specific cases.</p>
 </div>
 </div>
 <div class="sect2">
@@ -401,7 +401,10 @@ If the scripts run-java.sh is not used, so the default percentage (MaxRAMPercent
 <p><strong>Check <code>cgroups</code> usage</strong>: Use <code>cat /sys/fs/cgroup/memory/memory.stat</code> inside the container to see if the container is hitting its hard limit. This file is usually used for Prometheus/cadAdvisor output scrapping.</p>
 </li>
 <li>
-<p><strong>Analyze Native Memory Tracking (NMT)</strong>: Enable <code>-XX:NativeMemoryTracking=summary</code> to identify if the memory leak is occurring in the heap or in native memory segments (e.g., excessive thread allocation).</p>
+<p><strong>Analyze GC logs</strong>: Verify <code>GC logs</code> about the cgroups details, GC allocation, and GC collector behavior.</p>
+</li>
+<li>
+<p><strong>Analyze Native Memory Tracking (NMT)</strong>: Enable <code>-XX:NativeMemoryTracking=summary</code> (or <code>details</code>) to identify if the memory leak is occurring in the heap or in native memory segments (e.g., excessive thread allocation).</p>
 </li>
 <li>
 <p><strong>Benchmark</strong>: Always performance-test with a memory profiler before finalizing your percentage values to ensure the off-heap headroom is sufficient for peak load.</p>
