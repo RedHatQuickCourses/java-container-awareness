@@ -21,7 +21,7 @@ Always verify that the JVM sees the limits defined in your OpenShift `Deployment
 [source,bash]
 ----
 # Check perceived max heap from within the pod
-oc exec <pod-name> -- java -XshowSettings:vm -version
+oc exec <pod-name> -- jcmd 1 VM.info | 
 ----
 
 Check if `MaxHeapSize` is calculated correctly based on the container memory limit rather than the worker node's total memory.
@@ -52,12 +52,28 @@ Execute into the pod to check how the JVM views the memory limits.
 [source,bash]
 ----
 # Run the VM settings check
-oc exec <pod-name> -- java -XX:+PrintFlagsFinal -version | grep MaxHeapSize
+oc exec <pod-name> -- java 1 VM.info | grep -A18 "container (cgroup) information"
 ----
 
-Observe the output. If you have defined a `memory` limit of 512Mi in your manifest, the `MaxHeapSize` should be a fraction of that limit (if using `MaxRAMPercentage`).
+Verify the output and see how it correlates with the host and container limits:
 
-=== Step 2: Use `jcmd` to analyze the process
+[cols="1,1", options="header"]
+|===
+| Output/Resource Allocation | Deployment Condition
+
+| 50% of the container
+| run-java.sh as ENTRYPOINT and container aware  - previous MaxRAMPercentage
+
+| 80% of the container
+| run-java.sh as ENTRYPOINT and container aware - current MaxRAMPercentage
+
+| 25% of the host
+| non-container aware or unbounded deployment - verify if the container has limits
+|===
+
+```
+
+=== Step 2: Use `jcmd` to analyze the process flags
 Access the container shell to utilize `jcmd`.
 
 [source,bash]
@@ -72,9 +88,16 @@ jcmd <pid> VM.flags
 ----
 
 === Step 3: Troubleshooting a constraint
-If the application is slow, check if CPU throttling is occurring due to the Kubernetes `cpu` limit/requests vs the utilization on the kernel (kernel is the one throttling, not Kubernetes):
+If the application is impacted, check if CPU throttling is occurring due to the Kubernetes `cpu` limit/requests vs the utilization on the kernel (kernel is the one throttling, not Kubernetes):
 
-1.  Check the `cpu.stat` file within the container:
+1.  Verify first if the Java threads are nominal
++
+[source,bash]
+----
+$ jcmd PID Thread.print <-- see the threads
+----
+
+2.  Then, in case CPU throttling impacting, see the `cpu.stat` file within the container:
 +
 [source,bash]
 ----
@@ -90,8 +113,9 @@ nr_bursts 0
 burst_usec 0
 ----
 
+Above shows details for cgroups v2, for cgroups v1 use `/sys/fs/cgroup/cpuacct.usage`.
 
-2.  Look for `nr_throttled`. If this number is increasing rapidly, the CPU `limit` may be too low, and the kernel is throttling your application, causing latency. Therefore tuning the ratio (requests vs limits) can be adequate.
+3.  Look for `nr_throttled`. If this number is increasing rapidly, the CPU `limit` may be too low, and the kernel is throttling your application, causing latency. Therefore tuning the ratio (requests vs limits) can be adequate.
 
 [source,bash]
 ----
