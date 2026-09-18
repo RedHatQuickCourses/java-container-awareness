@@ -413,6 +413,55 @@ If the scripts run-java.sh is not used, so the default percentage (MaxRAMPercent
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_garbage_collectors"><a class="anchor" href="#_garbage_collectors"></a>Garbage collectors</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Although the core of this course is not to discuss Java&#8217;s garbage collector, it does offer a possibility of discussing different GC collectors. As mentioned when using run-java.sh ENTRYPOINT (default ENTRYPOINT for Red Hat OpenJDK images), the default collector is ParallelGC however others can be used given enough CPUs. The discussion will depend on the CPU availability and application profile.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 33.3333%;">
+<col style="width: 50.0001%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Garbage Collector</th>
+<th class="tableblock halign-left valign-top">JVM Flag</th>
+<th class="tableblock halign-left valign-top">Description &amp; Best Fit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Serial GC</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+UseSerialGC</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Uses a single thread for garbage collection. <strong>Best for single-core containers</strong> or microservices with very small heaps (&lt; 100MB) where minimal GC overhead and memory footprint are required.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Parallel GC</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+UseParallelGC</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Focuses on maximizing throughput by using multiple threads to perform GC, but stops the application completely during collection. <strong>Best for batch processing</strong> or applications where latency (pause times) is not a critical concern.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>G1 GC (Garbage-First)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+UseG1GC</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The default GC since Java 9. Balances throughput and latency by dividing the heap into regions. <strong>Best for general-purpose web applications</strong> running on multi-core containers with heaps larger than 2GB.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>ZGC (Z Garbage Collector)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+UseZGC</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">An ultra-low latency GC designed to keep pause times under 1 millisecond. <strong>Best for latency-sensitive applications</strong>, though it may require slightly more CPU and memory overhead. (Production ready since Java 15).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Shenandoah GC</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+UseShenandoahGC</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Red Hat&#8217;s ultra-low latency GC that performs evacuation work concurrently with the running Java threads. <strong>Best for highly responsive applications</strong> requiring consistent, predictable pause times regardless of heap size. For more details, see the <a href="https://developers.redhat.com/articles/2024/05/28/beginners-guide-shenandoah-garbage-collector">Beginner&#8217;s guide to Shenandoah Garbage Collector</a>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <nav class="pagination">
   <span class="prev"><a href="managing-off-heap-memory-in-containerized-environments.html">Managing Heap and Off-Heap Memory in Containerized Environments</a></span>
   <span class="next"><a href="../openshift-and-kubernetes-integration/openshift-and-kubernetes-integration.html">OpenShift and Kubernetes Integration</a></span>
