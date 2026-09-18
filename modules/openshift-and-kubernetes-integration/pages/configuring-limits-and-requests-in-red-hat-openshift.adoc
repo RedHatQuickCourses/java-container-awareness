@@ -143,6 +143,8 @@ current number of tasks: 54
 
 Above for the output related to `Max. Heap Size` and `active_processor_count`. You will notice these values are derived from the limits, not the requests.
 
+Finally, above shows the Java is fully complaint with cgroups v2, in case it wasn't so then the container limits couldn't be detected and the VM.info container details would not show those constraints.
+
 === Default Red Hat OpenJDK's ENTRYPOINT vs direct Java execution
 
 The above example (hotrod deployment) has 80% as default values, because it has run-java.sh as ENTRYPOINT:
@@ -186,7 +188,7 @@ OpenJDK Runtime Environment (Red_Hat-25.0.4.1.1-0) (build 25.0.4.1+1)
 OpenJDK 64-Bit Server VM (Red_Hat-25.0.4.1.1-0) (build 25.0.4.1+1, mixed mode, sharing)
 ----
 
-The above is fully expected: Java is not using the java-run.sh ENTRYPOINT and as expected - and already explained on this course - the MaxRAM percentage at 80% comes specifically from the `run-java.sh` ENTRYPOINT (s2i with OpenJDK injects that `ENTRYPOINT` by default.
+The above is expected: Java is not using the `java-run.sh` ENTRYPOINT and as explained on this course - the MaxRAM percentage at 80% comes specifically from the `run-java.sh` ENTRYPOINT  - s2i with OpenJDK injects that `ENTRYPOINT` by default. Without this entrypoint, JAVA_OPTS environment variables are useless.
 
-In the above example, java straight execution, it will bring 25% beucase it is the default upstream limit. 
+In the above example, i.e. java straight execution, it will bring 25% because it is the default upstream limit. 
 In other words, limit is set to 512Mi but the heap size displayed is 123.75M when executing java directly inside a Red Hat OpenJDK container.
