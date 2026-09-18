@@ -330,6 +330,9 @@
 <li>
 <p><strong>CPU Throttling:</strong> Be aware that setting strict CPU limits can lead to CPU throttling, where the kernel pauses threads when the quota is reached. Monitor <code>container_cpu_cfs_throttled_periods_total</code> in Prometheus to identify performance bottlenecks. The application&#8217;s threads will be paused during this throttling process, which will show as a plateau in Prometheus CPU usage.</p>
 </li>
+<li>
+<p><strong>Adequate CPU settings:</strong> Lack of memory will cause OOME but lack cpu will not cause a crash, but instead the threads will take so long to execute (given the kernel will give so little kernel time for the threads).</p>
+</li>
 </ul>
 </div>
 <div class="admonitionblock tip">
