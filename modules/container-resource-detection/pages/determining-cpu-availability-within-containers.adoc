@@ -10,14 +10,14 @@ If the JVM is not container-aware, it may incorrectly identify the host's total 
 
 Current JDKs (Java 8u191+ and all subsequent versions) use **cgroups (Control Groups)** to determine CPU availability. The JVM reads the cgroup filesystem to calculate the `ActiveProcessorCount`. 
 
-- For cgroups v1, versions Java 8u191+ should be enough
-- For cgroups v2, versions Java 8u372+ Java 11.0.16+ are required.
+- For cgroups v1, versions Java 8u191+ should be enough.
+- For cgroups v2, versions Java 8u372+ or Java 11.0.16+ are required.
 
-### The Calculation Logic
+=== The Calculation Logic
 When running inside a container, the JVM inspects two primary metrics from the cgroup controller to determine how many processors it should use:
 
 1.  **CPU Shares (`cpu.shares`):** This represents the relative weight of the container. If the host has 64 cores and your container has a share weight that equates to 2 cores, the JVM uses this to influence its internal parallelism.
-2.  **CPU Quota and Period (`cpu.cfs_quota_us` and `cpu.cfs_period_us`):** These define a hard limit. For example, if the quota is 200,000 and the period is 100,000, the container is limited to 2 cores ($200,000 / 100,000 = 2$). 
+2.  **CPU Quota and Period (`cpu.cfs_quota_us` and `cpu.cfs_period_us`):** These define a hard limit. For example, if the quota is 200,000 and the period is 100,000, the container is limited to 2 cores (200,000 / 100,000 = 2). 
 
 The JVM calculates the number of processors as the minimum of the host's processors and the calculated container limit.
 
@@ -62,11 +62,11 @@ cpu_shares: 51
 
 == Hands-on Exercise: Inspecting CPU Awareness
 
-In this short task, you will verify the JVM's CPU detection. To make this work we will need an container image with an application already there, otherwise the container will fail on the spot.
+In this short task, you will verify the JVM's CPU detection. To make this work we will need a container image with an application already there, otherwise the container will fail on the spot.
 
 . **Create an image container with the application:**
 +
-Use the following command to fetch a project and build a OpenJDK project locally from it via s2i toolkit:
+Use the following command to fetch a project and build an OpenJDK project locally from it via the s2i toolkit:
 +
 [source,bash]
 ----
@@ -81,8 +81,8 @@ Use the following command to list the images there:
 [source,bash]
 ----
 $ docker image ls
-IMAGE                                                    ID             DISK USAGE   CONTENT SIZE   EXTRA      
-openjdk-hotrod:example                                   5b49f9aebc56        591MB             0B
+IMAGE                                                   ID             DISK USAGE   CONTENT SIZE   EXTRA      
+openjdk-hotrod:example                                  5b49f9aebc56         591MB             0B
 ----
 
 . **Deploy application in Docker:**
@@ -115,10 +115,10 @@ Create a new terminal and use the following commands docker ps (to track the con
 ----
 ### List containers running
 $ docker ps
-CONTAINER ID   IMAGE                    COMMAND                CREATED              STATUS              PORTS                                                   NAMES
+CONTAINER ID   IMAGE                    COMMAND              CREATED              STATUS              PORTS                                                  NAMES
 _ID_   openjdk-hotrod:example   "/usr/local/s2i/run"   About a minute ago   Up About a minute   8443/tcp, 0.0.0.0:8081->8080/tcp, [::]:8081->8080/tcp   mystifying_morse
 ####
-#### getting contianer ID
+#### getting container ID
 ####
 $ sudo docker exec -it _ID_ /bin/bash
 [jboss@d7942a2c3041 ~]$ jcmd
@@ -136,14 +136,13 @@ Deploy the OpenJDK image with LIMITS:
 ----
 $ docker run -p 8081:8080 --cpus="2" openjdk-hotrod:example
 ----
-
 +
 Verify the limits (container has CPU argument) 
 +
 [source,bash]
 ----
 $ docker ps
-CONTAINER ID   IMAGE                    COMMAND                CREATED              STATUS              PORTS                                                   NAMES
+CONTAINER ID   IMAGE                    COMMAND              CREATED              STATUS              PORTS                                                  NAMES
 _ID_   openjdk-hotrod:example   "/usr/local/s2i/run"   About a minute ago   Up About a minute   8443/tcp, 0.0.0.0:8081->8080/tcp, [::]:8081->8080/tcp   mystifying_morse
 ####
 #### Getting inside the container:
@@ -156,10 +155,9 @@ $ sudo docker exec -it _ID_ /bin/bash
 active_processor_count: 2 <-------------------------------- that's the full CPU limits
 ----
 
-**Deployment in Openshift - create new project:**
+**Deployment in OpenShift - create new project:**
 
-. Deployment in Openshift  via new project, one can use the binary upload:
-
+. Deployment in OpenShift via a new project, one can use the binary upload:
 +
 Use the following command to create a new OpenShift project:
 +
@@ -199,8 +197,7 @@ Inside your running container, identify the Java process ID (use jcmd, jps, or p
 +
 [source,bash]
 ----
-$ oc rsh hotrod-app-ID
-$ jcmd
+$oc rsh hotrod-app-ID$ jcmd
 144 jdk.jcmd/sun.tools.jcmd.JCmd
 1 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
 ----
@@ -239,8 +236,7 @@ sh-5.3$ nproc
 sh-5.3$ 
 ----
 +
-
-If you deploy a container with limits (not just requests, but limits) and `active_processor_count` (jcmd or java -XshowSettings:system) returns that limit, the application is correctly container-aware. Otherwise, in case it returns the host values, this indicates the application is likely not container aware (nproc shows host details).
+If you deploy a container with limits (not just requests, but limits) and `active_processor_count` (jcmd or java -XshowSettings:system) returns that limit, the application is correctly container-aware. Otherwise, in case it returns the host values, this indicates the application is likely not container-aware (nproc shows host details).
 
 . Set the resource limits on the deployment.
 +
@@ -275,5 +271,5 @@ sh-5.3$
 Notes: Given the fact only integers can be used as CPU boundaries:
 
 * Values below 1 CPU, are rounded to 1.
-* Broken values are rounded to the lowest integer, so 2200 millicores, becomes 2 CPU.
+* Fractional values are rounded to the lowest integer, so 2200 millicores, becomes 2 CPU.
 * Java doesn't care about requests, only limits.
