@@ -222,7 +222,7 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Before containerization and container awareness, Java applications more often than not would struggled to coexist within its container limits.
+<p>Before containerization and container awareness, Java applications more often than not would struggle to coexist within its container limits.
 This friction stemmed from a fundamental mismatch: the Java Virtual Machine (JVM) was designed to query the host operating system for resource availability, while containers rely on control groups (cgroups) to impose different resource constraints.</p>
 </div>
 </div>
@@ -301,7 +301,7 @@ This friction stemmed from a fundamental mismatch: the Java Virtual Machine (JVM
 <div class="sect2">
 <h3 id="_non_container_aware_java_the_visibility_gap"><a class="anchor" href="#_non_container_aware_java_the_visibility_gap"></a>Non-Container-Aware Java: The Visibility Gap</h3>
 <div class="paragraph">
-<p>In a non-container-aware environment, if you deploy a Java application with a default heap size (e.g., <code>-Xmx</code> not explicitly defined) into a container with a 1GB limit, the JVM will the host&#8217;s 64GB of RAM and attempt to allocate a heap significantly larger than 1GB, causing issues.</p>
+<p>In a non-container-aware environment, if you deploy a Java application with a default heap size (e.g., <code>-Xmx</code> not explicitly defined) into a container with a 1GB limit, the JVM will detect the host&#8217;s 64GB of RAM and attempt to allocate a heap significantly larger than 1GB, causing issues.</p>
 </div>
 <div class="paragraph">
 <p>When the JVM allocates this memory, the host kernel will trigger a cgroup <strong>Out-of-Memory (OOM) Kill</strong> event. The process is terminated abruptly because it breached the container&#8217;s allowed boundary, despite the JVM assuming it had plenty of memory available. Note that JVM allocation and application consumption are separated and may considerably diverge, because the JVM may allocate more than the application is in fact currently using.</p>
@@ -398,7 +398,7 @@ This friction stemmed from a fundamental mismatch: the Java Virtual Machine (JVM
 </td>
 <td class="content">
 <div class="paragraph">
-<p>While container awareness resolves around JVM limits association with the container size, such as memory (heap) and CPU (for thread calculation), where the heap and the thread pools will be calculated from there. However, off-heap values e.g. metaspace, code cache, direct buffers, or native memory of dynamic libraries, are not counted under <code>MaxRAMPercentage</code> - because it sets only heap percentage.
+<p>While container awareness revolves around JVM limits association with the container size, such as memory (heap) and CPU (for thread calculation), where the heap and the thread pools will be calculated from there. However, off-heap values e.g. metaspace, code cache, direct buffers, or native memory of dynamic libraries, are not counted under <code>MaxRAMPercentage</code> - because it sets only heap percentage.
 Therefore, even with container aware Java, one must benchmark thorouhgly the application to ensure that the ratio of heap to off-heap memory is sufficient resources are allocated to avoid OOMkills events</p>
 </div>
 </td>
