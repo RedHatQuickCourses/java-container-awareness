@@ -80,6 +80,20 @@ This is achieved by creating an deployment without limits, which will have two m
 
 This type of application deployment should be treated with caution, given the fact that several applications (unbouded) will cause a race for the hosts resources and may impact directly on CPU throttling (many threads competing at the same time for CPU and memory resources). Consequently, this can overload the host and create more possibilites for eviction scenarios (several Java unbouded demanding more and more resources) causing generalized evictions. 
 
+.Pros and Cons of Unbounded Applications
+[cols="1a,1a", options="header"]
+|===
+| Pros | Cons
+
+|
+* Use the full Host CPU and Memory
+* Can spike the full host capability
+
+|
+* Have BestEffort QoS
+* Competing with other applications
+|===
+
 == Hands-on Activity: Inspecting cgroup Resource Constraints
 
 In this activity, you will verify how OpenShift translates your YAML configuration into cgroup settings visible to the Java application.
