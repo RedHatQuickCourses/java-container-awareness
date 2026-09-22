@@ -259,7 +259,7 @@
 <p><strong>Preventing Failures:</strong> With proper cgroup detection, the JVM aligns its garbage collection triggers and heap allocation thresholds with the container’s memory limit. This prevents the scenario where the application performs perfectly under light load but crashes instantly when the memory pressure when crossed the cgroup ceiling.</p>
 </li>
 <li>
-<p><strong>Orchestration Alignment:</strong> Orchestrators like OpenShift and Kubernetes deploy container that have Resource Limits and Requests and those are enforced by the kernel. Java’s ability to read the CPU and memory limits allows the JVM to operate nominally inside a container regardless of the host. Meaning, given JVM is container-aware, it can effectively use flags like <code>-XX:MaxRAMPercentage</code>, ensuring the heap scales dynamically with the pod&#8217;s assigned limit when it is deployed. Users can tune those percentage values.</p>
+<p><strong>Orchestration Alignment:</strong> Orchestrators like OpenShift and Kubernetes deploy containers that have Resource Limits and Requests and those are enforced by the kernel. Java’s ability to read the CPU and memory limits allows the JVM to operate nominally inside a container regardless of the host. Meaning, given JVM is container-aware, it can effectively use flags like <code>-XX:MaxRAMPercentage</code>, ensuring the heap scales dynamically with the pod&#8217;s assigned limit when it is deployed. Users can tune those percentage values.</p>
 </li>
 </ul>
 </div>
@@ -327,7 +327,7 @@
 </tbody>
 </table>
 <div class="paragraph">
-<p>Although the ENTRYPOINT script adds those environment variables above, Java (by default) already provides other such as: <code>JAVA_TOOL_OPTIONS</code> and <code>_JAVA_OPTIONS</code>. Meaning, those are not inherit from the run-java.sh. Those extra environment variables are usually not recommended because they are used for any Java process inside the container</p>
+<p>Although the ENTRYPOINT script adds those environment variables above, Java (by default) already provides other such as: <code>JAVA_TOOL_OPTIONS</code> and <code>_JAVA_OPTIONS</code>. Meaning, those are not inherited from the run-java.sh. Those extra environment variables are usually not recommended because they are used for any Java process inside the container</p>
 </div>
 <div class="listingblock">
 <div class="title">Example: Why JAVA_TOOL_OPTIONS should be usually avoided</div>
