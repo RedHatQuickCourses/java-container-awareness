@@ -390,6 +390,43 @@
 <div class="paragraph">
 <p>This type of application deployment should be treated with caution, given the fact that several applications (unbouded) will cause a race for the hosts resources and may impact directly on CPU throttling (many threads competing at the same time for CPU and memory resources). Consequently, this can overload the host and create more possibilites for eviction scenarios (several Java unbouded demanding more and more resources) causing generalized evictions.</p>
 </div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Pros and Cons of Unbounded Applications</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Pros</th>
+<th class="tableblock halign-left valign-top">Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>Use the full Host CPU and Memory</p>
+</li>
+<li>
+<p>Can spike the full host capability</p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>Have BestEffort QoS</p>
+</li>
+<li>
+<p>Competing with other applications</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div class="sect1">
