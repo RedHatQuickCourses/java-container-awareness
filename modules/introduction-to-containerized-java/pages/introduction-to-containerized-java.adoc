@@ -2,7 +2,7 @@
 :page-audio-src: introduction-to-containerized-java.wav
 :page-transcript-src: introduction-to-containerized-java.txt
 
-Containerized Java focuses on the evolution of the Java Virtual Machine (JVM) to operate bounded and efficiently within container environments. Therefore this will impact deployments in orchestrors such ash OpenShift and Kubernetes. 
+Containerized Java focuses on the evolution of the Java Virtual Machine (JVM) to operate bounded and efficiently within container environments. Therefore this will impact deployments in orchestrors such as OpenShift and Kubernetes. 
 Currently, Java runtimes utilize container awareness to detect cgroup limits, allowing the JVM to automatically adjust its resource restriction based on container boundaries rather than host hardware limits.
 
 Key aspects include:
