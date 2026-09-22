@@ -297,8 +297,10 @@
 <p>Specifically in terms of Red Hat build of OpenJDK, our images rely on the script <code>run-java.sh</code> script as <code>ENTRYPOINT</code>, which currently is not use anymore for detecting limits from the container but to add features and optimizations: such as ParallelGc, <code>MaxRAMPercentage</code> at 80%, <code>JAVA_OPTS</code> and <code>JAVA_OPTS_APPEND</code> environment variables. The 80% heap limit therefore does not come by default, but rather by the script&#8217;s <code>MaxRAMPercentage</code>.</p>
 </div>
 <div class="paragraph">
-<p>Understanding this evolution is important for any team moving toward microservices architectures. Container awareness provides a robust foundation that requires the development team (who handles the Java settings) and the Deployment team (who handles the container size) to
-between JVM heap memory, off-heap memory, and the container&#8217;s hard limits, which is a topic that remains a pivotal consideration for production-grade containerized deployments.</p>
+<p>Understanding this evolution is important for any team moving toward microservices architectures. Container awareness provides a foundation that requires the Development team (who handles the Java settings) and the Deployment team (who handles the container size) to communicate and understand that Java will behave differently at runtime inside a container according to its runtime settings to avoid diffent behaviour.</p>
+</div>
+<div class="paragraph">
+<p>This difference in behaviours at runtime can be presented as JVM heap memory, thread difference, GC collector differences, and off-heap memory differences given different container&#8217;s limits. Therefore, this is a topic that remains a pivotal consideration for production-grade containerized deployments.</p>
 </div>
 <div class="sect2">
 <h3 id="_example_deployment"><a class="anchor" href="#_example_deployment"></a>Example deployment</h3>
