@@ -81,6 +81,7 @@ This is achieved by creating an deployment without limits, which will have two m
 This type of application deployment should be treated with caution, given the fact that several applications (unbouded) will cause a race for the hosts resources and may impact directly on CPU throttling (many threads competing at the same time for CPU and memory resources). Consequently, this can overload the host and create more possibilites for eviction scenarios (several Java unbouded demanding more and more resources) causing generalized evictions. 
 
 .Pros and Cons of Unbounded Applications
+
 [cols="1a,1a", options="header"]
 |===
 | Pros | Cons
