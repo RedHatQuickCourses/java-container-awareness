@@ -10,7 +10,7 @@ Before 2019, Java (its JVM) would identify the system resources by querying the 
 
 In other words, despite running inside a container, Java was unable to detect the container's limits. It would only detect the host limits regardless of the deployment. Consequently, the DevOps team needed to set the heap limits (Xmx) manually as a size and make sure those two were approapriate: container size and Java heap size.
 
-Later, evolving this concept, Java was it was encapsulated inside an initialization script: run-java.sh, which would then detect the container limits and deploy Java with those limits (script -> container limits -> Java). Java did not know about cgroups. It would just start, and the initialization script would provide its max heap, Xmx, and CPU limits.
+Later, evolving this concept, Java was it was encapsulated via an initialization script: run-java.sh, which would then detect the container limits and deploy Java with those limits via Xmx (script -> detect container limits -> start Java). Java did not know about cgroups itself. It would just start with the values provided by the initialization script (e.g. Xmx).
 
 == JDK-8146115
 
