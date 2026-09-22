@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 4400,
+  "totalSeconds": 4401,
   "pageCount": 28,
   "pages": [
     {
@@ -20,7 +20,7 @@
     {
       "module": "introduction-to-containerized-java",
       "page": "evolution-of-java-in-containerized-environments.adoc",
-      "seconds": 217
+      "seconds": 218
     },
     {
       "module": "introduction-to-containerized-java",
