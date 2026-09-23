@@ -1,0 +1,199 @@
+= Hands-on Exercise: Inspecting CPU Awareness in a Local Podman Environment
+
+This hands-on exercise demonstrates how to verify Java's container CPU awareness using Podman and s2i. 
+
+. Run the following commands to install s2i tooklit on the bastion VM:
++
+[source,bash]
+----
+curl -LO https://github.com/openshift/source-to-image/releases/download/v1.3.2/source-to-image-v1.3.2-78363eee-linux-amd64.tar.gz
+tar -xzf source-to-image-v1.3.2-78363eee-linux-amd64.tar.gz
+sudo install -m 0755 s2i /usr/local/bin/s2i
+s2i version
+----
+
+. Install podman and enable the associated service.
++
+[source,bash]
+----
+sudo dnf install podman
+systemctl --user enable --now podman.socket
+curl --unix-socket "$XDG_RUNTIME_DIR/podman/podman.sock" http://d/_ping
+----
++ 
+The curl command above is used to check the connectivity with the podman's socket. It should return `**OK**` for successful connection.
+
+. Use the following command to fetch a project and build an OpenJDK project locally from it via the s2i toolkit:
++
+[source,bash]
+----
+git clone https://github.com/alexbarbosa1989/hotrodspringboot.git
+
+s2i --url "unix://$XDG_RUNTIME_DIR/podman/podman.sock" \
+    --loglevel 5 \
+    build hotrodspringboot/ \
+    registry.access.redhat.com/ubi8/openjdk-17:latest \
+    openjdk-hotrod:example
+----
++
+The above source-to-image creation command may take a few minutes to complete. Successful run will show message like below:
++
+----
+I0921 12:09:11.617074   25665 build.go:182] Build completed successfully
+----
+
+. Confirm the image was created successfully.
++
+[source,bash]
+----
+podman images
+----
++
+.Example output:
+----
+[lab-user@bastion ~]$ podman images
+REPOSITORY                                  TAG         IMAGE ID      CREATED        SIZE
+docker.io/library/openjdk-hotrod            example     cb19badb97c0  3 minutes ago  601 MB
+registry.access.redhat.com/ubi8/openjdk-17  latest      abf8175bbfa5  11 days ago    411 MB
+[lab-user@bastion ~]$ 
+----
+
+. Deploy application locally using podman
++
+[source,bash]
+----
+podman run -p 8081:8080 openjdk-hotrod:example
+----
++
+Success message will look like below:
++
+----
+[lab-user@bastion ~]$ podman run -p 8081:8080 openjdk-hotrod:example
+Starting the Java application using /opt/jboss/container/java/run/run-java.sh ...
+INFO exec -a "java" java -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -cp "." -jar /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar 
+INFO running in /deployments
+INFO running in /deployments
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v2.7.0)
+2026-09-18 14:53:36.607  INFO 1 --- [           main] c.r.h.h.HotrodspringbootApplication      : Starting HotrodspringbootApplication v0.0.1-SNAPSHOT using Java 17.0.20.1 on 8e34f75421fc with PID 1 (/deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar started by jboss in /deployments)
+. . . 
+. . . 
+2026-09-21 12:12:09.067  INFO 1 --- [           main] org.infinispan.HOTROD                    : ISPN004021: Infinispan version: Infinispan 'Flying Saucer' 14.0.30.Final-redhat-00001
+2026-09-21 12:12:09.638  INFO 1 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path '/redhat'
+2026-09-21 12:12:09.652  INFO 1 --- [           main] c.r.h.h.HotrodspringbootApplication      : Started HotrodspringbootApplication in 59.731 seconds (JVM running for 61.304)
+----
++
+NOTE: The above command will not return back to the prompt.
+
+. Create a new terminal and follow the below steps in it.
+
+. Check the number of CPUs available on the host machine using the `nproc` command:
++
+[source,bash]
+----
+nproc
+----
++
+.Example output:
++
+----
+[lab-user@bastion ~]$ nproc
+2
+----
+
+. Check the running containers on the machine.
++
+[source,bash]
+----
+podman ps
+----
++
+Note the container ID from the output of the above command, as it will be used in the next steps.
++
+.Example output:
+----
+[lab-user@bastion ~]$ podman ps
+CONTAINER ID  IMAGE                                     COMMAND               CREATED         STATUS         PORTS                             NAMES
+d24f38a138a2  docker.io/library/openjdk-hotrod:example  /usr/local/s2i/ru...  57 seconds ago  Up 57 seconds  0.0.0.0:8081->8080/tcp, 8443/tcp  suspicious_archimedes
+[lab-user@bastion ~]$ 
+----
+
+. Connect to the running container using the `podman exec` command:
++
+[source,bash]
+----
+podman exec -it <container-id> /bin/bash
+----
++
+.Example output:
+----
+[lab-user@bastion ~]$ podman exec -it d24f38a138a2 /bin/bash
+[jboss@d24f38a138a2 ~]$ 
+----
+
+. List the Java processes running inside the container using the `jcmd` command:
++
+[source,bash]
+----
+jcmd
+----
++
+.Example output:
+----
+[jboss@d24f38a138a2 ~]$ jcmd
+1 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+190 jdk.jcmd/sun.tools.jcmd.JCmd -l
+----
+
+. Verify the CPU limits used by the application (NO CPU limits):
++
+[source,bash]
+----
+jcmd 1 VM.info | grep active_processor_count
+----
++
+.Example output:
++
+----
+[jboss@d24f38a138a2 ~]$ jcmd 1 VM.info | grep active_processor_count
+active_processor_count: 2
+----
++
+NOTE: The output above shows that the application is using all the CPUS available on the host machine, which is not ideal for a containerized application. To limit the CPU usage, we will now deploy the application with CPU limits.
++
+Exit from the container's shell and return to the host machine's terminal.
++
+[source,bash]
+----
+exit
+----
+
+. Remove the running container and deploy it again with CPU limits
++
+[source,bash]
+----
+podman rm -f <container-id>
+
+podman run -p 8081:8080 --cpus="1" openjdk-hotrod:example
+----
+
+. Follow the above steps again to connect to the running container and verify the CPU limits used by the application.
++
+.Example output:
+----
+[lab-user@bastion ~]$ podman ps
+CONTAINER ID  IMAGE                                     COMMAND               CREATED        STATUS        PORTS                             NAMES
+2f4ba2f67633  docker.io/library/openjdk-hotrod:example  /usr/local/s2i/ru...  4 minutes ago  Up 4 minutes  0.0.0.0:8081->8080/tcp, 8443/tcp  modest_kalam
+[lab-user@bastion ~]$ podman exec -it 2f4ba2f67633 /bin/bash
+[jboss@2f4ba2f67633 ~]$ 
+[jboss@2f4ba2f67633 ~]$ jcmd 1 VM.info | grep active_processor_count
+active_processor_count: 1
+[jboss@2f4ba2f67633 ~]$ 
+----
++
+NOTE: The output above shows that the application is now using only 1 CPU, which is the limit we set for the container. This indicates that the application is container-aware and respects the CPU limits set for it.

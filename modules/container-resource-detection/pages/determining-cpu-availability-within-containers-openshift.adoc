@@ -1,0 +1,137 @@
+= Hands-on Exercise: Inspecting CPU-Aware Deployments in OpenShift
+
+This hands-on exercise demonstrates how to verify Java's container CPU awareness in OpenShift. 
+
+. Use the following command to create a new OpenShift project:
++
+[source,bash]
+----
+oc new-project hotrod-s2i-project
+----
+
+. Deploy the container image with an application:
++  
+[source,bash]
+----
+oc new-app registry.access.redhat.com/ubi9/openjdk-17~https://github.com/alexbarbosa1989/hotrodspringboot.git --name=hotrod-app
+----
+
+. Use the following command to check the status of the deployment:
++
+[source,bash]
+----
+oc get deployment
+oc get pods
+----
++
+Initially you will see the build pod running as follows.
++
+----
+[lab-user@bastion ~]$ oc get deployment
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+hotrod-app   0/1     0            0           14s
+[lab-user@bastion ~]$ oc get pods
+NAME                 READY   STATUS    RESTARTS   AGE
+hotrod-app-1-build   1/1     Running   0          19s
+[lab-user@bastion ~]$ 
+----
++
+When the application build is finished, the final output will look like below:
++
+----
+[lab-user@bastion ~]$ oc get deployment
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+hotrod-app   1/1     1            1           83s
+[lab-user@bastion ~]$ 
+[lab-user@bastion ~]$ oc get pods
+NAME                          READY   STATUS      RESTARTS   AGE
+hotrod-app-1-build            0/1     Completed   0          88s
+hotrod-app-84fcddf456-d4kh4   1/1     Running     0          20s
+[lab-user@bastion ~]$ 
+----
+
+. Connect to the container running the application using the `oc rsh` command:
++
+[source,bash]
+----
+oc rsh hotrod-app-<ID>
+----
++
+Replace `<ID>` with the actual pod ID from the output of the `oc get pods` command. You will be connected to the container's shell.
++
+.Example output:
+----
+[lab-user@bastion ~]$ oc rsh hotrod-app-84fcddf456-d4kh4
+sh-5.1$
+----
+
+. Run the following command to see the active processor count:
++
+[source,bash]
+----
+jcmd 1 VM.info | grep active_processor_count
+----
++
+.Example output:
++
+----
+sh-5.1$ jcmd 1 VM.info | grep active_processor_count
+active_processor_count: 32
+----
+
+. Run `nproc` in the same terminal to compare with OS-level tools:
++
+[source,bash]
+----
+nproc
+----
++
+.Example output:
++
+----
+sh-5.3$ nproc
+32
+----
++
+If you deploy a container with limits (not requests), and `active_processor_count` as reported by jcmd or java `-XshowSettings:system` matches the configured CPU limit, the application is correctly container-aware.
++
+If it instead reports the host's CPU values, the application is likely not container-aware. Note that nproc reports host-level CPU information and should not be used on its own to determine whether the application is container-aware.
+
+. Set the resource limits on the deployment.
++
+[source,bash]
+----
+oc set resources deployment/hotrod-app --limits=cpu="2"
+----
+
+. Connect to the newly running container.
++
+[source,bash]
+----
+oc get pods
+oc rsh <pod-name>
+----
+
+. Verify the CPU limits honored by the container and the Java application running inside it.
++
+[source,bash]
+----
+nproc
+jcmd 1 VM.info | grep active_processor_count
+----
++
+.Example output:
+----
+sh-5.1$ nproc 
+32
+sh-5.1$ jcmd 1 VM.info | grep processor_count
+active_processor_count: 2
+sh-5.1$ 
+----
+
+Notes: Given the fact only integers can be used as CPU boundaries:
+
+* Values below 1 CPU, are rounded to 1.
+* Fractional values are rounded to the lowest integer, so 2200 millicores, becomes 2 CPU.
+* Java does not care about requests, only limits.
+* Java workaround needs CPU and Memory limits to avoid issues.
