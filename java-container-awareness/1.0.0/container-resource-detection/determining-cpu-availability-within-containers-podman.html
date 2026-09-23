@@ -3,9 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Detecting Container Memory Limits :: Java Container Awareness</title>
-    <link rel="prev" href="understanding-jdk8146115-and-java-8u191-updates.html">
-    <link rel="next" href="determining-cpu-availability-within-containers.html">
+    <title>Hands-on Exercise: Inspecting CPU Awareness in a Local Podman Environment :: Java Container Awareness</title>
+    <link rel="prev" href="determining-cpu-availability-within-containers.html">
+    <link rel="next" href="determining-cpu-availability-within-containers-openshift.html">
     <meta name="generator" content="Antora 3.2.0-alpha.12">
     <link rel="stylesheet" href="../../../_/css/site.css">
     <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
@@ -83,13 +83,13 @@
   <li class="nav-item" data-depth="2">
     <a class="nav-link" href="understanding-jdk8146115-and-java-8u191-updates.html">Understanding JDK8146115 and Java 8u191 Updates</a>
   </li>
-  <li class="nav-item is-current-page" data-depth="2">
+  <li class="nav-item" data-depth="2">
     <a class="nav-link" href="detecting-container-memory-limits.html">Detecting Container Memory Limits</a>
   </li>
   <li class="nav-item" data-depth="2">
     <a class="nav-link" href="determining-cpu-availability-within-containers.html">Determining CPU Availability Within Containers</a>
   </li>
-  <li class="nav-item" data-depth="2">
+  <li class="nav-item is-current-page" data-depth="2">
     <a class="nav-link" href="determining-cpu-availability-within-containers-podman.html">Hands-on Exercise: Inspecting CPU Awareness in a Local Podman Environment</a>
   </li>
   <li class="nav-item" data-depth="2">
@@ -215,7 +215,7 @@
   <ul>
     <li><a href="../index.html">Java Container Awareness</a></li>
     <li><a href="container-resource-detection.html">Container Resource Detection</a></li>
-    <li><a href="detecting-container-memory-limits.html">Detecting Container Memory Limits</a></li>
+    <li><a href="determining-cpu-availability-within-containers-podman.html">Hands-on Exercise: Inspecting CPU Awareness in a Local Podman Environment</a></li>
   </ul>
 </nav>
 </div>
@@ -223,184 +223,269 @@
 <aside class="toc sidebar" data-title="Contents" data-levels="2">
   <div class="toc-menu"></div>
 </aside>
-<article class="doc" data-audio-src="detecting-container-memory-limits.wav" data-transcript-src="detecting-container-memory-limits.txt">
-<h1 class="page">Detecting Container Memory Limits</h1>
-<div id="preamble">
-<div class="sectionbody">
+<article class="doc">
+<h1 class="page">Hands-on Exercise: Inspecting CPU Awareness in a Local Podman Environment</h1>
 <div class="paragraph">
-<p>In modern Java deployments, it is critical that the Java Virtual Machine (JVM) correctly identifies the memory boundaries imposed by the container orchestration platform. Failure to do so leads to performance degradation, inefficient resource utilization, or unexpected pod terminations.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_why_container_awareness_matters"><a class="anchor" href="#_why_container_awareness_matters"></a>Why Container Awareness Matters</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Prior to the integration of <code>JDK8146115</code> (introduced in Java 8u191), the JVM relied on standard OS-level utilities to detect available memory. In a containerized environment, these utilities often reported the total memory of the underlying physical host (the OCP node) rather than the restricted memory assigned to the specific container.</p>
-</div>
-<div class="paragraph">
-<p>If the JVM perceives the node&#8217;s total memory instead of the container&#8217;s limit, it may attempt to allocate a heap size that exceeds the container&#8217;s allowed threshold, resulting in an <code>OutOfMemoryException</code> or, more commonly, a <code>SIGKILL</code> by the Linux kernel&#8217;s Out-Of-Memory (OOM) killer.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_how_the_jvm_detects_container_limits"><a class="anchor" href="#_how_the_jvm_detects_container_limits"></a>How the JVM Detects Container Limits</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>When running in a container-aware environment, the JVM inspects the control group (<code>cgroup</code>) filesystem. By reading the files exposed within the container - specifically those under <code>/sys/fs/cgroup/memory</code> - the JVM determines the hard limits imposed by the container orchestrator.</p>
-</div>
-<div class="sect2">
-<h3 id="_verification_tools"><a class="anchor" href="#_verification_tools"></a>Verification Tools</h3>
-<div class="paragraph">
-<p>To determine if your Java application is correctly detecting the container limits, you should utilize built-in JVM diagnostic flags rather than relying on standard Linux utilities like <code>free -m</code>.</p>
-</div>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-important" title="Important"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>Standard utilities like <code>free</code>, <code>top</code>, or <code>lscpu</code> are <strong>not container-aware</strong>. They will report the resources of the host node, leading to incorrect diagnostic conclusions. Use container-aware tools, such as jcmd VM.info, and -XshowSettings:system.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_using_xshowsettingssystem"><a class="anchor" href="#_using_xshowsettingssystem"></a>Using <code>-XshowSettings:system</code></h3>
-<div class="paragraph">
-<p>The most direct way to verify what the JVM has detected is to pass the <code>-XshowSettings:system</code> flag during application startup or via jcmd instrumentation at runtime:</p>
-</div>
-<div class="paragraph">
-<p><strong>Example Output:</strong></p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">Operating System Metrics:
-    Provider: cgroupv1
-    Memory Limit: 128.00M
-    Memory Soft Limit: unlimited
-    Memory Current: 45.21M
-    CPU Shares: 512
-    CPU Quota: 100000
-    CPU Period: 100000</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>When the JVM is container-aware, you will see explicit lines reflecting the <code>Memory Limit</code> and active CPU.</p>
-</div>
-<div class="paragraph">
-<p>Consequently:
-- If the memory value matches your OpenShift/Kubernetes pod YAML limit configuration, the JVM is successfully performing container detection.
--  If the CPU value matches your OpenShift/Kubernetes pod YAML limit configuration at 25% so then run-java.sh is not being used and another ENTRYPOINT is being used. Otherwise, if matches 80% (or 50%) likely run-java.sh is being used.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_troubleshooting_memory_misalignment"><a class="anchor" href="#_troubleshooting_memory_misalignment"></a>Troubleshooting Memory Misalignment</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>If your application exhibits the following symptoms, the JVM is likely failing to respect container limits:</p>
+<p>This hands-on exercise demonstrates how to verify Java&#8217;s container CPU awareness using Podman and s2i.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>Host-level reporting:</strong> Non-container-aware commands executed inside the container (e.g., <code>free -m</code>) show memory values matching the physical node rather than the pod limit.</p>
+<p>Run the following commands to install s2i tooklit on the bastion VM:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">curl -LO https://github.com/openshift/source-to-image/releases/download/v1.3.2/source-to-image-v1.3.2-78363eee-linux-amd64.tar.gz
+tar -xzf source-to-image-v1.3.2-78363eee-linux-amd64.tar.gz
+sudo install -m 0755 s2i /usr/local/bin/s2i
+s2i version</code></pre>
+</div>
+</div>
 </li>
 <li>
-<p><strong>OOM Killer termination:</strong> The pod restarts with an exit code indicating OOM, despite the <code>-Xmx</code> setting appearing reasonable for the application&#8217;s perceived workload.</p>
+<p>Install podman and enable the associated service.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">sudo dnf install podman
+systemctl --user enable --now podman.socket
+curl --unix-socket "$XDG_RUNTIME_DIR/podman/podman.sock" http://d/_ping</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The curl command above is used to check the connectivity with the podman&#8217;s socket. It should return <code><strong>OK</strong></code> for successful connection.</p>
+</div>
+</li>
+<li>
+<p>Use the following command to fetch a project and build an OpenJDK project locally from it via the s2i toolkit:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">git clone https://github.com/alexbarbosa1989/hotrodspringboot.git
+
+s2i --url "unix://$XDG_RUNTIME_DIR/podman/podman.sock" \
+    --loglevel 5 \
+    build hotrodspringboot/ \
+    registry.access.redhat.com/ubi8/openjdk-17:latest \
+    openjdk-hotrod:example</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The above source-to-image creation command may take a few minutes to complete. Successful run will show message like below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>I0921 12:09:11.617074   25665 build.go:182] Build completed successfully</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Confirm the image was created successfully.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">podman images</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>[lab-user@bastion ~]$ podman images
+REPOSITORY                                  TAG         IMAGE ID      CREATED        SIZE
+docker.io/library/openjdk-hotrod            example     cb19badb97c0  3 minutes ago  601 MB
+registry.access.redhat.com/ubi8/openjdk-17  latest      abf8175bbfa5  11 days ago    411 MB
+[lab-user@bastion ~]$</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Deploy application locally using podman</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">podman run -p 8081:8080 openjdk-hotrod:example</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Success message will look like below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>[lab-user@bastion ~]$ podman run -p 8081:8080 openjdk-hotrod:example
+Starting the Java application using /opt/jboss/container/java/run/run-java.sh ...
+INFO exec -a "java" java -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -cp "." -jar /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+INFO running in /deployments
+INFO running in /deployments
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v2.7.0)
+2026-09-18 14:53:36.607  INFO 1 --- [           main] c.r.h.h.HotrodspringbootApplication      : Starting HotrodspringbootApplication v0.0.1-SNAPSHOT using Java 17.0.20.1 on 8e34f75421fc with PID 1 (/deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar started by jboss in /deployments)
+. . .
+. . .
+2026-09-21 12:12:09.067  INFO 1 --- [           main] org.infinispan.HOTROD                    : ISPN004021: Infinispan version: Infinispan 'Flying Saucer' 14.0.30.Final-redhat-00001
+2026-09-21 12:12:09.638  INFO 1 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path '/redhat'
+2026-09-21 12:12:09.652  INFO 1 --- [           main] c.r.h.h.HotrodspringbootApplication      : Started HotrodspringbootApplication in 59.731 seconds (JVM running for 61.304)</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The above command will not return back to the prompt.
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Create a new terminal and follow the below steps in it.</p>
+</li>
+<li>
+<p>Check the number of CPUs available on the host machine using the <code>nproc</code> command:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">nproc</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>[lab-user@bastion ~]$ nproc
+2</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Check the running containers on the machine.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">podman ps</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note the container ID from the output of the above command, as it will be used in the next steps.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>[lab-user@bastion ~]$ podman ps
+CONTAINER ID  IMAGE                                     COMMAND               CREATED         STATUS         PORTS                             NAMES
+d24f38a138a2  docker.io/library/openjdk-hotrod:example  /usr/local/s2i/ru...  57 seconds ago  Up 57 seconds  0.0.0.0:8081-&gt;8080/tcp, 8443/tcp  suspicious_archimedes
+[lab-user@bastion ~]$</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Connect to the running container using the <code>podman exec</code> command:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">podman exec -it &lt;container-id&gt; /bin/bash</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>[lab-user@bastion ~]$ podman exec -it d24f38a138a2 /bin/bash
+[jboss@d24f38a138a2 ~]$</pre>
+</div>
+</div>
+</li>
+<li>
+<p>List the Java processes running inside the container using the <code>jcmd</code> command:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jcmd</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>[jboss@d24f38a138a2 ~]$ jcmd
+1 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+190 jdk.jcmd/sun.tools.jcmd.JCmd -l</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Verify the CPU limits used by the application (NO CPU limits):</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jcmd 1 VM.info | grep active_processor_count</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>[jboss@d24f38a138a2 ~]$ jcmd 1 VM.info | grep active_processor_count
+active_processor_count: 2</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The output above shows that the application is using all the CPUS available on the host machine, which is not ideal for a containerized application. To limit the CPU usage, we will now deploy the application with CPU limits.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Exit from the container&#8217;s shell and return to the host machine&#8217;s terminal.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">exit</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Remove the running container and deploy it again with CPU limits</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">podman rm -f &lt;container-id&gt;
+
+podman run -p 8081:8080 --cpus="1" openjdk-hotrod:example</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Follow the above steps again to connect to the running container and verify the CPU limits used by the application.</p>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>[lab-user@bastion ~]$ podman ps
+CONTAINER ID  IMAGE                                     COMMAND               CREATED        STATUS        PORTS                             NAMES
+2f4ba2f67633  docker.io/library/openjdk-hotrod:example  /usr/local/s2i/ru...  4 minutes ago  Up 4 minutes  0.0.0.0:8081-&gt;8080/tcp, 8443/tcp  modest_kalam
+[lab-user@bastion ~]$ podman exec -it 2f4ba2f67633 /bin/bash
+[jboss@2f4ba2f67633 ~]$
+[jboss@2f4ba2f67633 ~]$ jcmd 1 VM.info | grep active_processor_count
+active_processor_count: 1
+[jboss@2f4ba2f67633 ~]$</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The output above shows that the application is now using only 1 CPU, which is the limit we set for the container. This indicates that the application is container-aware and respects the CPU limits set for it.
+</td>
+</tr>
+</table>
+</div>
 </li>
 </ol>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_three_main_scenarios"><a class="anchor" href="#_three_main_scenarios"></a>Three main scenarios:</h2>
-<div class="sectionbody">
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 66.6667%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Scenario</th>
-<th class="tableblock halign-left valign-top">Description &amp; Consequences</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Underutilization</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The application heap is significantly smaller than the container limit because it defaulted to a generic fraction of the host’s massive memory footprint, leading to frequent Garbage Collection (GC) pauses.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Overutilization</strong></p></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>The application heap (plus off-heap) is significantly larger than the container limit, which will eventually lead:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>To <code>OOMKilled</code> events</p>
-</li>
-<li>
-<p>To <code>OutOfMemoryError</code> (OOMException) events</p>
-</li>
-<li>
-<p>To <code>SIGTERM</code>, in case the JVM is not responsive</p>
-</li>
-</ul>
-</div></div></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Misbehavior</strong></p></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>The application runs nominally for a long time, however suddenly it misbehaves. Examples include:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>CPU Throttling:</strong> The application was deployed without CPU boundaries and now other applications are overstepping.</p>
-</li>
-<li>
-<p><strong>JVM stuck:</strong> The application was deployed without CPU boundaries and now the Database is overloaded with requests.</p>
-</li>
-<li>
-<p><strong>JVM Xmx hard-coded:</strong> The application was deployed with <code>-Xmx</code> hard-coded; now the DevOps team cannot change the limits dynamically at runtime.</p>
-</li>
-</ul>
-</div></div></td>
-</tr>
-</tbody>
-</table>
-<div class="sect2">
-<h3 id="_diagnostic_strategy"><a class="anchor" href="#_diagnostic_strategy"></a>Diagnostic Strategy</h3>
-<div class="paragraph">
-<p>To analyze resource constraints effectively:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Check the GC logs and pod logs:</strong> Inspect your pod logs to confirm if <code>run-java.sh</code> or the standard OpenJDK startup scripts are being utilized, as these often contain logic to calculate heap sizes based on container limits. Same with GC logs and pod logs for misbehaviors.</p>
-</li>
-<li>
-<p><strong>Verify <code>jcmd</code> output:</strong> Use <code>jcmd &lt;pid&gt; VM.info</code> to inspect the runtime configuration and verify <code>cgroup</code> memory controller details.</p>
-</li>
-<li>
-<p><strong>Compare with deployment Metadata:</strong> Always compare the JVM&#8217;s reported <code>Memory Limit</code> against the <code>resources.limits.memory</code> configured in your OpenShift <code>DeploymentConfig</code> or <code>Deployment</code> YAML and CPU with the active CPUs.</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
 <nav class="pagination">
-  <span class="prev"><a href="understanding-jdk8146115-and-java-8u191-updates.html">Understanding JDK8146115 and Java 8u191 Updates</a></span>
-  <span class="next"><a href="determining-cpu-availability-within-containers.html">Determining CPU Availability Within Containers</a></span>
+  <span class="prev"><a href="determining-cpu-availability-within-containers.html">Determining CPU Availability Within Containers</a></span>
+  <span class="next"><a href="determining-cpu-availability-within-containers-openshift.html">Hands-on Exercise: Inspecting CPU-Aware Deployments in OpenShift</a></span>
 </nav>
 </article>
   </div>
@@ -412,6 +497,5 @@
 <script async src="../../../_/js/vendor/highlight.js"></script>
 <script defer src="../../../_/js/vendor/tabs.js"></script>
 <script defer src="../../../_/js/vendor/reading-time.js"></script>
-<script defer src="../../../_/js/vendor/audio-transcript.js"></script>
   </body>
 </html>

@@ -1,6 +1,6 @@
 {
-  "totalSeconds": 4418,
-  "pageCount": 28,
+  "totalSeconds": 4528,
+  "pageCount": 30,
   "pages": [
     {
       "module": "ROOT",
@@ -50,7 +50,17 @@
     {
       "module": "container-resource-detection",
       "page": "determining-cpu-availability-within-containers.adoc",
-      "seconds": 245
+      "seconds": 163
+    },
+    {
+      "module": "container-resource-detection",
+      "page": "determining-cpu-availability-within-containers-podman.adoc",
+      "seconds": 108
+    },
+    {
+      "module": "container-resource-detection",
+      "page": "determining-cpu-availability-within-containers-openshift.adoc",
+      "seconds": 85
     },
     {
       "module": "risks-and-memory-management",
@@ -140,7 +150,7 @@
     {
       "module": "appendix",
       "page": "appendix.adoc",
-      "seconds": 26
+      "seconds": 25
     }
   ]
 }
