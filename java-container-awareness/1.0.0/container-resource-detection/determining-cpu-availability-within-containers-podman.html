@@ -226,7 +226,7 @@
 <article class="doc">
 <h1 class="page">Hands-on Exercise: Inspecting CPU Awareness in a Local Podman Environment</h1>
 <div class="paragraph">
-<p>This hands-on exercise demonstrates how to verify Java&#8217;s container CPU awareness using Podman and s2i.</p>
+<p>This hands-on exercise demonstrates how to deploy and verify Java&#8217;s container CPU awareness using s2i toolkit with Podman, following the guide <a href="https://developers.redhat.com/articles/2026/09/23/build-openjdk-container-images-locally-using-standalone-s2i-tool">build OpenJDK container images locally using the standalone S2I tool</a>.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -404,7 +404,7 @@ d24f38a138a2  docker.io/library/openjdk-hotrod:example  /usr/local/s2i/ru...  57
 <div class="content">
 <pre>[jboss@d24f38a138a2 ~]$ jcmd
 1 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
-190 jdk.jcmd/sun.tools.jcmd.JCmd -l</pre>
+190 jdk.jcmd/sun.tools.jcmd.JCmd</pre>
 </div>
 </div>
 </li>

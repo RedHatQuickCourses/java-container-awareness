@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 4539,
+  "totalSeconds": 4544,
   "pageCount": 30,
   "pages": [
     {
@@ -55,7 +55,7 @@
     {
       "module": "container-resource-detection",
       "page": "determining-cpu-availability-within-containers-podman.adoc",
-      "seconds": 108
+      "seconds": 113
     },
     {
       "module": "container-resource-detection",
