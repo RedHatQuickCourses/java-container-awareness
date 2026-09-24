@@ -29,6 +29,190 @@
 | https://developers.redhat.com/articles/2026/06/18/troubleshoot-application-misbehavior-after-openshift-upgrade[Read Article]
 |===
 
+== Frequently Asked Questions (FAQ) & Troubleshooting
+
+=== Container Resource Limits and Cgroups
+
+**Q1: Should I run my applications without resource limits (unbounded)?**
+
+While it can be tempting to leave containers unbounded, you must weigh the performance potential against cluster stability. 
+
+.Pros and Cons of Unbounded Applications
+[cols="1a,1a", options="header"]
+|===
+| Pros | Cons
+
+|
+* Use the full Host CPU and Memory
+* Can spike the full host capability
+
+|
+* Have BestEffort QoS
+* Competing with other applications
+|===
+
+**Q2: What is the impact of OpenShift migrating to cgroups v2?**
+
+OpenShift 4.19 entirely removes cgroups v1 support. This impacts how runtimes like the JVM and Node.js calculate their boundaries. For deep dives into these changes, refer to the following official resources:
+
+* https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-and-nodejs-openshift-4[How does cgroups v2 impact Java and Node.js in OpenShift 4?]
+* https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-net-and-nodejs-openshift-4#scenarios_with_java[Scenarios with Java under cgroups v2]
+
+**Q3: How do the metric paths differ between cgroups v1 and v2?**
+
+cgroups v2 flattened and simplified the hierarchy. Here is where to find the equivalent memory metrics:
+
+.cgroups v1 vs. v2 Memory Metrics
+[cols="1,2,2", options="header"]
+|===
+| Metric | cgroups v1 Path | cgroups v2 Path
+
+| **Peak Usage** 
+| `/sys/fs/cgroup/memory/memory.max_usage_in_bytes` 
+| `/sys/fs/cgroup/memory.peak` (Requires Kernel 5.19+)
+
+| **Current Usage** 
+| `/sys/fs/cgroup/memory/memory.usage_in_bytes` 
+| `/sys/fs/cgroup/memory.current`
+
+| **Hard Limit** 
+| `/sys/fs/cgroup/memory/memory.limit_in_bytes` 
+| `/sys/fs/cgroup/memory.max`
+
+| **Soft Limit** 
+| `/sys/fs/cgroup/memory/memory.soft_limit_in_bytes` 
+| `/sys/fs/cgroup/memory.high`
+|===
+
+=== Java Execution and Entry Points
+
+**Q4: How has JVM container memory awareness evolved?**
+
+Modern JVMs natively understand container limits, whereas legacy versions relied on the host's physical RAM size.
+
+.JVM Container Awareness Evolution
+[cols="1,2,2", options="header"]
+|===
+| Feature | Legacy Behavior (Pre-8u191) | Modern Behavior (8u191+)
+
+| **Memory Source** 
+| Queries `/proc/meminfo` (Host RAM) 
+| Queries cgroups (Container Limit)
+
+| **Heap Sizing** 
+| Requires manual `-Xmx` configuration 
+| Automatically scales based on `-XX:MaxRAMPercentage`
+
+| **Operational Impact** 
+| Decoupled; changing container size requires manual JVM tuning 
+| Coupled; scaling container limits automatically adjusts heap
+|===
+
+**Q5: Should I use the `run-java.sh` script or start Java directly in my container?**
+
+Historically, `run-java.sh` was required to parse cgroups and pass the limits to the JVM. With modern Java versions, starting Java directly is often preferred.
+
+.Execution Methods: run-java.sh vs. Direct Java Start
+[cols="1,2,2", options="header"]
+|===
+| Feature | `run-java.sh` Entry Point | Straight `java` Start
+
+| **Execution Method** 
+| Shell wrapper script that evaluates the environment and builds the Java command line.
+| Native binary execution directly invoking the JVM.
+
+| **Environment Variables** 
+| Automatically parses custom variables like `JAVA_OPTS_APPEND` and `GC_COLLECTOR` (legacy variables like `JAVA_MAX_MEM_RATIO` are deprecated).
+| Ignores script-specific variables. Relies strictly on command-line arguments and standard environment variables like `JAVA_TOOL_OPTIONS`.
+
+| **Default JVM Tuning** 
+| Automatically applies container-friendly defaults (e.g., `-XX:MaxRAMPercentage`, ParallelGC settings) if not overridden.
+| Uses standard JVM defaults unless explicitly defined in the command line or deployment manifest.
+
+| **Container Awareness** 
+| Historically required to calculate cgroups limits before Java had native container support.
+| Relies on native JVM container detection (standard in OpenJDK 8u191+, 11+, 17+, etc.) for cgroups v1 and v2.
+
+| **Process Management** 
+| Typically uses `exec java` to ensure Java runs as PID 1, but adds initial shell evaluation overhead.
+| Directly executes as PID 1 with zero shell overhead, ideal for modern Kubernetes deployments.
+|===
+
+For more specifics, check the https://rh-openjdk.github.io/redhat-openjdk-containers/[Red Hat UBI OpenJDK Container Images Documentation].
+
+=== Environment Variables
+
+**Q6: Which general environment variables are commonly found in these containers?**
+
+.Common Environment Variables
+[cols="30,70", options="header"]
+|===
+| Environment Variable | Purpose
+
+| `PATH`
+| Specifies a list of directories containing executable programs.
+
+| `HOME`
+| Defines the absolute path to the current user's home directory.
+
+| `JAVA_HOME`
+| Points to the installation directory of the Java Runtime Environment (JRE) or Java Development Kit (JDK).
+
+| `NODE_ENV`
+| Indicates the environment in which a Node.js application is running (e.g., `development`, `production`).
+
+| `KUBECONFIG`
+| Holds a list of paths to Kubernetes configuration files used by `kubectl` and other tools.
+|===
+
+**Q7: Which specific variables should I use to pass Java arguments?**
+
+.Java-Specific Environment Variables
+[cols="1,2", options="header"]
+|===
+| Environment Variable | Purpose
+
+| `JAVA_OPTS` 
+| Main option, which includes default settings - can be used to replace them
+
+| `JAVA_OPTS_APPEND` 
+| Append option, can be used to complement the main ones
+
+| `GC_COLLECTOR` 
+| Used for GC collector
+
+| `JAVA_TOOL_OPTIONS` 
+| Should be avoided, it will be used for any Java environment variable
+|===
+
+**Q8: Why should `JAVA_TOOL_OPTIONS` be avoided?**
+
+Because it applies indiscriminately to *every* JVM invocation in that environment, including simple commands like `jcmd` or `jstat`, which can break them if the options are incompatible. 
+
+.Example: Breaking sidecar tools with JAVA_TOOL_OPTIONS
+[source,console]
+----
+$ export JAVA_TOOL_OPTIONS="BANANA"
+fdemeloj@fdemeloj-thinkpadp16vgen1:~/Downloads/Redhat/openjdk/app-injection$ jcmd
+Picked up JAVA_TOOL_OPTIONS: BANANA
+Unrecognized option: BANANA
+Error: Could not create the Java Virtual Machine.
+Error: A fatal exception has occurred. Program will exit.
+----
+
+=== Troubleshooting & Local Development
+
+**Q9: How do I interpret JVM diagnostic files like `VM.info`?**
+
+When diagnosing runtime behavior or crashes, refer to the official support documentation:
+* https://access.redhat.com/solutions/6973111[Red Hat Solution 6973111: Interpreting VM.info file in OpenJDK/OracleJDK]
+
+**Q10: How can I build and test my OpenShift container images locally before deploying?**
+
+To replicate the OpenShift Source-to-Image (S2I) build process on your local machine, follow this guide:
+* https://developers.redhat.com/articles/2026/09/23/build-openjdk-container-images-locally-using-standalone-s2i-tool[Build OpenJDK container images locally using standalone S2I tool]
+
+
 == Resources
 
 link:{attachmentsdir}/{page-component-name}.pdf[Download Course PDF]
