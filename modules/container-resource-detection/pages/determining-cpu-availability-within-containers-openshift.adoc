@@ -131,7 +131,7 @@ sh-5.1$
 
 Notes: Given the fact only integers can be used as CPU boundaries:
 
-* Values below 1 CPU, are set at 1.
+* Values below 1 CPU, are set at 1. That would be for very small applications like Quarkus. For Enterprise applications that's usually not recommended for several reasons, including the fact the SerialGC would be the most optimal GC for the deployments and the application's threads share very small CPU time.
 * Fractional values are truncated, so 2200 millicores, becomes 2 CPU. Not rounded, but truncated.
 * Java does not care about requests, only limits.
 * Java workloads usually run best in performance given CPU and Memory limits for a series of reasons, see `unbouded deployment` for details.
