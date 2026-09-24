@@ -1,6 +1,6 @@
 = Hands-on Exercise: Inspecting CPU Awareness in a Local Podman Environment
 
-This hands-on exercise demonstrates how to verify Java's container CPU awareness using Podman and s2i. 
+This hands-on exercise demonstrates how to deploy and verify Java's container CPU awareness using s2i toolkit with Podman, following the guide https://developers.redhat.com/articles/2026/09/23/build-openjdk-container-images-locally-using-standalone-s2i-tool[build OpenJDK container images locally using the standalone S2I tool].
 
 . Run the following commands to install s2i tooklit on the bastion VM:
 +
@@ -147,7 +147,7 @@ jcmd
 ----
 [jboss@d24f38a138a2 ~]$ jcmd
 1 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
-190 jdk.jcmd/sun.tools.jcmd.JCmd -l
+190 jdk.jcmd/sun.tools.jcmd.JCmd
 ----
 
 . Verify the CPU limits used by the application (NO CPU limits):
