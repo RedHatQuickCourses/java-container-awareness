@@ -192,9 +192,9 @@ Because it applies indiscriminately to *every* JVM invocation in that environmen
 .Example: Breaking sidecar tools with JAVA_TOOL_OPTIONS
 [source,console]
 ----
-$ export JAVA_TOOL_OPTIONS="BANANA"
-fdemeloj@fdemeloj-thinkpadp16vgen1:~/Downloads/Redhat/openjdk/app-injection$ jcmd
-Picked up JAVA_TOOL_OPTIONS: BANANA
+$ export JAVA_TOOL_OPTIONS="APPLE"
+$ jcmd
+Picked up JAVA_TOOL_OPTIONS: APPLE
 Unrecognized option: BANANA
 Error: Could not create the Java Virtual Machine.
 Error: A fatal exception has occurred. Program will exit.
