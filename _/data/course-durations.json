@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 4796,
+  "totalSeconds": 4799,
   "pageCount": 30,
   "pages": [
     {
@@ -35,7 +35,7 @@
     {
       "module": "container-resource-detection",
       "page": "container-resource-detection.adoc",
-      "seconds": 44
+      "seconds": 47
     },
     {
       "module": "container-resource-detection",
