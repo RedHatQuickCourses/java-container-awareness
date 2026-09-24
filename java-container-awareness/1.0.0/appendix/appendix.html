@@ -270,6 +270,317 @@
 </div>
 </div>
 <div class="sect1">
+<h2 id="_frequently_asked_questions_faq_troubleshooting"><a class="anchor" href="#_frequently_asked_questions_faq_troubleshooting"></a>Frequently Asked Questions (FAQ) &amp; Troubleshooting</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_container_resource_limits_and_cgroups"><a class="anchor" href="#_container_resource_limits_and_cgroups"></a>Container Resource Limits and Cgroups</h3>
+<div class="paragraph">
+<p><strong>Q1: Should I run my applications without resource limits (unbounded)?</strong></p>
+</div>
+<div class="paragraph">
+<p>While it can be tempting to leave containers unbounded, you must weigh the performance potential against cluster stability.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Pros and Cons of Unbounded Applications</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Pros</th>
+<th class="tableblock halign-left valign-top">Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>Use the full Host CPU and Memory</p>
+</li>
+<li>
+<p>Can spike the full host capability</p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>Have BestEffort QoS</p>
+</li>
+<li>
+<p>Competing with other applications</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Q2: What is the impact of OpenShift migrating to cgroups v2?</strong></p>
+</div>
+<div class="paragraph">
+<p>OpenShift 4.19 entirely removes cgroups v1 support. This impacts how runtimes like the JVM and Node.js calculate their boundaries. For deep dives into these changes, refer to the following official resources:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-and-nodejs-openshift-4">How does cgroups v2 impact Java and Node.js in OpenShift 4?</a></p>
+</li>
+<li>
+<p><a href="https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-net-and-nodejs-openshift-4#scenarios_with_java">Scenarios with Java under cgroups v2</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Q3: How do the metric paths differ between cgroups v1 and v2?</strong></p>
+</div>
+<div class="paragraph">
+<p>cgroups v2 flattened and simplified the hierarchy. Here is where to find the equivalent memory metrics:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 2. cgroups v1 vs. v2 Memory Metrics</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Metric</th>
+<th class="tableblock halign-left valign-top">cgroups v1 Path</th>
+<th class="tableblock halign-left valign-top">cgroups v2 Path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Peak Usage</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory/memory.max_usage_in_bytes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory.peak</code> (Requires Kernel 5.19+)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Current Usage</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory/memory.usage_in_bytes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory.current</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Hard Limit</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory/memory.limit_in_bytes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory.max</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Soft Limit</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory/memory.soft_limit_in_bytes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory.high</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_java_execution_and_entry_points"><a class="anchor" href="#_java_execution_and_entry_points"></a>Java Execution and Entry Points</h3>
+<div class="paragraph">
+<p><strong>Q4: How has JVM container memory awareness evolved?</strong></p>
+</div>
+<div class="paragraph">
+<p>Modern JVMs natively understand container limits, whereas legacy versions relied on the host&#8217;s physical RAM size.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 3. JVM Container Awareness Evolution</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Feature</th>
+<th class="tableblock halign-left valign-top">Legacy Behavior (Pre-8u191)</th>
+<th class="tableblock halign-left valign-top">Modern Behavior (8u191+)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Memory Source</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Queries <code>/proc/meminfo</code> (Host RAM)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Queries cgroups (Container Limit)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Heap Sizing</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requires manual <code>-Xmx</code> configuration</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Automatically scales based on <code>-XX:MaxRAMPercentage</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Operational Impact</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Decoupled; changing container size requires manual JVM tuning</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Coupled; scaling container limits automatically adjusts heap</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Q5: Should I use the <code>run-java.sh</code> script or start Java directly in my container?</strong></p>
+</div>
+<div class="paragraph">
+<p>Historically, <code>run-java.sh</code> was required to parse cgroups and pass the limits to the JVM. With modern Java versions, starting Java directly is often preferred.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 4. Execution Methods: run-java.sh vs. Direct Java Start</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Feature</th>
+<th class="tableblock halign-left valign-top"><code>run-java.sh</code> Entry Point</th>
+<th class="tableblock halign-left valign-top">Straight <code>java</code> Start</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Execution Method</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Shell wrapper script that evaluates the environment and builds the Java command line.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Native binary execution directly invoking the JVM.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Environment Variables</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Automatically parses custom variables like <code>JAVA_OPTS_APPEND</code> and <code>GC_COLLECTOR</code> (legacy variables like <code>JAVA_MAX_MEM_RATIO</code> are deprecated).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ignores script-specific variables. Relies strictly on command-line arguments and standard environment variables like <code>JAVA_TOOL_OPTIONS</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Default JVM Tuning</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Automatically applies container-friendly defaults (e.g., <code>-XX:MaxRAMPercentage</code>, ParallelGC settings) if not overridden.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Uses standard JVM defaults unless explicitly defined in the command line or deployment manifest.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Container Awareness</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Historically required to calculate cgroups limits before Java had native container support.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Relies on native JVM container detection (standard in OpenJDK 8u191+, 11+, 17+, etc.) for cgroups v1 and v2.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Process Management</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Typically uses <code>exec java</code> to ensure Java runs as PID 1, but adds initial shell evaluation overhead.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Directly executes as PID 1 with zero shell overhead, ideal for modern Kubernetes deployments.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>For more specifics, check the <a href="https://rh-openjdk.github.io/redhat-openjdk-containers/">Red Hat UBI OpenJDK Container Images Documentation</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_environment_variables"><a class="anchor" href="#_environment_variables"></a>Environment Variables</h3>
+<div class="paragraph">
+<p><strong>Q6: Which general environment variables are commonly found in these containers?</strong></p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 5. Common Environment Variables</caption>
+<colgroup>
+<col style="width: 30%;">
+<col style="width: 70%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Environment Variable</th>
+<th class="tableblock halign-left valign-top">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>PATH</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies a list of directories containing executable programs.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>HOME</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Defines the absolute path to the current user&#8217;s home directory.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>JAVA_HOME</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Points to the installation directory of the Java Runtime Environment (JRE) or Java Development Kit (JDK).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>NODE_ENV</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates the environment in which a Node.js application is running (e.g., <code>development</code>, <code>production</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>KUBECONFIG</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Holds a list of paths to Kubernetes configuration files used by <code>kubectl</code> and other tools.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Q7: Which specific variables should I use to pass Java arguments?</strong></p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 6. Java-Specific Environment Variables</caption>
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Environment Variable</th>
+<th class="tableblock halign-left valign-top">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>JAVA_OPTS</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Main option, which includes default settings - can be used to replace them</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>JAVA_OPTS_APPEND</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Append option, can be used to complement the main ones</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GC_COLLECTOR</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used for GC collector</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>JAVA_TOOL_OPTIONS</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Should be avoided, it will be used for any Java environment variable</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Q8: Why should <code>JAVA_TOOL_OPTIONS</code> be avoided?</strong></p>
+</div>
+<div class="paragraph">
+<p>Because it applies indiscriminately to <strong>every</strong> JVM invocation in that environment, including simple commands like <code>jcmd</code> or <code>jstat</code>, which can break them if the options are incompatible.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example: Breaking sidecar tools with JAVA_TOOL_OPTIONS</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ export JAVA_TOOL_OPTIONS="BANANA"
+fdemeloj@fdemeloj-thinkpadp16vgen1:~/Downloads/Redhat/openjdk/app-injection$ jcmd
+Picked up JAVA_TOOL_OPTIONS: BANANA
+Unrecognized option: BANANA
+Error: Could not create the Java Virtual Machine.
+Error: A fatal exception has occurred. Program will exit.</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_troubleshooting_local_development"><a class="anchor" href="#_troubleshooting_local_development"></a>Troubleshooting &amp; Local Development</h3>
+<div class="paragraph">
+<p><strong>Q9: How do I interpret JVM diagnostic files like <code>VM.info</code>?</strong></p>
+</div>
+<div class="paragraph">
+<p>When diagnosing runtime behavior or crashes, refer to the official support documentation:
+* <a href="https://access.redhat.com/solutions/6973111">Red Hat Solution 6973111: Interpreting VM.info file in OpenJDK/OracleJDK</a></p>
+</div>
+<div class="paragraph">
+<p><strong>Q10: How can I build and test my OpenShift container images locally before deploying?</strong></p>
+</div>
+<div class="paragraph">
+<p>To replicate the OpenShift Source-to-Image (S2I) build process on your local machine, follow this guide:
+* <a href="https://developers.redhat.com/articles/2026/09/23/build-openjdk-container-images-locally-using-standalone-s2i-tool">Build OpenJDK container images locally using standalone S2I tool</a></p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="_resources"><a class="anchor" href="#_resources"></a>Resources</h2>
 <div class="sectionbody">
 <div class="paragraph">
