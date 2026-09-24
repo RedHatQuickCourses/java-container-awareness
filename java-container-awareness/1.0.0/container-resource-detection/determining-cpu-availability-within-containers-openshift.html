@@ -383,16 +383,16 @@ sh-5.1$</pre>
 <div class="ulist">
 <ul>
 <li>
-<p>Values below 1 CPU, are rounded to 1.</p>
+<p>Values below 1 CPU, are set at 1.</p>
 </li>
 <li>
-<p>Fractional values are rounded to the lowest integer, so 2200 millicores, becomes 2 CPU.</p>
+<p>Fractional values are truncated, so 2200 millicores, becomes 2 CPU. Not rounded, but truncated.</p>
 </li>
 <li>
 <p>Java does not care about requests, only limits.</p>
 </li>
 <li>
-<p>Java workaround needs CPU and Memory limits to avoid issues.</p>
+<p>Java workloads usually run best in performance given CPU and Memory limits for a series of reasons, see <code>unbouded deployment</code> for details.</p>
 </li>
 </ul>
 </div>
