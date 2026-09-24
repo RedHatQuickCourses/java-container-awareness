@@ -2,7 +2,7 @@
 
 This hands-on exercise demonstrates how to deploy and verify Java's container CPU awareness using s2i toolkit with Podman, following the guide https://developers.redhat.com/articles/2026/09/23/build-openjdk-container-images-locally-using-standalone-s2i-tool[build OpenJDK container images locally using the standalone S2I tool].
 
-. Run the following commands to install s2i tooklit on the bastion VM:
+. Run the following commands to install s2i toolkit on the bastion VM:
 +
 [source,bash]
 ----
