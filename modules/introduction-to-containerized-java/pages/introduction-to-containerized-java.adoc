@@ -13,4 +13,6 @@ Key aspects include:
 * **Operational Efficiency:** Simplifying deployments by ensuring the JVM aligns its internal memory and thread management with defined container resource limits.
 * **Red Hat build of OpenJDK:** Red Hat build of OpenJDK containers, have specific settings defined in the run-java.sh script, which is the default `ENTRYPOINT` when using our image and adds features and configurations.
 
+The images of Red Hat build of OpenJDK are fully supported on Openshift 4 and podman. Additionally they are also tested on podman-docker emulator, therefore the images are fully expected to work on Docker including the s2i Toolkit.
+
 This course is fully based on the current OpenJDK implementation and the article https://developers.redhat.com/articles/2024/03/14/how-use-java-container-awareness-openshift-4[How to use Java container awareness in OpenShift 4, window=_blank].
