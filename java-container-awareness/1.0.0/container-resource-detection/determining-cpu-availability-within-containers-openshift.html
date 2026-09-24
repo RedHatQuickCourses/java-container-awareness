@@ -383,7 +383,7 @@ sh-5.1$</pre>
 <div class="ulist">
 <ul>
 <li>
-<p>Values below 1 CPU, are set at 1.</p>
+<p>Values below 1 CPU, are set at 1. That would be for very small applications like Quarkus. For Enterprise applications that&#8217;s usually not recommended for several reasons, including the fact the SerialGC would be the most optimal GC for the deployments and the application&#8217;s threads share very small CPU time.</p>
 </li>
 <li>
 <p>Fractional values are truncated, so 2200 millicores, becomes 2 CPU. Not rounded, but truncated.</p>
