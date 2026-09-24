@@ -150,7 +150,7 @@ jcmd
 190 jdk.jcmd/sun.tools.jcmd.JCmd
 ----
 
-. Verify the CPU limits used by the application (NO CPU limits):
+. Verify the CPU limits used by the application (No CPU limits defined in the container):
 +
 [source,bash]
 ----
@@ -161,10 +161,10 @@ jcmd 1 VM.info | grep active_processor_count
 +
 ----
 [jboss@d24f38a138a2 ~]$ jcmd 1 VM.info | grep active_processor_count
-active_processor_count: 2
+active_processor_count: 8
 ----
 +
-NOTE: The output above shows that the application is using all the CPUS available on the host machine, which is not ideal for a containerized application. To limit the CPU usage, we will now deploy the application with CPU limits.
+NOTE: The output above shows that the application is using all the CPUS available on the host machine, which an unbouded deployment and not necessarily ideal for a microservice/containerized application. To limit the CPU usage, we will now deploy the application with CPU limits.
 +
 Exit from the container's shell and return to the host machine's terminal.
 +
@@ -173,13 +173,13 @@ Exit from the container's shell and return to the host machine's terminal.
 exit
 ----
 
-. Remove the running container and deploy it again with CPU limits
+. Remove the running container and deploy it again in a container with CPU limits
 +
 [source,bash]
 ----
 podman rm -f <container-id>
 
-podman run -p 8081:8080 --cpus="1" openjdk-hotrod:example
+podman run -p 8081:8080 --cpus="2" openjdk-hotrod:example
 ----
 
 . Follow the above steps again to connect to the running container and verify the CPU limits used by the application.
@@ -192,7 +192,7 @@ CONTAINER ID  IMAGE                                     COMMAND               CR
 [lab-user@bastion ~]$ podman exec -it 2f4ba2f67633 /bin/bash
 [jboss@2f4ba2f67633 ~]$ 
 [jboss@2f4ba2f67633 ~]$ jcmd 1 VM.info | grep active_processor_count
-active_processor_count: 1
+active_processor_count: 2
 [jboss@2f4ba2f67633 ~]$ 
 ----
 +
