@@ -409,7 +409,7 @@ d24f38a138a2  docker.io/library/openjdk-hotrod:example  /usr/local/s2i/ru...  57
 </div>
 </li>
 <li>
-<p>Verify the CPU limits used by the application (NO CPU limits):</p>
+<p>Verify the CPU limits used by the application (No CPU limits defined in the container):</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jcmd 1 VM.info | grep active_processor_count</code></pre>
@@ -419,7 +419,7 @@ d24f38a138a2  docker.io/library/openjdk-hotrod:example  /usr/local/s2i/ru...  57
 <div class="title">Example output:</div>
 <div class="content">
 <pre>[jboss@d24f38a138a2 ~]$ jcmd 1 VM.info | grep active_processor_count
-active_processor_count: 2</pre>
+active_processor_count: 8</pre>
 </div>
 </div>
 <div class="admonitionblock note">
@@ -429,7 +429,7 @@ active_processor_count: 2</pre>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The output above shows that the application is using all the CPUS available on the host machine, which is not ideal for a containerized application. To limit the CPU usage, we will now deploy the application with CPU limits.
+The output above shows that the application is using all the CPUS available on the host machine, which an unbouded deployment and not necessarily ideal for a microservice/containerized application. To limit the CPU usage, we will now deploy the application with CPU limits.
 </td>
 </tr>
 </table>
@@ -444,12 +444,12 @@ The output above shows that the application is using all the CPUS available on t
 </div>
 </li>
 <li>
-<p>Remove the running container and deploy it again with CPU limits</p>
+<p>Remove the running container and deploy it again in a container with CPU limits</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">podman rm -f &lt;container-id&gt;
 
-podman run -p 8081:8080 --cpus="1" openjdk-hotrod:example</code></pre>
+podman run -p 8081:8080 --cpus="2" openjdk-hotrod:example</code></pre>
 </div>
 </div>
 </li>
@@ -464,7 +464,7 @@ CONTAINER ID  IMAGE                                     COMMAND               CR
 [lab-user@bastion ~]$ podman exec -it 2f4ba2f67633 /bin/bash
 [jboss@2f4ba2f67633 ~]$
 [jboss@2f4ba2f67633 ~]$ jcmd 1 VM.info | grep active_processor_count
-active_processor_count: 1
+active_processor_count: 2
 [jboss@2f4ba2f67633 ~]$</pre>
 </div>
 </div>
