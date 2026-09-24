@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Diagnostic strategies for Java deployments in OpenShift :: Java Container Awareness</title>
+    <link rel="prev" href="analyzing-container-limits-and-resource-utilization.html">
+    <link rel="next" href="java-diagnostics-jcmd.html">
+    <meta name="generator" content="Antora 3.2.0-alpha.12">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Java Container Awareness</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/java-container-awareness/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="java-container-awareness" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Java Container Awareness</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../introduction-to-containerized-java/introduction-to-containerized-java.html">Introduction to Containerized Java</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../introduction-to-containerized-java/evolution-of-java-in-containerized-environments.html">Evolution of Java in containerized environments</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../introduction-to-containerized-java/overview-of-container-aware-versus-non-container-aware-java.html">Overview of container-aware versus non-container-aware Java</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../introduction-to-containerized-java/importance-of-cgroup-detection-for-modern-deployments.html">Importance of cgroup detection for deployments</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../container-resource-detection/container-resource-detection.html">Container Resource Detection</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/understanding-jdk8146115-and-java-8u191-updates.html">Understanding JDK8146115 and Java 8u191 Updates</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/detecting-container-memory-limits.html">Detecting Container Memory Limits</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/determining-cpu-availability-within-containers.html">Determining CPU Availability Within Containers</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/determining-cpu-availability-within-containers-podman.html">Hands-on Exercise: Inspecting CPU Awareness in a Local Podman Environment</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/determining-cpu-availability-within-containers-openshift.html">Hands-on Exercise: Inspecting CPU-Aware Deployments in OpenShift</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../risks-and-memory-management/risks-and-memory-management.html">Risks and Memory Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../risks-and-memory-management/implications-of-decoupling-heap-memory-from-container-limits.html">Implications of Decoupling Heap Memory from Container Limits</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../risks-and-memory-management/managing-off-heap-memory-in-containerized-environments.html">Managing Heap and Off-Heap Memory in Containerized Environments</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../risks-and-memory-management/best-practices-for-java-memory-configuration-in-containers.html">Best Practices for Java Memory Configuration in Containers</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/openshift-and-kubernetes-integration.html">OpenShift and Kubernetes Integration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/configuring-limits-and-requests-in-red-hat-openshift.html">Configuring Limits and Requests in Red Hat OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/understanding-cgroups-implications-for-java-applications.html">Understanding cgroups implications for Java applications</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/navigating-kubernetes-resource-management-for-java.html">Navigating Kubernetes resource management for Java</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="troubleshooting-and-tooling.html">Troubleshooting and Tooling</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="identifying-container-aware-versus-non-container-aware-tools.html">Identifying Container-Aware versus Non-Container-Aware Tools</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="analyzing-container-limits-and-resource-utilization.html">Analyzing Container Limits and Resource Utilization</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="diagnostic-strategies-for-java-deployments-in-openshift.html">Diagnostic strategies for Java deployments in OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="java-diagnostics-jcmd.html">Java Diagnostics: jcmd</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/tuning-java-heap-settings-percentage-based-on-container-limits.html">Tuning Java Heap Settings Based on Container Limits</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/monitoring-cpu-and-memory-usage-using-container-aware-tools.html">Monitoring CPU and Memory Usage with Container-Aware Tools</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.html">Troubleshooting Resource Constraints in and out of OpenShift</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Java Container Awareness</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Java Container Awareness</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Java Container Awareness</a></li>
+    <li><a href="troubleshooting-and-tooling.html">Troubleshooting and Tooling</a></li>
+    <li><a href="diagnostic-strategies-for-java-deployments-in-openshift.html">Diagnostic strategies for Java deployments in OpenShift</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc" data-audio-src="diagnostic-strategies-for-java-deployments-in-openshift.wav" data-transcript-src="diagnostic-strategies-for-java-deployments-in-openshift.txt">
+<h1 class="page">Diagnostic strategies for Java deployments in OpenShift</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>When managing Java applications in OpenShift, traditional diagnostic tools often fail because they lack container-awareness capabilities. Tools that look at the host operating system&#8217;s total resources rather than the container&#8217;s constrained cgroup limits can lead to misleading metrics. Effective diagnostics require tools and strategies that respect the isolation boundaries defined by Kubernetes.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_identifying_container_aware_tools"><a class="anchor" href="#_identifying_container_aware_tools"></a>Identifying Container-Aware Tools</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A critical diagnostic step is distinguishing between container-aware and legacy tools.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Legacy Tools:</strong> Tools like <code>top</code>, <code>free</code>, or older JVM monitoring utilities may report the host&#8217;s total RAM and CPU count. Relying on these leads to "false positives" where an administrator believes the application has more resources than it actually does.</p>
+</li>
+<li>
+<p><strong>Container-Aware Tools:</strong> Modern JDKs (8u191+, 11+) and utilities like <code>jcmd</code>, <code>jstat</code>, and modern observability agents are cgroup-aware. They query the container&#8217;s <code>/sys/fs/cgroup/</code> filesystem to report limits specifically applied to the pod.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_diagnostic_strategies"><a class="anchor" href="#_diagnostic_strategies"></a>Diagnostic Strategies</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To effectively diagnose resource constraints or performance issues, follow these strategies:</p>
+</div>
+<div class="sect2">
+<h3 id="_1_validating_resource_visibility"><a class="anchor" href="#_1_validating_resource_visibility"></a>1. Validating Resource Visibility</h3>
+<div class="paragraph">
+<p>Verify that the JVM sees the limits defined in your OpenShift <code>DeploymentConfig</code> or <code>Deployment</code>. You can inspect this by executing into the pod and checking the container&#8217;s perceived memory and CPU:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check perceived heap from within the pod
+$ oc exec hotrod-app-ID -- jcmd 1 VM.info | grep  "Heap address"
+Heap address: 0x00000000c0000000, size: 1024 MB, Compressed Oops mode: 32-bit</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the JVM limits being detected:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check perceived limit from within the pod
+oc exec &lt;pod-name&gt; -- jcmd 1 VM.info | grep -A18 "container (cgroup) information:"
+container_type: cgroupv2 &lt;-------------------------- cgroups v2
+cpu_cpuset_cpus: not supported
+cpu_memory_nodes: not supported
+active_processor_count: 2 &lt;-------------------------- CPU limits
+cpu_quota: 200000
+cpu_period: 100000
+cpu_shares: no shares
+memory_limit_in_bytes: 2097152 k  &lt;------------------- Memory limits
+memory_and_swap_limit_in_bytes: 2097152 k
+memory_soft_limit_in_bytes: 0
+memory_usage_in_bytes: 186764 k &lt;---------------------- Usage</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Check if Heap is calculated correctly based on the container memory limit rather than the worker node&#8217;s total memory.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_utilizing_java_diagnostics_jcmd"><a class="anchor" href="#_2_utilizing_java_diagnostics_jcmd"></a>2. Utilizing Java Diagnostics - <code>jcmd</code></h3>
+<div class="paragraph">
+<p>Java diagnostics, jcmd, is very useful for Java and Java inside containers in general. It allows you to perform JVM dump, heap dumps, thread dumps, and analyze JVM flags without requiring a restart.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Diagnostic Tool</th>
+<th class="tableblock halign-left valign-top">Purpose / Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Thread Dumps</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Identify if the application is hitting thread limits or experiencing deadlocks.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GC Performance</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use <code>jcmd &lt;pid&gt; GC.run</code> to trigger garbage collection or <code>jcmd &lt;pid&gt; VM.flags</code> to verify if <code>-XX:MaxRAMPercentage</code> is adequately set (too high or too low).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">VM.info</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use <code>jcmd &lt;pid&gt; VM.info</code> to verify if <code>-XX:MaxRAMPercentage</code>, Native allocation, cgroups details and a lot more.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_3_analyzing_cgroup_constraints"><a class="anchor" href="#_3_analyzing_cgroup_constraints"></a>3. Analyzing cgroup Constraints</h3>
+<div class="paragraph">
+<p>If a pod is frequently restarting, it may be hitting OOM (Out of Memory) kills. Since the OOM Killer is enforced at the cgroup level, standard Java <code>OutOfMemoryError</code> logs might not appear if the kernel terminates the process before the JVM can report it.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Inspect Pod Events:</strong> Use <code>oc describe pod &lt;pod-name&gt;</code> to check for the <code>OOMKilled</code> state.</p>
+</li>
+<li>
+<p><strong>Check Exit Codes:</strong> An exit code of <code>137</code> is a strong indicator that the container was terminated by the OOM killer because it exceeded the OpenShift memory limit.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_usage_of_jvm_flags_for_scenarios"><a class="anchor" href="#_4_usage_of_jvm_flags_for_scenarios"></a>4. Usage of JVM flags for scenarios</h3>
+<div class="paragraph">
+<p>For specific scenarios, it is possible to use certain flags to verify the issue:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 16.6666%;">
+<col style="width: 50.0001%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Scenario</th>
+<th class="tableblock halign-left valign-top">Exit Code</th>
+<th class="tableblock halign-left valign-top">When to Use It</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+HeapDumpOnOutOfMemoryError</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use when you need to diagnose memory leaks. It captures the exact state of the heap into a <code>.hprof</code> file at the moment the <code>OutOfMemoryError</code> occurs for offline analysis.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+ExitOnOutOfMemoryError</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use as a best practice in Kubernetes/OpenShift. It forces the JVM to terminate immediately upon an OOM exception, allowing the kubelet to restart the pod instead of leaving it running in a broken, unresponsive state.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+CrashOnOutOfMemoryError</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use for deep native-level debugging. Instead of just exiting, the JVM produces a fatal crash log (<code>hs_err_pid.log</code>) and a core dump, bypassing standard shutdown hooks.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>kill -11 &lt;PID&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use during testing to simulate a native segmentation fault (SIGSEGV). This verifies how your container and OpenShift handle sudden, catastrophic C/C++ level crashes.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Setting <code>-Xmx</code>/<code>-Xms</code> &gt; container size (plus <code>-XX:+AlwaysPreTouch</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">137</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use to intentionally trigger an OS-level <code>OOMKilled</code> event. This is helpful to test OpenShift resource quota enforcement, eviction behavior, or monitoring and alerting rules.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hands_on_lab_analyzing_resource_constraints"><a class="anchor" href="#_hands_on_lab_analyzing_resource_constraints"></a>Hands-on Lab: Analyzing Resource Constraints</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this lab, we will use <code>jcmd</code> to inspect a running Java process and verify its awareness of container limits.</p>
+</div>
+<div class="sect2">
+<h3 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>An active OpenShift cluster with a running Java pod.</p>
+</li>
+<li>
+<p><code>oc</code> CLI configured with cluster access.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_1_verify_jvm_resource_settings"><a class="anchor" href="#_step_1_verify_jvm_resource_settings"></a>Step 1: Verify JVM resource settings</h3>
+<div class="paragraph">
+<p>Execute into the pod to check how the JVM views the memory limits.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Run the VM settings check
+oc exec &lt;pod-name&gt; -- java 1 VM.info | grep -A18 "container (cgroup) information"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the output and see how it correlates with the host and container limits:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Output/Resource Allocation</th>
+<th class="tableblock halign-left valign-top">Deployment Condition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">50% of the container</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">run-java.sh as ENTRYPOINT and container aware  - previous MaxRAMPercentage</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">80% of the container</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">run-java.sh as ENTRYPOINT and container aware - current MaxRAMPercentage</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">25% of the host</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">non-container aware or unbounded deployment - verify if the container has limits</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_step_2_use_jcmd_to_analyze_the_process_flags"><a class="anchor" href="#_step_2_use_jcmd_to_analyze_the_process_flags"></a>Step 2: Use <code>jcmd</code> to analyze the process flags</h3>
+<div class="paragraph">
+<p>Access the container shell to utilize <code>jcmd</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc rsh &lt;pod-name&gt;
+
+# List running Java processes
+jcmd
+
+# Get a detailed report of the VM's perceived memory constraints
+jcmd &lt;pid&gt; VM.flags</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_3_troubleshooting_a_constraint"><a class="anchor" href="#_step_3_troubleshooting_a_constraint"></a>Step 3: Troubleshooting a constraint</h3>
+<div class="paragraph">
+<p>If the application is impacted, check if CPU throttling is occurring due to the Kubernetes <code>cpu</code> limit/requests vs the utilization on the kernel (kernel is the one throttling, not Kubernetes):</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Verify first if the Java threads are nominal</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ jcmd PID Thread.print &lt;-- see the threads</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Then, in case CPU throttling impacting, see the <code>cpu.stat</code> file within the container:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cat /sys/fs/cgroup/cpu.stat &lt;--------- cgroups v2
+usage_usec 9123943
+user_usec 8159424
+system_usec 964518
+core_sched.force_idle_usec 0
+nr_periods 2125
+nr_throttled 21
+throttled_usec 878173
+nr_bursts 0
+burst_usec 0</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Above shows details for cgroups v2, for cgroups v1 use <code>/sys/fs/cgroup/cpuacct.usage</code>. In case the JVM is not cgropus v2 compatible, cgroups won&#8217;t be detected <code>No metrics available for this platform</code> may be shown.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>For CPU throttling, verify <code>nr_throttled</code>. If this number is increasing rapidly, the CPU <code>limit</code> may be too low, and the kernel is throttling your application, causing latency. Therefore tuning the ratio (requests vs limits) can be adequate.</p>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ oc set resources deployment/hotrod-app --limits=cpu="2" --requests=cpu="1"</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_best_practices_summary"><a class="anchor" href="#_best_practices_summary"></a>Best Practices Summary</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Avoid reling on <code>free</code> or <code>top</code></strong> inside a container for memory capacity planning.</p>
+</li>
+<li>
+<p><strong>Always use <code>-XX:MaxRAMPercentage</code></strong> instead of fixed <code>-Xmx</code> values to ensure the heap scales dynamically with the container limit.</p>
+</li>
+<li>
+<p><strong>Prioritize <code>jcmd</code></strong> for all runtime analysis, as it is native to the OpenJDK and fully supports container-cgroup awareness.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>The following JVM flags can be used for troubleshooting:</strong></p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">JVM Flag</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+ErrorFileToStdout</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sends the crash output directly to standard output, making it visible in pod logs (<code>oc logs</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:ErrorFile=&lt;path&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets the destination path for the fatal crash log file (<code>hs_err_pid.log</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:HeapDumpPath=&lt;path&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">When used alongside <code>-XX:+HeapDumpOnOutOfMemoryError</code>, this sets the directory or exact file path where the heap dump will be written to.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+CrashOnOutOfMemoryError</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Crashes the JVM (generating a crash log and core dump) instead of throwing a standard <code>OutOfMemoryError</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:+ExitOnOutOfMemoryError</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Forces the JVM to exit immediately on an out-of-memory exception.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:OnOutOfMemoryError="&lt;cmd&gt;"</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Defines a specific action (command or script) to execute when an <code>OutOfMemoryError</code> happens.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-XX:OnError="&lt;cmd&gt;"</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Defines a specific action (command or script) to execute when a fatal JVM crash occurs.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="analyzing-container-limits-and-resource-utilization.html">Analyzing Container Limits and Resource Utilization</a></span>
+  <span class="next"><a href="java-diagnostics-jcmd.html">Java Diagnostics: jcmd</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+<script defer src="../../../_/js/vendor/audio-transcript.js"></script>
+  </body>
+</html>

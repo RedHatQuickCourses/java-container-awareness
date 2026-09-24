@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Appendix :: Java Container Awareness</title>
+    <link rel="prev" href="../hands-on-lab/troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.html">
+    <meta name="generator" content="Antora 3.2.0-alpha.12">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Java Container Awareness</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/java-container-awareness/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="java-container-awareness" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Java Container Awareness</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../introduction-to-containerized-java/introduction-to-containerized-java.html">Introduction to Containerized Java</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../introduction-to-containerized-java/evolution-of-java-in-containerized-environments.html">Evolution of Java in containerized environments</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../introduction-to-containerized-java/overview-of-container-aware-versus-non-container-aware-java.html">Overview of container-aware versus non-container-aware Java</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../introduction-to-containerized-java/importance-of-cgroup-detection-for-modern-deployments.html">Importance of cgroup detection for deployments</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../container-resource-detection/container-resource-detection.html">Container Resource Detection</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/understanding-jdk8146115-and-java-8u191-updates.html">Understanding JDK8146115 and Java 8u191 Updates</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/detecting-container-memory-limits.html">Detecting Container Memory Limits</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/determining-cpu-availability-within-containers.html">Determining CPU Availability Within Containers</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/determining-cpu-availability-within-containers-podman.html">Hands-on Exercise: Inspecting CPU Awareness in a Local Podman Environment</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/determining-cpu-availability-within-containers-openshift.html">Hands-on Exercise: Inspecting CPU-Aware Deployments in OpenShift</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../risks-and-memory-management/risks-and-memory-management.html">Risks and Memory Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../risks-and-memory-management/implications-of-decoupling-heap-memory-from-container-limits.html">Implications of Decoupling Heap Memory from Container Limits</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../risks-and-memory-management/managing-off-heap-memory-in-containerized-environments.html">Managing Heap and Off-Heap Memory in Containerized Environments</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../risks-and-memory-management/best-practices-for-java-memory-configuration-in-containers.html">Best Practices for Java Memory Configuration in Containers</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/openshift-and-kubernetes-integration.html">OpenShift and Kubernetes Integration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/configuring-limits-and-requests-in-red-hat-openshift.html">Configuring Limits and Requests in Red Hat OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/understanding-cgroups-implications-for-java-applications.html">Understanding cgroups implications for Java applications</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/navigating-kubernetes-resource-management-for-java.html">Navigating Kubernetes resource management for Java</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-tooling/troubleshooting-and-tooling.html">Troubleshooting and Tooling</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/identifying-container-aware-versus-non-container-aware-tools.html">Identifying Container-Aware versus Non-Container-Aware Tools</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/analyzing-container-limits-and-resource-utilization.html">Analyzing Container Limits and Resource Utilization</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/diagnostic-strategies-for-java-deployments-in-openshift.html">Diagnostic strategies for Java deployments in OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/java-diagnostics-jcmd.html">Java Diagnostics: jcmd</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/tuning-java-heap-settings-percentage-based-on-container-limits.html">Tuning Java Heap Settings Based on Container Limits</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/monitoring-cpu-and-memory-usage-using-container-aware-tools.html">Monitoring CPU and Memory Usage with Container-Aware Tools</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.html">Troubleshooting Resource Constraints in and out of OpenShift</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="1">
+    <a class="nav-link" href="appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Java Container Awareness</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Java Container Awareness</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Java Container Awareness</a></li>
+    <li><a href="appendix.html">Appendix</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc" data-audio-src="appendix.wav" data-transcript-src="appendix.txt">
+<h1 class="page">Appendix</h1>
+<div class="sect1">
+<h2 id="_complementary_materials"><a class="anchor" href="#_complementary_materials"></a>Complementary materials</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 50%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Date</th>
+<th class="tableblock halign-left valign-top">Title</th>
+<th class="tableblock halign-left valign-top">Link</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mar 14, 2024</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How to use Java container awareness in OpenShift 4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://developers.redhat.com/articles/2024/03/14/how-use-java-container-awareness-openshift-4">Read Article</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">May 16, 2024</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Using OpenShift 4&#8217;s inspect for middleware troubleshooting</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://developers.redhat.com/articles/2024/05/16/using-openshift-4s-inspect-middleware-troubleshooting">Read Article</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mar 05, 2025</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How to troubleshoot Spring Boot in OpenShift</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://developers.redhat.com/articles/2025/03/05/how-troubleshoot-spring-boot-openshift">Read Article</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Nov 27, 2025</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How does cgroups v2 impact Java, .NET, and Node.js in OpenShift 4?</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-net-and-nodejs-openshift-4#scenarios_with_java">Read Article</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Jun 18, 2026</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Troubleshoot application misbehavior after an OpenShift upgrade</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://developers.redhat.com/articles/2026/06/18/troubleshoot-application-misbehavior-after-openshift-upgrade">Read Article</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_frequently_asked_questions_faq_troubleshooting"><a class="anchor" href="#_frequently_asked_questions_faq_troubleshooting"></a>Frequently Asked Questions (FAQ) &amp; Troubleshooting</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_container_resource_limits_and_cgroups"><a class="anchor" href="#_container_resource_limits_and_cgroups"></a>Container Resource Limits and Cgroups</h3>
+<div class="paragraph">
+<p><strong>Q1: Should I run my applications without resource limits (unbounded)?</strong></p>
+</div>
+<div class="paragraph">
+<p>While it can be tempting to leave containers unbounded, you must weigh the performance potential against cluster stability.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Pros and Cons of Unbounded Applications</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Pros</th>
+<th class="tableblock halign-left valign-top">Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>Use the full Host CPU and Memory</p>
+</li>
+<li>
+<p>Can spike the full host capability</p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>Have BestEffort QoS</p>
+</li>
+<li>
+<p>Competing with other applications</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Q2: What is the impact of OpenShift migrating to cgroups v2?</strong></p>
+</div>
+<div class="paragraph">
+<p>OpenShift 4.19 entirely removes cgroups v1 support. This impacts how runtimes like the JVM and Node.js calculate their boundaries. For deep dives into these changes, refer to the following official resources:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-and-nodejs-openshift-4">How does cgroups v2 impact Java and Node.js in OpenShift 4?</a></p>
+</li>
+<li>
+<p><a href="https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-net-and-nodejs-openshift-4#scenarios_with_java">Scenarios with Java under cgroups v2</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Q3: How do the metric paths differ between cgroups v1 and v2?</strong></p>
+</div>
+<div class="paragraph">
+<p>cgroups v2 flattened and simplified the hierarchy. Here is where to find the equivalent memory metrics:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 2. cgroups v1 vs. v2 Memory Metrics</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Metric</th>
+<th class="tableblock halign-left valign-top">cgroups v1 Path</th>
+<th class="tableblock halign-left valign-top">cgroups v2 Path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Peak Usage</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory/memory.max_usage_in_bytes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory.peak</code> (Requires Kernel 5.19+)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Current Usage</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory/memory.usage_in_bytes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory.current</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Hard Limit</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory/memory.limit_in_bytes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory.max</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Soft Limit</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory/memory.soft_limit_in_bytes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory.high</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_java_execution_and_entry_points"><a class="anchor" href="#_java_execution_and_entry_points"></a>Java Execution and Entry Points</h3>
+<div class="paragraph">
+<p><strong>Q4: How has JVM container memory awareness evolved?</strong></p>
+</div>
+<div class="paragraph">
+<p>Modern JVMs natively understand container limits, whereas legacy versions relied on the host&#8217;s physical RAM size.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 3. JVM Container Awareness Evolution</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Feature</th>
+<th class="tableblock halign-left valign-top">Legacy Behavior (Pre-8u191)</th>
+<th class="tableblock halign-left valign-top">Modern Behavior (8u191+)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Memory Source</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Queries <code>/proc/meminfo</code> (Host RAM)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Queries cgroups (Container Limit)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Heap Sizing</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requires manual <code>-Xmx</code> configuration</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Automatically scales based on <code>-XX:MaxRAMPercentage</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Operational Impact</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Decoupled; changing container size requires manual JVM tuning</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Coupled; scaling container limits automatically adjusts heap</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Q5: Should I use the <code>run-java.sh</code> script or start Java directly in my container?</strong></p>
+</div>
+<div class="paragraph">
+<p>Historically, <code>run-java.sh</code> was required to parse cgroups and pass the limits to the JVM. With modern Java versions, starting Java directly is often preferred.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 4. Execution Methods: run-java.sh vs. Direct Java Start</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Feature</th>
+<th class="tableblock halign-left valign-top"><code>run-java.sh</code> Entry Point</th>
+<th class="tableblock halign-left valign-top">Straight <code>java</code> Start</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Execution Method</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Shell wrapper script that evaluates the environment and builds the Java command line.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Native binary execution directly invoking the JVM.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Environment Variables</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Automatically parses custom variables like <code>JAVA_OPTS_APPEND</code> and <code>GC_COLLECTOR</code> (legacy variables like <code>JAVA_MAX_MEM_RATIO</code> are deprecated).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ignores script-specific variables. Relies strictly on command-line arguments and standard environment variables like <code>JAVA_TOOL_OPTIONS</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Default JVM Tuning</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Automatically applies container-friendly defaults (e.g., <code>-XX:MaxRAMPercentage</code>, ParallelGC settings) if not overridden.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Uses standard JVM defaults unless explicitly defined in the command line or deployment manifest.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Container Awareness</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Historically required to calculate cgroups limits before Java had native container support.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Relies on native JVM container detection (standard in OpenJDK 8u191+, 11+, 17+, etc.) for cgroups v1 and v2.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Process Management</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Typically uses <code>exec java</code> to ensure Java runs as PID 1, but adds initial shell evaluation overhead.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Directly executes as PID 1 with zero shell overhead, ideal for modern Kubernetes deployments.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>For more specifics, check the <a href="https://rh-openjdk.github.io/redhat-openjdk-containers/">Red Hat UBI OpenJDK Container Images Documentation</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_environment_variables"><a class="anchor" href="#_environment_variables"></a>Environment Variables</h3>
+<div class="paragraph">
+<p><strong>Q6: Which general environment variables are commonly found in these containers?</strong></p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 5. Common Environment Variables</caption>
+<colgroup>
+<col style="width: 30%;">
+<col style="width: 70%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Environment Variable</th>
+<th class="tableblock halign-left valign-top">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>PATH</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies a list of directories containing executable programs.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>HOME</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Defines the absolute path to the current user&#8217;s home directory.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>JAVA_HOME</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Points to the installation directory of the Java Runtime Environment (JRE) or Java Development Kit (JDK).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>NODE_ENV</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates the environment in which a Node.js application is running (e.g., <code>development</code>, <code>production</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>KUBECONFIG</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Holds a list of paths to Kubernetes configuration files used by <code>kubectl</code> and other tools.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Q7: Which specific variables should I use to pass Java arguments?</strong></p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 6. Java-Specific Environment Variables</caption>
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Environment Variable</th>
+<th class="tableblock halign-left valign-top">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>JAVA_OPTS</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Main option, which includes default settings - can be used to replace them</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>JAVA_OPTS_APPEND</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Append option, can be used to complement the main ones</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GC_COLLECTOR</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used for GC collector</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>JAVA_TOOL_OPTIONS</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Should be avoided, it will be used for any Java environment variable</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Q8: Why should <code>JAVA_TOOL_OPTIONS</code> be avoided?</strong></p>
+</div>
+<div class="paragraph">
+<p>Because it applies indiscriminately to <strong>every</strong> JVM invocation in that environment, including simple commands like <code>jcmd</code> or <code>jstat</code>, which can break them if the options are incompatible.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example: Breaking sidecar tools with JAVA_TOOL_OPTIONS</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ export JAVA_TOOL_OPTIONS="APPLE"
+$ jcmd
+Picked up JAVA_TOOL_OPTIONS: APPLE
+Unrecognized option: APPLE
+Error: Could not create the Java Virtual Machine.
+Error: A fatal exception has occurred. Program will exit.</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_troubleshooting_local_development"><a class="anchor" href="#_troubleshooting_local_development"></a>Troubleshooting &amp; Local Development</h3>
+<div class="paragraph">
+<p><strong>Q9: How do I interpret JVM diagnostic files like <code>VM.info</code>?</strong></p>
+</div>
+<div class="paragraph">
+<p>When diagnosing runtime behavior or crashes, refer to the official support documentation:
+* <a href="https://access.redhat.com/solutions/6973111">Red Hat Solution 6973111: Interpreting VM.info file in OpenJDK/OracleJDK</a></p>
+</div>
+<div class="paragraph">
+<p><strong>Q10: How can I build and test my OpenShift container images locally before deploying?</strong></p>
+</div>
+<div class="paragraph">
+<p>To replicate the OpenShift Source-to-Image (S2I) build process on your local machine, follow this guide:
+* <a href="https://developers.redhat.com/articles/2026/09/23/build-openjdk-container-images-locally-using-standalone-s2i-tool">Build OpenJDK container images locally using standalone S2I tool</a></p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_resources"><a class="anchor" href="#_resources"></a>Resources</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="_attachments/java-container-awareness.pdf">Download Course PDF</a></p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="../hands-on-lab/troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.html">Troubleshooting Resource Constraints in and out of OpenShift</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+<script defer src="../../../_/js/vendor/audio-transcript.js"></script>
+  </body>
+</html>

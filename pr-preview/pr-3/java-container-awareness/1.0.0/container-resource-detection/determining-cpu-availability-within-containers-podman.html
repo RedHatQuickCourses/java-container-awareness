@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Hands-on Exercise: Inspecting CPU Awareness in a Local Podman Environment :: Java Container Awareness</title>
+    <link rel="prev" href="determining-cpu-availability-within-containers.html">
+    <link rel="next" href="determining-cpu-availability-within-containers-openshift.html">
+    <meta name="generator" content="Antora 3.2.0-alpha.12">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Java Container Awareness</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/java-container-awareness/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="java-container-awareness" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Java Container Awareness</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../introduction-to-containerized-java/introduction-to-containerized-java.html">Introduction to Containerized Java</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../introduction-to-containerized-java/evolution-of-java-in-containerized-environments.html">Evolution of Java in containerized environments</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../introduction-to-containerized-java/overview-of-container-aware-versus-non-container-aware-java.html">Overview of container-aware versus non-container-aware Java</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../introduction-to-containerized-java/importance-of-cgroup-detection-for-modern-deployments.html">Importance of cgroup detection for deployments</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="container-resource-detection.html">Container Resource Detection</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="understanding-jdk8146115-and-java-8u191-updates.html">Understanding JDK8146115 and Java 8u191 Updates</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="detecting-container-memory-limits.html">Detecting Container Memory Limits</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="determining-cpu-availability-within-containers.html">Determining CPU Availability Within Containers</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="determining-cpu-availability-within-containers-podman.html">Hands-on Exercise: Inspecting CPU Awareness in a Local Podman Environment</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="determining-cpu-availability-within-containers-openshift.html">Hands-on Exercise: Inspecting CPU-Aware Deployments in OpenShift</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../risks-and-memory-management/risks-and-memory-management.html">Risks and Memory Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../risks-and-memory-management/implications-of-decoupling-heap-memory-from-container-limits.html">Implications of Decoupling Heap Memory from Container Limits</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../risks-and-memory-management/managing-off-heap-memory-in-containerized-environments.html">Managing Heap and Off-Heap Memory in Containerized Environments</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../risks-and-memory-management/best-practices-for-java-memory-configuration-in-containers.html">Best Practices for Java Memory Configuration in Containers</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/openshift-and-kubernetes-integration.html">OpenShift and Kubernetes Integration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/configuring-limits-and-requests-in-red-hat-openshift.html">Configuring Limits and Requests in Red Hat OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/understanding-cgroups-implications-for-java-applications.html">Understanding cgroups implications for Java applications</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/navigating-kubernetes-resource-management-for-java.html">Navigating Kubernetes resource management for Java</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-tooling/troubleshooting-and-tooling.html">Troubleshooting and Tooling</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/identifying-container-aware-versus-non-container-aware-tools.html">Identifying Container-Aware versus Non-Container-Aware Tools</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/analyzing-container-limits-and-resource-utilization.html">Analyzing Container Limits and Resource Utilization</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/diagnostic-strategies-for-java-deployments-in-openshift.html">Diagnostic strategies for Java deployments in OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/java-diagnostics-jcmd.html">Java Diagnostics: jcmd</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/tuning-java-heap-settings-percentage-based-on-container-limits.html">Tuning Java Heap Settings Based on Container Limits</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/monitoring-cpu-and-memory-usage-using-container-aware-tools.html">Monitoring CPU and Memory Usage with Container-Aware Tools</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.html">Troubleshooting Resource Constraints in and out of OpenShift</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Java Container Awareness</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Java Container Awareness</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Java Container Awareness</a></li>
+    <li><a href="container-resource-detection.html">Container Resource Detection</a></li>
+    <li><a href="determining-cpu-availability-within-containers-podman.html">Hands-on Exercise: Inspecting CPU Awareness in a Local Podman Environment</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Hands-on Exercise: Inspecting CPU Awareness in a Local Podman Environment</h1>
+<div class="paragraph">
+<p>This hands-on exercise demonstrates how to deploy and verify Java&#8217;s container CPU awareness using s2i toolkit with Podman, following the guide <a href="https://developers.redhat.com/articles/2026/09/23/build-openjdk-container-images-locally-using-standalone-s2i-tool">build OpenJDK container images locally using the standalone S2I tool</a>.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Run the following commands to install s2i toolkit on the bastion VM:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">curl -LO https://github.com/openshift/source-to-image/releases/download/v1.3.2/source-to-image-v1.3.2-78363eee-linux-amd64.tar.gz
+tar -xzf source-to-image-v1.3.2-78363eee-linux-amd64.tar.gz
+sudo install -m 0755 s2i /usr/local/bin/s2i
+s2i version</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Install podman and enable the associated service.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">sudo dnf install podman
+systemctl --user enable --now podman.socket
+curl --unix-socket "$XDG_RUNTIME_DIR/podman/podman.sock" http://d/_ping</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The curl command above is used to check the connectivity with the podman&#8217;s socket. It should return <code><strong>OK</strong></code> for successful connection.</p>
+</div>
+</li>
+<li>
+<p>Use the following command to fetch a project and build an OpenJDK project locally from it via the s2i toolkit:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">git clone https://github.com/alexbarbosa1989/hotrodspringboot.git
+
+s2i --url "unix://$XDG_RUNTIME_DIR/podman/podman.sock" \
+    --loglevel 5 \
+    build hotrodspringboot/ \
+    registry.access.redhat.com/ubi8/openjdk-17:latest \
+    openjdk-hotrod:example</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The above source-to-image creation command may take a few minutes to complete. Successful run will show message like below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>I0921 12:09:11.617074   25665 build.go:182] Build completed successfully</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Confirm the image was created successfully.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">podman images</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>[lab-user@bastion ~]$ podman images
+REPOSITORY                                  TAG         IMAGE ID      CREATED        SIZE
+docker.io/library/openjdk-hotrod            example     cb19badb97c0  3 minutes ago  601 MB
+registry.access.redhat.com/ubi8/openjdk-17  latest      abf8175bbfa5  11 days ago    411 MB
+[lab-user@bastion ~]$</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Deploy application locally using podman</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">podman run -p 8081:8080 openjdk-hotrod:example</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Success message will look like below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>[lab-user@bastion ~]$ podman run -p 8081:8080 openjdk-hotrod:example
+Starting the Java application using /opt/jboss/container/java/run/run-java.sh ...
+INFO exec -a "java" java -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -cp "." -jar /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+INFO running in /deployments
+INFO running in /deployments
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v2.7.0)
+2026-09-18 14:53:36.607  INFO 1 --- [           main] c.r.h.h.HotrodspringbootApplication      : Starting HotrodspringbootApplication v0.0.1-SNAPSHOT using Java 17.0.20.1 on 8e34f75421fc with PID 1 (/deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar started by jboss in /deployments)
+. . .
+. . .
+2026-09-21 12:12:09.067  INFO 1 --- [           main] org.infinispan.HOTROD                    : ISPN004021: Infinispan version: Infinispan 'Flying Saucer' 14.0.30.Final-redhat-00001
+2026-09-21 12:12:09.638  INFO 1 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path '/redhat'
+2026-09-21 12:12:09.652  INFO 1 --- [           main] c.r.h.h.HotrodspringbootApplication      : Started HotrodspringbootApplication in 59.731 seconds (JVM running for 61.304)</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The above command will not return back to the prompt.
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Create a new terminal and follow the below steps in it.</p>
+</li>
+<li>
+<p>Check the number of CPUs available on the host machine using the <code>nproc</code> command:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">nproc</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>[lab-user@bastion ~]$ nproc
+2</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Check the running containers on the machine.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">podman ps</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note the container ID from the output of the above command, as it will be used in the next steps.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>[lab-user@bastion ~]$ podman ps
+CONTAINER ID  IMAGE                                     COMMAND               CREATED         STATUS         PORTS                             NAMES
+d24f38a138a2  docker.io/library/openjdk-hotrod:example  /usr/local/s2i/ru...  57 seconds ago  Up 57 seconds  0.0.0.0:8081-&gt;8080/tcp, 8443/tcp  suspicious_archimedes
+[lab-user@bastion ~]$</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Connect to the running container using the <code>podman exec</code> command:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">podman exec -it &lt;container-id&gt; /bin/bash</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>[lab-user@bastion ~]$ podman exec -it d24f38a138a2 /bin/bash
+[jboss@d24f38a138a2 ~]$</pre>
+</div>
+</div>
+</li>
+<li>
+<p>List the Java processes running inside the container using the <code>jcmd</code> command:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jcmd</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>[jboss@d24f38a138a2 ~]$ jcmd
+1 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+190 jdk.jcmd/sun.tools.jcmd.JCmd</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Verify the CPU limits used by the application (No CPU limits defined in the container):</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jcmd 1 VM.info | grep active_processor_count</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>[jboss@d24f38a138a2 ~]$ jcmd 1 VM.info | grep active_processor_count
+active_processor_count: 8</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The output above shows that the application is using all the CPUS available on the host machine, which an unbouded deployment and not necessarily ideal for a microservice/containerized application. To limit the CPU usage, we will now deploy the application with CPU limits.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Exit from the container&#8217;s shell and return to the host machine&#8217;s terminal.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">exit</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Remove the running container and deploy it again in a container with CPU limits</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">podman rm -f &lt;container-id&gt;
+
+podman run -p 8081:8080 --cpus="2" openjdk-hotrod:example</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Follow the above steps again to connect to the running container and verify the CPU limits used by the application.</p>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>[lab-user@bastion ~]$ podman ps
+CONTAINER ID  IMAGE                                     COMMAND               CREATED        STATUS        PORTS                             NAMES
+2f4ba2f67633  docker.io/library/openjdk-hotrod:example  /usr/local/s2i/ru...  4 minutes ago  Up 4 minutes  0.0.0.0:8081-&gt;8080/tcp, 8443/tcp  modest_kalam
+[lab-user@bastion ~]$ podman exec -it 2f4ba2f67633 /bin/bash
+[jboss@2f4ba2f67633 ~]$
+[jboss@2f4ba2f67633 ~]$ jcmd 1 VM.info | grep active_processor_count
+active_processor_count: 2
+[jboss@2f4ba2f67633 ~]$</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The output above shows that the application is now using only 2 CPU, which is the limit we set for the container. This indicates that the application is container-aware therefore detects (and respects) the CPU limits set for its container.
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Finally, when executing the example above on the bastion example the max limite the bastion has is 2 CPUs.</p>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="determining-cpu-availability-within-containers.html">Determining CPU Availability Within Containers</a></span>
+  <span class="next"><a href="determining-cpu-availability-within-containers-openshift.html">Hands-on Exercise: Inspecting CPU-Aware Deployments in OpenShift</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+  </body>
+</html>

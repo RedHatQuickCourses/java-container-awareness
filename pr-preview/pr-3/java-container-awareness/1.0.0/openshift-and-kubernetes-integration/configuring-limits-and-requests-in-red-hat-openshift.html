@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Configuring Limits and Requests in Red Hat OpenShift :: Java Container Awareness</title>
+    <link rel="prev" href="openshift-and-kubernetes-integration.html">
+    <link rel="next" href="understanding-cgroups-implications-for-java-applications.html">
+    <meta name="generator" content="Antora 3.2.0-alpha.12">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Java Container Awareness</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/java-container-awareness/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="java-container-awareness" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Java Container Awareness</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../introduction-to-containerized-java/introduction-to-containerized-java.html">Introduction to Containerized Java</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../introduction-to-containerized-java/evolution-of-java-in-containerized-environments.html">Evolution of Java in containerized environments</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../introduction-to-containerized-java/overview-of-container-aware-versus-non-container-aware-java.html">Overview of container-aware versus non-container-aware Java</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../introduction-to-containerized-java/importance-of-cgroup-detection-for-modern-deployments.html">Importance of cgroup detection for deployments</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../container-resource-detection/container-resource-detection.html">Container Resource Detection</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/understanding-jdk8146115-and-java-8u191-updates.html">Understanding JDK8146115 and Java 8u191 Updates</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/detecting-container-memory-limits.html">Detecting Container Memory Limits</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/determining-cpu-availability-within-containers.html">Determining CPU Availability Within Containers</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/determining-cpu-availability-within-containers-podman.html">Hands-on Exercise: Inspecting CPU Awareness in a Local Podman Environment</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/determining-cpu-availability-within-containers-openshift.html">Hands-on Exercise: Inspecting CPU-Aware Deployments in OpenShift</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../risks-and-memory-management/risks-and-memory-management.html">Risks and Memory Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../risks-and-memory-management/implications-of-decoupling-heap-memory-from-container-limits.html">Implications of Decoupling Heap Memory from Container Limits</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../risks-and-memory-management/managing-off-heap-memory-in-containerized-environments.html">Managing Heap and Off-Heap Memory in Containerized Environments</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../risks-and-memory-management/best-practices-for-java-memory-configuration-in-containers.html">Best Practices for Java Memory Configuration in Containers</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="openshift-and-kubernetes-integration.html">OpenShift and Kubernetes Integration</a>
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="configuring-limits-and-requests-in-red-hat-openshift.html">Configuring Limits and Requests in Red Hat OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="understanding-cgroups-implications-for-java-applications.html">Understanding cgroups implications for Java applications</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="navigating-kubernetes-resource-management-for-java.html">Navigating Kubernetes resource management for Java</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-tooling/troubleshooting-and-tooling.html">Troubleshooting and Tooling</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/identifying-container-aware-versus-non-container-aware-tools.html">Identifying Container-Aware versus Non-Container-Aware Tools</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/analyzing-container-limits-and-resource-utilization.html">Analyzing Container Limits and Resource Utilization</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/diagnostic-strategies-for-java-deployments-in-openshift.html">Diagnostic strategies for Java deployments in OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/java-diagnostics-jcmd.html">Java Diagnostics: jcmd</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/tuning-java-heap-settings-percentage-based-on-container-limits.html">Tuning Java Heap Settings Based on Container Limits</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/monitoring-cpu-and-memory-usage-using-container-aware-tools.html">Monitoring CPU and Memory Usage with Container-Aware Tools</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.html">Troubleshooting Resource Constraints in and out of OpenShift</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Java Container Awareness</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Java Container Awareness</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Java Container Awareness</a></li>
+    <li><a href="openshift-and-kubernetes-integration.html">OpenShift and Kubernetes Integration</a></li>
+    <li><a href="configuring-limits-and-requests-in-red-hat-openshift.html">Configuring Limits and Requests in Red Hat OpenShift</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc" data-audio-src="configuring-limits-and-requests-in-red-hat-openshift.wav" data-transcript-src="configuring-limits-and-requests-in-red-hat-openshift.txt">
+<h1 class="page">Configuring Limits and Requests in Red Hat OpenShift</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>In the context of Red Hat OpenShift Container Platform (OCP), effectively managing resources is a balancing act between scheduling efficiency and runtime performance. To optimize Java applications, it is critical to distinguish how OCP handles resource definitions and how those definitions translate to the Linux kernel and the Java Virtual Machine (JVM).</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_relationship_between_requests_and_limits"><a class="anchor" href="#_the_relationship_between_requests_and_limits"></a>The Relationship Between Requests and Limits</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>OpenShift utilizes Kubernetes-native resource management, defined within the container specification of a Deployment or Pod YAML.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Requests:</strong> These are used by the OpenShift scheduler to place a Pod on a node. They represent the minimum amount of CPU and memory guaranteed to the container. If a node does not have enough unallocated resources to satisfy the request, the scheduler will not place the Pod on that node.</p>
+</li>
+<li>
+<p><strong>Limits:</strong> These define the hard ceiling for resource consumption. If a container exceeds its memory limit, it risks being terminated by the kernel (OOMKilled). CPU limits act as a throttling mechanism, restricting the container&#8217;s execution time within a defined period.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The above will impact also the Quality of Service, QoS, of the pods. The QoS is used directly for eviction threshold:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 50%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">QoS Class</th>
+<th class="tableblock halign-left valign-top">Configuration Criteria</th>
+<th class="tableblock halign-left valign-top">Eviction Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Guaranteed</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Every container in the Pod must have both memory and CPU <code>limits</code> and <code>requests</code> configured, and the <code>requests</code> must equal the <code>limits</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Lowest Priority</strong> (Last to be evicted during node resource pressure).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Burstable</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Pod does not meet the criteria for Guaranteed, but at least one container has a memory or CPU <code>request</code> defined. (e.g., <code>requests</code> are lower than <code>limits</code>, or limits are not set).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Medium Priority</strong> (Evicted if no BestEffort pods remain and the node is under pressure).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>BestEffort</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No containers in the Pod have any memory or CPU <code>requests</code> or <code>limits</code> defined.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Highest Priority</strong> (First to be evicted when the node runs out of resources).</p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect2">
+<h3 id="_resource_allocation_table"><a class="anchor" href="#_resource_allocation_table"></a>Resource Allocation Table</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Resource Type</th>
+<th class="tableblock halign-left valign-top">Purpose</th>
+<th class="tableblock halign-left valign-top">Calculation Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>CPU Request</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scheduling and node assignment.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets <code>cpu.share</code> in cgroups to prioritize usage.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>CPU Limit</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Binding execution allocation (throttling).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets quota and period (defaults to 100ms segments).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_perspectives_on_resource_awareness"><a class="anchor" href="#_perspectives_on_resource_awareness"></a>Perspectives on Resource Awareness</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>It is vital to understand that different layers of your infrastructure interpret these settings differently:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Layer</th>
+<th class="tableblock halign-left valign-top">Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OpenShift/Kubernetes Layer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The scheduler uses requests to manage cluster density and node capacity. It ignores limits for scheduling decisions.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Kernel Layer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The kernel enforces limits via Control Groups (cgroups). Quotas and periods derived from the container spec are translated into filesystem values in <code>/sys/fs/cgroup</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Java Layer (OpenJDK)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Current versions of OpenJDK (post-8u191) are container-aware. However, Java only considers limits, not requests. Even if you define CPU requests in your YAML, the JVM will ignore them for internal heap sizing and thread pool calculations.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>While Java workloads are burstable (threads dynamically demand kernel time), the JVM performs its cgroup reading at <strong>startup</strong> only once. Consequently, the JVM is inelastic, i.e. changing a container limits dynamically and expect the JVM to change its settings without restart. If the user changes limits at runtime without restarting the Pod, the JVM will <strong>not</strong> automatically adjust its internal heuristics to match the new constraints.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_best_practices_for_ocp_configurations"><a class="anchor" href="#_best_practices_for_ocp_configurations"></a>Best Practices for OCP Configurations</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Avoid Overcommitting Critical Workloads:</strong> For production-critical applications, consider Guaranteed Quality of Service (QoS) - this will put the application as the last to be evicted. A pod is considered Guaranteed when both requests and limits are set to the same value for all containers in the pod.</p>
+</li>
+<li>
+<p><strong>Avoid Undercommiting Workloads:</strong> Benchmark the application to use the correct heap percentage (MaxRAMPercentage) to make sure heap and off-heap have space to grow accordingly.</p>
+</li>
+<li>
+<p><strong>Limit vs. Request Parity:</strong> If you are unsure of the application&#8217;s baseline, start by setting requests lower than limits to allow for burstable performance, but ensure the limit is high enough to accommodate peak load to prevent CPU throttling.</p>
+</li>
+<li>
+<p><strong>Memory Awareness:</strong> Prefer using memory limits into containers to prevent a single Java container from consuming a large chunck of available node memory and CPU, which can impact other pods on the same node. Unbounded deployments can be very useful, but need to be used in specific scenarios.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_unbouded_deployment"><a class="anchor" href="#_unbouded_deployment"></a>Unbouded deployment</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Although not the core of this course, it is totally possible and sometimes even desired to have Java applications without container limits, the so called unbouded. Scenarios such as very few java applications, large OCP nodes, and specific scearios for high spike demand can justify its utilization.</p>
+</div>
+<div class="paragraph">
+<p>This is achieved by creating an deployment without limits, which will have two main consequences:
+* Java will use the full host as limit: which can make the application use a very large number of CPUs as baseline (for thread pools) and a large memory utilization (given heap will be based on the host value.
+* QoS will be Burstable or Best Effort, depending if requests are set.</p>
+</div>
+<div class="paragraph">
+<p>This type of application deployment should be treated with caution, given the fact that several applications (unbouded) will cause a race for the hosts resources and may impact directly on CPU throttling (many threads competing at the same time for CPU and memory resources). Consequently, this can overload the host and create more possibilites for eviction scenarios (several Java unbouded demanding more and more resources) causing generalized evictions.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Pros and Cons of Unbounded Applications</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Pros</th>
+<th class="tableblock halign-left valign-top">Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>Use the full Host CPU and Memory</p>
+</li>
+<li>
+<p>Can spike the full host capability</p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>Have BestEffort QoS</p>
+</li>
+<li>
+<p>Competing with other applications</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hands_on_activity_inspecting_cgroup_resource_constraints"><a class="anchor" href="#_hands_on_activity_inspecting_cgroup_resource_constraints"></a>Hands-on Activity: Inspecting cgroup Resource Constraints</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this activity, you will verify how OpenShift translates your YAML configuration into cgroup settings visible to the Java application.</p>
+</div>
+<div class="paragraph">
+<p><strong>Prerequisites:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>An active OpenShift cluster (OCP 4 for Openshift Operators deployments).</p>
+</li>
+<li>
+<p><code>oc</code> CLI authenticated with administrative or project-level access.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Note: When deploying with an Operator, the Operator will control the deployment directly, therfore the user needs to modify the settings via the respective Custom Resource.</p>
+</div>
+<div class="paragraph">
+<p><strong>Steps:</strong></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Deploy a sample Java application (which will use run-java.sh as ENTRYPOINT) </strong> with defined limits and requests:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">###
+### Create a specific namespace for deployment
+###
+$ oc new-project hotrod-s2i-project
+###
+### Deployment of the applicatoin
+###
+$ oc new-app registry.access.redhat.com/ubi9/openjdk-17~https://github.com/alexbarbosa1989/hotrodspringboot.git --name=hotrod-app
+###
+### Set the limits and requests differently
+###
+$ oc set resources deployment/hotrod-app --limits=cpu="2",memory="2Gi" --requests=cpu="1",memory="1Gi"
+deployment.apps/hotrod-app resource requirements updated</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Access the running Pod</strong> to inspect the cgroup limits:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ oc get pod
+NAME                          READY   STATUS      RESTARTS   AGE
+hotrod-app-ID                 1/1     Running     0          24m
+oc rsh &lt;hotrod-app-ID&gt;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Check the CPU details</strong>:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ cat /sys/fs/cgroup/cpu.max &lt;----------------- cgroups v2
+200000 100000 &lt;-------------------------------- limit 2 CPU, request 1 CPU
+# This will return 100000 (100ms), confirming the 1000m CPU limit.
+$ jcmd 1 VM.info | grep active_processor_count
+active_processor_count: 2 &lt;-------------------- confirms 2 CPUs limit (request is ignored)</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Check the Memory details</strong>:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">sh-5.1$ cat /sys/fs/cgroup/memory.max &lt;-------- cgroups v2
+2147483648 &lt;----------------------------------- that's 2Gi
+$ jcmd 1 VM.info | grep "Heap address: 0x00000000c0000000"
+Heap address: 0x00000000c0000000, size: 1024 MB &lt;------ that's 50% of 2Gi</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>VM.info brings speciifc section for cgroups:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ jcmd 1 VM.info | grep -A18 "container (cgroup) information:"
+container (cgroup) information:
+container_type: cgroupv2 &lt;--------------------------------- cgroups v2
+cpu_cpuset_cpus: not supported
+cpu_memory_nodes: not supported
+active_processor_count: 2 &lt;--------------------------------- 2 CPU limits
+cpu_quota: 200000 &lt;----------------------------------------- 2 CPU limit
+cpu_period: 100000 &lt;---------------------------------------- 1 CPU request
+cpu_shares: no shares
+memory_limit_in_bytes: 2097152 k &lt;--------------------------- 2Gi limit
+memory_and_swap_limit_in_bytes: 2097152 k
+memory_soft_limit_in_bytes: 0
+memory_usage_in_bytes: 169868 k &lt;--------------------------- current usage
+memory_max_usage_in_bytes: not supported
+rss_usage_in_bytes: 165596 k
+cache_usage_in_bytes: 160 k
+memory_swap_current_in_bytes: 0
+memory_swap_max_limit_in_bytes: 0
+maximum number of tasks: unlimited
+current number of tasks: 54</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Above for the output related to <code>Max. Heap Size</code> and <code>active_processor_count</code>. You will notice these values are derived from the limits, not the requests.</p>
+</div>
+<div class="paragraph">
+<p>Finally, above shows the Java is fully complaint with cgroups v2, in case it wasn&#8217;t so then the container limits couldn&#8217;t be detected and the VM.info container details would not show those constraints.</p>
+</div>
+<div class="sect2">
+<h3 id="_default_red_hat_openjdks_entrypoint_vs_direct_java_execution"><a class="anchor" href="#_default_red_hat_openjdks_entrypoint_vs_direct_java_execution"></a>Default Red Hat OpenJDK&#8217;s ENTRYPOINT vs direct Java execution</h3>
+<div class="paragraph">
+<p>The above example (hotrod deployment) has 80% as default values, because it has run-java.sh as ENTRYPOINT:</p>
+</div>
+<div class="paragraph">
+<p>+</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ jcmd 1 VM.info | head
+1:
+#
+# JRE version: OpenJDK Runtime Environment (Red_Hat-17.0.20.1.1-1) (17.0.20.1+1) (build 17.0.20.1+1-LTS)
+# Java VM: OpenJDK 64-Bit Server VM (Red_Hat-17.0.20.1.1-1) (17.0.20.1+1-LTS, mixed mode, sharing, tiered, compressed oops, compressed class ptrs, parallel gc, linux-amd64)
+
+---------------  S U M M A R Y ------------
+
+Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -XX:MaxRAMPercentage=50.0 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+
+Host: Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz, 8 cores, 2G, Red Hat Enterprise Linux release 9.8 (Plow)
+---------------  P R O C E S S  ---------------
+
+Heap address: 0x00000000c0000000, size: 1024 MB, Compressed Oops mode: 32-bit</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Above shows 50%  (MaxRAMPercentage at 50%) of 2Gi, which is 1024Mb.</p>
+</div>
+<div class="paragraph">
+<p>However, observe Java&#8217;s internal detection of these limits - executing directly java command (25% expected):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">java -XshowSettings:vm -version &lt;------------ direct execution inside a container</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Example output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>VM settings:
+    Max. Heap Size (Estimated): 123.75M
+    Using VM: OpenJDK 64-Bit Server VM
+
+openjdk version "25.0.4.1" 2026-08-18
+OpenJDK Runtime Environment (Red_Hat-25.0.4.1.1-0) (build 25.0.4.1+1)
+OpenJDK 64-Bit Server VM (Red_Hat-25.0.4.1.1-0) (build 25.0.4.1+1, mixed mode, sharing)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The above is expected: Java is not using the <code>java-run.sh</code> ENTRYPOINT and as explained on this course - the MaxRAM percentage at 80% comes specifically from the <code>run-java.sh</code> ENTRYPOINT  - s2i with OpenJDK injects that <code>ENTRYPOINT</code> by default. Without this entrypoint, JAVA_OPTS environment variables are useless.</p>
+</div>
+<div class="paragraph">
+<p>In the above example, i.e. java straight execution, it will bring 25% because it is the default upstream limit.
+In other words, limit is set to 512Mi but the heap size displayed is 123.75M when executing java directly inside a Red Hat OpenJDK container.</p>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="openshift-and-kubernetes-integration.html">OpenShift and Kubernetes Integration</a></span>
+  <span class="next"><a href="understanding-cgroups-implications-for-java-applications.html">Understanding cgroups implications for Java applications</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+<script defer src="../../../_/js/vendor/audio-transcript.js"></script>
+  </body>
+</html>

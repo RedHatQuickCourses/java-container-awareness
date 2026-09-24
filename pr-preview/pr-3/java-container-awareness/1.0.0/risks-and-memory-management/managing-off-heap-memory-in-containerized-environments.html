@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Managing Heap and Off-Heap Memory in Containerized Environments :: Java Container Awareness</title>
+    <link rel="prev" href="implications-of-decoupling-heap-memory-from-container-limits.html">
+    <link rel="next" href="best-practices-for-java-memory-configuration-in-containers.html">
+    <meta name="generator" content="Antora 3.2.0-alpha.12">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/tabs.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/collapsible.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/reading-time.css">
+    <link rel="stylesheet" href="../../../_/css/vendor/audio-transcript.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Java Container Awareness</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/java-container-awareness/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="java-container-awareness" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Java Container Awareness</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../introduction-to-containerized-java/introduction-to-containerized-java.html">Introduction to Containerized Java</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../introduction-to-containerized-java/evolution-of-java-in-containerized-environments.html">Evolution of Java in containerized environments</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../introduction-to-containerized-java/overview-of-container-aware-versus-non-container-aware-java.html">Overview of container-aware versus non-container-aware Java</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../introduction-to-containerized-java/importance-of-cgroup-detection-for-modern-deployments.html">Importance of cgroup detection for deployments</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../container-resource-detection/container-resource-detection.html">Container Resource Detection</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/understanding-jdk8146115-and-java-8u191-updates.html">Understanding JDK8146115 and Java 8u191 Updates</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/detecting-container-memory-limits.html">Detecting Container Memory Limits</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/determining-cpu-availability-within-containers.html">Determining CPU Availability Within Containers</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/determining-cpu-availability-within-containers-podman.html">Hands-on Exercise: Inspecting CPU Awareness in a Local Podman Environment</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../container-resource-detection/determining-cpu-availability-within-containers-openshift.html">Hands-on Exercise: Inspecting CPU-Aware Deployments in OpenShift</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="risks-and-memory-management.html">Risks and Memory Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="implications-of-decoupling-heap-memory-from-container-limits.html">Implications of Decoupling Heap Memory from Container Limits</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="managing-off-heap-memory-in-containerized-environments.html">Managing Heap and Off-Heap Memory in Containerized Environments</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="best-practices-for-java-memory-configuration-in-containers.html">Best Practices for Java Memory Configuration in Containers</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/openshift-and-kubernetes-integration.html">OpenShift and Kubernetes Integration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/configuring-limits-and-requests-in-red-hat-openshift.html">Configuring Limits and Requests in Red Hat OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/understanding-cgroups-implications-for-java-applications.html">Understanding cgroups implications for Java applications</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-integration/navigating-kubernetes-resource-management-for-java.html">Navigating Kubernetes resource management for Java</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-tooling/troubleshooting-and-tooling.html">Troubleshooting and Tooling</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/identifying-container-aware-versus-non-container-aware-tools.html">Identifying Container-Aware versus Non-Container-Aware Tools</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/analyzing-container-limits-and-resource-utilization.html">Analyzing Container Limits and Resource Utilization</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/diagnostic-strategies-for-java-deployments-in-openshift.html">Diagnostic strategies for Java deployments in OpenShift</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-tooling/java-diagnostics-jcmd.html">Java Diagnostics: jcmd</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/tuning-java-heap-settings-percentage-based-on-container-limits.html">Tuning Java Heap Settings Based on Container Limits</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/monitoring-cpu-and-memory-usage-using-container-aware-tools.html">Monitoring CPU and Memory Usage with Container-Aware Tools</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.html">Troubleshooting Resource Constraints in and out of OpenShift</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Java Container Awareness</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Java Container Awareness</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Java Container Awareness</a></li>
+    <li><a href="risks-and-memory-management.html">Risks and Memory Management</a></li>
+    <li><a href="managing-off-heap-memory-in-containerized-environments.html">Managing Heap and Off-Heap Memory in Containerized Environments</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc" data-audio-src="managing-off-heap-memory-in-containerized-environments.wav" data-transcript-src="managing-off-heap-memory-in-containerized-environments.txt">
+<h1 class="page">Managing Heap and Off-Heap Memory in Containerized Environments</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>In current Java applications (Java 8+), memory management extends beyond the Java Heap. While the Heap is responsible for storing object instances, the <strong>Off-Heap</strong> memory—encompassing Metaspace, Code Cache, Thread stacks, and Direct ByteBuffers. Those are critical for the stability of containerized deployments.</p>
+</div>
+<div class="paragraph">
+<p>When a Java application runs in a container, it is subject to strict Linux Control Group (cgroup) memory limits. If the sum of the Heap and Off-Heap memory exceeds the container limit, the container runtime will trigger an <code>OOMKill</code> (Out of Memory Kill).</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_java_entrypoint_practices"><a class="anchor" href="#_java_entrypoint_practices"></a><strong>Java ENTRYPOINT Practices:</strong></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Default OpenJDK container uses run-java.sh as ENTRYPOINT, this has several implications.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Feature</th>
+<th class="tableblock halign-left valign-top"><code>run-java.sh</code> Entry Point</th>
+<th class="tableblock halign-left valign-top">Straight <code>java</code> Start</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Execution Method</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Shell wrapper script that evaluates the environment and builds the Java command line.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Native binary execution directly invoking the JVM.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Environment Variables</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Automatically parses custom variables like <code>JAVA_OPTS_APPEND</code>, <code>JAVA_OPTS</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ignores script-specific variables. Relies strictly on command-line arguments and <code>JAVA_TOOL_OPTIONS</code> and <code>_JAVA_OPTIONS</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Default JVM Tuning</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Automatically applies container-friendly defaults (e.g., <code>-XX:MaxRAMPercentage</code>, ParallelGC settings) if not overridden.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Uses standard JVM defaults unless explicitly defined in the command line or deployment manifest.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>GC collector</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Run-java.sh sets ParallelGC as default collector</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The collector is detected based on CPU and the JDK version (1 CPU will set SerialGC, 2+ on JDK 11+ sets G1GC).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Container Awareness</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Container aware: sets MaxRAMPercentage at 80% (or 50% previously).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Container aware: sets MaxRAMPercentage at 25%, which is the default value upstream</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Process Management</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">It can have Java process with different PID than 1, but not as a rule</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Directly executes as PID 1 given entrypoint will be the first process to be executed</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Recommendation</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">run-java.sh is to be used: it gives flexibility.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Straight deployment should be avoided, reason: you cannot tune MAxRAMPercentage as easily and may be bounded by the 25% heap limit, which is the full idea of the env variables.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>In a table with the direct implications for deployment:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><code>run-java.sh</code> ENTRYPOINT (Red Hat Default)</th>
+<th class="tableblock halign-left valign-top"><code>java</code> ENTRYPOINT (Direct)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>Built-in wrapper script provided by Red Hat UBI Java images.</p>
+</li>
+<li>
+<p>Automatically detects runnable JAR files in the <code>/deployments</code> directory.</p>
+</li>
+<li>
+<p>Parses specific environment variables like <code>JAVA_OPTS_APPEND</code>.</p>
+</li>
+<li>
+<p>Automatically calculates JVM memory limits based on container size if not explicitly set.</p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>Bypasses the Red Hat wrapper script, executing the Java binary directly.</p>
+</li>
+<li>
+<p>Requires manually defining the working directory and execution command.</p>
+</li>
+<li>
+<p>Requires using standard Java variables (like <code>JAVA_TOOL_OPTIONS</code>) or passing arguments directly in the ENTRYPOINT to tune the JVM.</p>
+</li>
+<li>
+<p>Does not provide automatic memory calculation based on container bounds.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-dockerfile hljs" data-lang="dockerfile">FROM registry.access.redhat.com/ubi9/openjdk-17:latest
+
+# Copy the compiled JAR into the standard deployments folder
+COPY target/hotrod-app.jar /deployments/hotrod-app.jar
+
+# No ENTRYPOINT required; the base image automatically executes run-java.sh</code></pre>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-dockerfile hljs" data-lang="dockerfile">FROM registry.access.redhat.com/ubi9/openjdk-17:latest
+
+# Create a working directory and copy the JAR
+WORKDIR /app
+COPY target/hotrod-app.jar /app/hotrod-app.jar
+
+# Explicitly define the Java entrypoint
+ENTRYPOINT ["java", "-jar", "hotrod-app.jar"]</code></pre>
+</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references_for_environment_variables"><a class="anchor" href="#_references_for_environment_variables"></a><strong>References for environment variables</strong></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>For comprehensive details on configuring Red Hat Universal Base Image (UBI) OpenJDK containers, including supported environment variables across different UBI versions, consult the official documentation:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://rh-openjdk.github.io/redhat-openjdk-containers/">Red Hat UBI OpenJDK Container Images Documentation</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_cgroups_v1_vs_cgropus_v2"><a class="anchor" href="#_cgroups_v1_vs_cgropus_v2"></a>Cgroups v1 vs cgropus v2</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. cgroups v1 vs. v2 Memory Metrics</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Metric</th>
+<th class="tableblock halign-left valign-top">cgroups v1 Path</th>
+<th class="tableblock halign-left valign-top">cgroups v2 Path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Peak Usage</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory/memory.max_usage_in_bytes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory.peak</code> (Requires Kernel 5.19+)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Current Usage</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory/memory.usage_in_bytes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory.current</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Hard Limit</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory/memory.limit_in_bytes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory.max</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Soft Limit</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory/memory.soft_limit_in_bytes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/sys/fs/cgroup/memory.high</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_decoupling_risk"><a class="anchor" href="#_the_decoupling_risk"></a>The Decoupling Risk</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Historically, developers focused exclusively on <code>-Xmx</code> (maximum heap size). However, in a container, the JVM sees the container&#8217;s memory limit. If you configure the Heap to consume too large a percentage of the container&#8217;s limit, you leave insufficient headroom for Off-Heap requirements. Therefore a percentage approach is used:</p>
+</div>
+<div class="paragraph">
+<p>Key Off-Heap components that must be accounted for include:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Metaspace:</strong> Stores class metadata.</p>
+</li>
+<li>
+<p><strong>Code Cache:</strong> Stores compiled native code by the JIT compiler.</p>
+</li>
+<li>
+<p><strong>Thread Stacks:</strong> Each thread requires native memory; in applications with high thread counts, this can lead to significant memory consumption.</p>
+</li>
+<li>
+<p><strong>Direct Buffers:</strong> Used by NIO libraries and netty-based frameworks.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_best_practices"><a class="anchor" href="#_best_practices"></a>Best Practices</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To prevent <code>OOMKills</code>, you must treat the container&#8217;s memory limit as the total capacity for both Heap and Off-Heap.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Calculate the Total Footprint:</strong> Before setting heap percentages, perform load testing to determine the baseline Off-Heap usage of your application under peak load.</p>
+</li>
+<li>
+<p><strong>Use Relative Sizing:</strong> Instead of fixed <code>-Xmx</code> values, JVM will already start with a percentage value that leverage container-aware JVM flags that allow the heap to scale proportionally to the container limit. Therefore, user can tune that value:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">-XX:MaxRAMPercentage=80.0 (default value)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><em>Note: If your application is highly dependent on Off-Heap (e.g., uses large Direct Buffers or high thread counts), you should reduce this percentage to 50% or 60% to ensure enough spare space/breathing room for native memory allocations.</em></p>
+</div>
+</li>
+<li>
+<p><strong>Monitor Native Memory:</strong> Use the Native Memory Tracking (NMT) feature to gain visibility into non-heap memory usage.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Enable NMT in the container
+-XX:NativeMemoryTracking=summary (or detail)</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>(FIXME: Move the hands-on activity to a separate page after the review)</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hands_on_activity_analyzing_heap_and_off_heap_settings"><a class="anchor" href="#_hands_on_activity_analyzing_heap_and_off_heap_settings"></a>Hands-on Activity: Analyzing Heap and Off-Heap Settings</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This activity guides you through identifying the memory footprint of your Java process.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Use <code>jcmd</code> to inspect the memory distribution of the running containerized application at runtime.</p>
+</li>
+<li>
+<p>Assuming the same application as before.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get deployment
+oc get pods</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example outpput:</div>
+<div class="content">
+<pre>[lab-user@bastion ~]$ oc get deployment
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+hotrod-app   1/1     1            1           2m16s
+[lab-user@bastion ~]$
+[lab-user@bastion ~]$ oc get pods
+NAME                          READY   STATUS      RESTARTS   AGE
+hotrod-app-1-build            0/1     Completed   0          12m
+hotrod-app-7569b6c6cd-52dqg   1/1     Running     0          4m28s
+[lab-user@bastion ~]$</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Connect to the running container using the <code>oc rsh</code> command:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc rsh &lt;pod-name&gt;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Confirm the default MaxRAMPercentage value is at 80% via jcmd VM.info&#8217;s <code>Command Line</code>:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jcmd 1 VM.info | grep 'Command Line'</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>sh-5.1$ jcmd 1 VM.info | grep 'Command Line'
+Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+sh-5.1$</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note <code>-XX:MaxRAMPercentage=80.0</code> set by default in the run-java.sh script. This means that the JVM will use up to 80% of the container&#8217;s memory limit for the Java Heap.</p>
+</div>
+</li>
+<li>
+<p>Check the Heap Max Capacity, container type, and memory limit in bytes:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jcmd 1 VM.info | grep -e 'Heap Max Capacity' -e 'container_type' -e 'memory_limit_in_bytes'
+exit</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>sh-5.1$ jcmd 1 VM.info | grep -e 'Heap Max Capacity' -e 'container_type' -e 'memory_limit_in_bytes'
+ Heap Max Capacity: 103040M &lt;------------------- 103G (80% of 128G)
+container_type: cgroupv2 &lt;------------------------------------------ verifying cgroups v2
+memory_limit_in_bytes: unlimited &lt;------------------ no memory limit set
+sh-5.1$ exit
+[lab-user@bastion ~]$</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Check the memory capacity of the node running the pod using the <code>free</code> command:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods -o wide
+oc debug node/&lt;node_name&gt; -- bash -c "free -m"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Replace &lt;node_name&gt; with the name of the node where your pod is running.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>[lab-user@bastion ~]$ oc get pods -o wide
+NAME                          READY   STATUS      RESTARTS   AGE   IP             NODE                            NOMINATED NODE   READINESS GATES
+hotrod-app-1-build            0/1     Completed   0          44m   10.232.0.221   control-plane-cluster-phzlt-1   &lt;none&gt;           &lt;none&gt;
+hotrod-app-7569b6c6cd-52dqg   1/1     Running     0          37m   10.232.0.223   control-plane-cluster-phzlt-1   &lt;none&gt;           &lt;none&gt;
+[lab-user@bastion ~]$
+[lab-user@bastion ~]$ oc debug node/control-plane-cluster-phzlt-1 -- bash -c "free -m"
+Temporary namespace openshift-debug-vq288 is created for debugging node...
+Starting pod/control-plane-cluster-phzlt-1-debug-72n7v ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+               total        used        free      shared  buff/cache   available
+Mem:          128797       21721       55812         273       52770      107075
+Swap:              0           0           0
+
+Removing debug pod ...
+Temporary namespace openshift-debug-vq288 was removed.
+[lab-user@bastion ~]$</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note the total memory of the node is 128G, which matches the Heap Max Capacity of 103G (80% of 128G) seen in the previous step.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Although a container may have CPU limits configured, without an explicit memory limit, it can use memory without a defined container-level constraint. In this case, Java determines its memory limit based on the host&#8217;s available memory, with MaxRAMPercentage set to 80% of the host memory.
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Let&#8217;s set a limit on the container memory and verify the percentage.</p>
+</li>
+<li>
+<p>Set 2Gi limit on the container and leave the MaxRAMPercentage at default 80%</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc set resources deployment/hotrod-app --limits=memory="2Gi"</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Get the pod name and go inside the pod:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pod
+oc rsh &lt;pod-name&gt;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Check the Heap Max Capacity and memory limit in bytes:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jcmd 1 VM.info | grep -e 'Heap Max Capacity' -e 'memory_limit_in_bytes'
+exit</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>sh-5.1$ jcmd 1 VM.info | grep -e 'Heap Max Capacity' -e 'memory_limit_in_bytes'
+ Heap Max Capacity: 1640M &lt;------------------- 1640M (80% of 2Gi)
+memory_limit_in_bytes: 2097152 k &lt;------------------ 2Gi limit set on the container
+sh-5.1$</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Assuming 80% is an inadequate value, let&#8217;s set the MaxRAMPercentage to 50% and verify the Heap Max Capacity again.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc set env deployment/hotrod-app JAVA_OPTS_APPEND="-XX:MaxRAMPercentage=50.0"
+oc get pod
+oc rsh &lt;pod-name&gt;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Check the MaxRAMPercentage, Heap Max Capacity and memory limit in bytes:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jcmd 1 VM.info | grep -e 'Command Line' -e 'Heap Max Capacity' -e 'memory_limit_in_bytes'
+exit</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>sh-5.1$ jcmd 1 VM.info | grep -e 'Command Line' -e 'Heap Max Capacity' -e 'memory_limit_in_bytes'
+Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -XX:MaxRAMPercentage=50.0 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+ Heap Max Capacity: 1G
+memory_limit_in_bytes: 2097152 k
+sh-5.1$ exit
+[lab-user@bastion ~]$</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that the <code>Command Line</code> shows both <code>-XX:MaxRAMPercentage=80.0</code> and <code>-XX:MaxRAMPercentage=50.0</code>. The latter takes precedence, resulting in a Heap Max Capacity of 1G (50% of 2Gi).</p>
+</div>
+</li>
+<li>
+<p>For more details on off-heap settings, deploy with NativeMemoryTracking (NMT) as below:</p>
+</li>
+<li>
+<p>Deploy the application with NativeMemoryTracking summary (or details)</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc set env deployment/hotrod-app JAVA_OPTS_APPEND="-XX:NativeMemoryTracking=summary"</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Connect to the running container using the <code>oc rsh</code> command</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pod
+oc rsh &lt;pod-name&gt;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Confirm the application has the correct JVM argument, NativeMemoryTracking, applied:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jcmd 1 VM.info | grep jvm_args</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example output:</div>
+<div class="content">
+<pre>sh-5.1$ jcmd 1 VM.info | grep jvm_args
+jvm_args: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -XX:NativeMemoryTracking=summary &lt;-------------- HERE
+sh-5.1$</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Full example output for VM.native_memory summary:</p>
+<div class="listingblock">
+<div class="content">
+<pre>sh-5.3$ jcmd 1 VM.native_memory summary
+1:
+$ jcmd 1 VM.native_memory
+1:
+Native Memory Tracking: (Omitting categories weighting less than 1KB)
+Total: reserved=28725786KB, committed=1518126KB
+       malloc: 62206KB #254051
+       mmap:   reserved=28663580KB, committed=1455920KB
+
+-                 Java Heap (reserved=26286080KB, committed=514048KB)
+                            (mmap: reserved=26286080KB, committed=514048KB)
+
+-                     Class (reserved=1049363KB, committed=5779KB)
+                            (classes #8643)
+                            (  instance classes #8081, array classes #562)
+                            (malloc=787KB #18256) (at peak)
+                            (mmap: reserved=1048576KB, committed=4992KB)
+                            (  Metadata:   )
+                            (    reserved=65536KB, committed=32256KB)
+                            (    used=32053KB)
+                            (    waste=203KB =0.63%)
+                            (  Class space:)
+                            (    reserved=1048576KB, committed=4992KB)
+                            (    used=4780KB)
+                            (    waste=212KB =4.25%)
+
+-                    Thread (reserved=39016KB, committed=2836KB)
+                            (thread #39)
+                            (stack: reserved=38912KB, committed=2732KB)
+                            (malloc=61KB #232) (peak=72KB #242)
+                            (arena=43KB #74) (peak=471KB #42)
+
+-                      Code (reserved=248583KB, committed=14187KB)
+                            (malloc=895KB #5162) (peak=895KB #5163)
+                            (mmap: reserved=247688KB, committed=13292KB)
+
+-                        GC (reserved=989213KB, committed=905329KB)
+                            (malloc=28853KB #134) (peak=28861KB #136)
+                            (mmap: reserved=960360KB, committed=876476KB)
+
+-                  Compiler (reserved=195KB, committed=195KB)
+                            (malloc=30KB #355) (peak=66KB #139)
+                            (arena=165KB #5) (peak=54165KB #23)
+
+-                  Internal (reserved=12650KB, committed=12650KB)
+                            (malloc=12614KB #5439) (peak=12741KB #5348)
+                            (mmap: reserved=36KB, committed=36KB)
+
+-                     Other (reserved=4892KB, committed=4892KB)
+                            (malloc=4892KB #20) (peak=4902KB #22)
+
+-                    Symbol (reserved=9203KB, committed=9203KB)
+                            (malloc=8524KB #220921) (at peak)
+                            (arena=680KB #1) (at peak)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you see "Native memory tracking is not enabled", you must enable it by adding the following JVM option:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Option 1 - <code>-XX:NativeMemoryTracking=summary</code></p>
+</li>
+<li>
+<p>Option 2 - <code>-XX:NativeMemoryTracking=details</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Update the current deployment with this setting</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ oc set env deployment/hotrod-app JAVA_OPTS_APPEND="-XX:NativeMemoryTracking=detail"</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Access the terminal of your new running pod:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc rsh &lt;pod-name&gt;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Inspect the memory distribution:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jcmd 1 VM.native_memory summary</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Example output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">sh-5.3$ jcmd 1 VM.native_memory summary
+Picked up JAVA_OPTS_APPEND: -XX:NativeMemoryTracking=summary
+1:
+Native Memory Tracking:
+(Omitting categories weighting less than 1KB)
+
+Total: reserved=33545316KB, committed=288676KB
+       malloc: 59876KB #80575, peak=111544KB #81451
+       mmap:   reserved=33485440KB, committed=228800KB
+
+-                 Java Heap (reserved=31424512KB, committed=147456KB)
+                            (mmap: reserved=31424512KB, committed=147456KB, at peak)
+
+. . .
+
+-      String Deduplication (reserved=1KB, committed=1KB)
+                            (malloc=1KB tag=String Deduplication #8) (at peak)
+
+-           Object Monitors (reserved=75KB, committed=75KB)
+                            (malloc=75KB tag=Object Monitors #385) (at peak)</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p><strong>Additional Notes:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>To analyze the output for off-heap, look at sections such as:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Internal:</strong> Memory used by the JVM internal structures.</p>
+</li>
+<li>
+<p><strong>Symbol:</strong> Memory used for string interning.</p>
+</li>
+<li>
+<p><strong>Thread:</strong> Memory consumed by thread/stack spaces.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>To ensure your configuration is resilient, verify that your application does not exceed the container limit.</p>
+</li>
+<li>
+<p>View the current cgroup memory limit for your container:</p>
+<div class="listingblock">
+<div class="content">
+<pre>### CGROUPS V1
+cat /sys/fs/cgroup/memory/memory.limit_in_bytes
+### CGROUPS V2
+cat /sys/fs/cgroup/memory.max</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Compare this value against your calculated Heap + Off-Heap usage. If your application&#8217;s <code>Total</code> committed memory (as seen in NMT) + heap usage exceeds this limit, one must adjust your <code>MaxRAMPercentage</code> downward or increase the container&#8217;s memory limit in OpenShift <code>Deployment</code> YAML.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Troubleshooting Tip:</strong></p>
+</div>
+<div class="paragraph">
+<p>The following risks are possible on the deployment in orchestrators like Openshift 4:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>OOMKill</strong>: The full memory is above the container size or cgroups v2 detection is failing.</p>
+</li>
+<li>
+<p><strong>OOMException</strong>: Usually off-heap allocation or metaspace, not that if <code>ExitOnOutOfMemoryError</code> flag is enabled, so then the JVM will exit.</p>
+</li>
+<li>
+<p><strong>SIGTERM</strong>: In case communication is impacted or the JVM is unresponsive sigterm can kick in. That will be in the events.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If you encounter <code>cgroup OOMKills</code> despite having a small Java Heap, use <code>jcmd</code> to identify the category consuming unexpected amounts of native memory. From that, investigate off-heap components such as non-container aware libraries, thread pool sizing, and do an investigation from the off-heap size perspective.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="implications-of-decoupling-heap-memory-from-container-limits.html">Implications of Decoupling Heap Memory from Container Limits</a></span>
+  <span class="next"><a href="best-practices-for-java-memory-configuration-in-containers.html">Best Practices for Java Memory Configuration in Containers</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+<script defer src="../../../_/js/vendor/tabs.js"></script>
+<script defer src="../../../_/js/vendor/reading-time.js"></script>
+<script defer src="../../../_/js/vendor/audio-transcript.js"></script>
+  </body>
+</html>
