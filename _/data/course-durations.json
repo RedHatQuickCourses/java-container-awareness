@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 4549,
+  "totalSeconds": 4563,
   "pageCount": 30,
   "pages": [
     {
@@ -50,7 +50,7 @@
     {
       "module": "container-resource-detection",
       "page": "determining-cpu-availability-within-containers.adoc",
-      "seconds": 163
+      "seconds": 177
     },
     {
       "module": "container-resource-detection",

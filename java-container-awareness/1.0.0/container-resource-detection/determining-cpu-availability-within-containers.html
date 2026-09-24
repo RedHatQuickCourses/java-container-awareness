@@ -356,15 +356,16 @@ cpu_shares: 51</code></pre>
 <div class="sect2">
 <h3 id="_workaround_for_non_container_aware_jvms"><a class="anchor" href="#_workaround_for_non_container_aware_jvms"></a>Workaround for non-container aware JVMs</h3>
 <div class="paragraph">
-<p>As explained in <a href="https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-and-nodejs-openshift-4" class="bare">https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-and-nodejs-openshift-4</a>, in case you are running an older, non-container-aware JVM, an adequate workaround is to:</p>
+<p>As explained in <a href="https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-and-nodejs-openshift-4">how cgroups v2 impacts Java and Node.js in OpenShift 4</a>.
+To understand how the transition away from cgroups v1 affects your application runtimes and also it discusses workarounds, for instance: in case you are running an older (pre-8u372 or 11.0.16-) on cgroups v2 host or using a fully non-container-aware OpenJDK the adequate workaround is two-fold:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Manually set <code>-XX:ActiveProcessorCount</code> to match your container CPU limit.</p>
+<p>Manually set <code>-XX:ActiveProcessorCount</code> to match the container CPU limit.</p>
 </li>
 <li>
-<p>Manually set <code>-Xmx</code> to an appropriate value based on your container memory limit (leaving a buffer for off-heap JVM memory to avoid OOMKilled errors).</p>
+<p>Manually set <code>-Xmx</code> to an appropriate value based on your container memory limit (leaving a buffer for all off-heap segments of JVM memory to avoid OOMKilled errors).</p>
 </li>
 </ul>
 </div>
