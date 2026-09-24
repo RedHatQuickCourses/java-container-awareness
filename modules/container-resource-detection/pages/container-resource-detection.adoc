@@ -9,4 +9,4 @@ Container resource detection enables the Java Virtual Machine (JVM) to accuratel
 *   **CPU Availability:** The JVM detects the number of CPU cores allocated to the container, preventing over-provisioning and ensuring efficient thread management within the containerized environment.
 *   **Operational Benefits:** Accurate detection prevents OutOfMemory and OutOfMemoryKill  caused by the JVM incorrectly defaulting to host-level physical memory rather than container-specific limits.
 
-In simple terms: don't not worry about the Xmx directly. Worry about the correct percentage value to be set of heap vs off-heap.
+In simple terms: do not not worry about the Xmx directly vs size of the container. Instead, focus on the adequate correct percentage value for heap inside a container and how the application behaves.
