@@ -110,6 +110,10 @@ This does not seem much, but it is a core issue if you factor in:
 
 Therefore, as corrolary of the above, we see that the more performant the application, the more likely more than 1 CPU needs to be used: for CPU bounded pools and for GC performance.
 
+Over all 1 CPU could be fully valid use case for a small deployments such as quarkus microservices, and small springboot applications. However, the reality is much more nuanced than just a table (use case -> CPU) and requires benchmarking as means to find the most adequate CPU allocation. 
+
+As everything we suggest fully testing and for critical deployments perhaps 1 CPU may not be entirely adequate, again because CPU is used for thread calculations, including Parallel and concurrent threads for GC collectors, and it is used by the kernel for allocating the time for those threads to run.
+
 == Hands-on Activity: Inspecting cgroup Resource Constraints
 
 In this activity, you will verify how OpenShift translates your YAML configuration into cgroup settings visible to the Java application.
