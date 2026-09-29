@@ -383,8 +383,10 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_unbouded_deployment"><a class="anchor" href="#_unbouded_deployment"></a>Unbouded deployment</h2>
+<h2 id="_special_use_cases"><a class="anchor" href="#_special_use_cases"></a>Special use cases</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_unbounded_deployment"><a class="anchor" href="#_unbounded_deployment"></a>Unbounded deployment</h3>
 <div class="paragraph">
 <p>Although not the core of this course, it is totally possible and sometimes even desired to have Java applications without container limits, the so called unbouded. Scenarios such as very few java applications, large OCP nodes, and specific scearios for high spike demand can justify its utilization.</p>
 </div>
@@ -394,7 +396,7 @@
 * QoS will be Burstable or Best Effort, depending if requests are set.</p>
 </div>
 <div class="paragraph">
-<p>This type of application deployment should be treated with caution, given the fact that several applications (unbouded) will cause a race for the hosts resources and may impact directly on CPU throttling (many threads competing at the same time for CPU and memory resources). Consequently, this can overload the host and create more possibilites for eviction scenarios (several Java unbouded demanding more and more resources) causing generalized evictions.</p>
+<p>This type of application deployment should be treated with caution, given the fact that several applications (unbouded) will cause a race for the hosts resources and may impact directly on CPU throttling (many threads competing at the same time for CPU and memory resources). Consequently, this can overload the host and create more possibilites for eviction scenarios (several Java unbounded demanding more and more resources) causing generalized evictions.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 1. Pros and Cons of Unbounded Applications</caption>
@@ -433,6 +435,24 @@
 </tr>
 </tbody>
 </table>
+</div>
+<div class="sect2">
+<h3 id="_deployment_with_1_cpu"><a class="anchor" href="#_deployment_with_1_cpu"></a>Deployment with 1 CPU</h3>
+<div class="paragraph">
+<p>A deployment with one CPU is especial because Java uses CPU for its threads calculations, and the number of threads in Java determine its performance.
+Any, and all, thread pools that are CPU bounded will be calculated using CPU as 1, and therefore will be significant performance impact on deployments.
+That is very relevant exactly for GC threads, because with 1 CPU, the SerialGC collector is very much likely - if not certainly - the best performance GC cleaning, because there is no context switch.
+Specifically for GC, the number of CPUs sets the Parallel threads (for all Parallel phased collectors starting with ParallelGC).</p>
+</div>
+<div class="paragraph">
+<p>This does not seem much, but it is a core issue if you factor in:
+  - that Java allows using a different GC collector even with 1 CPU and doesn&#8217;t overwrite the user setting
+  - run-java.sh sets ParallelGC by default at start up</p>
+</div>
+<div class="paragraph">
+<p>Therefore, as corrolary of the above, we see that the more performant the application, the more likely more than 1 CPU needs to be used: for CPU bounded pools and for GC performance.</p>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
