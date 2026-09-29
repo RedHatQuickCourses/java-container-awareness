@@ -77,6 +77,7 @@ While Java workloads are burstable (threads dynamically demand kernel time), the
 Although not the core of this course, it is totally possible and sometimes even desired to have Java applications without container limits, the so called unbouded. Scenarios such as very few java applications, large OCP nodes, and specific scearios for high spike demand can justify its utilization.
 
 This is achieved by creating an deployment without limits, which will have two main consequences:
+
 * Java will use the full host as limit: which can make the application use a very large number of CPUs as baseline (for thread pools) and a large memory utilization (given heap will be based on the host value.
 * QoS will be Burstable or Best Effort, depending if requests are set.
 
