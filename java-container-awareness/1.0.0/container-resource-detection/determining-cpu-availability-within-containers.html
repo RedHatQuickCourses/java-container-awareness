@@ -353,8 +353,11 @@ cpu_shares: 51</code></pre>
 </li>
 </ul>
 </div>
-<div class="sect2">
-<h3 id="_workaround_for_non_container_aware_jvms"><a class="anchor" href="#_workaround_for_non_container_aware_jvms"></a>Workaround for non-container aware JVMs</h3>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_workaround_for_non_container_aware_jvms_in_cgropus_v2_hosts"><a class="anchor" href="#_workaround_for_non_container_aware_jvms_in_cgropus_v2_hosts"></a>Workaround for non-container aware JVMs in cgropus v2 hosts</h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>As explained in <a href="https://developers.redhat.com/articles/2025/11/27/how-does-cgroups-v2-impact-java-and-nodejs-openshift-4">how cgroups v2 impacts Java and Node.js in OpenShift 4</a>.
 To understand how the transition away from cgroups v1 affects your application runtimes and also it discusses workarounds, for instance: in case you are running an older (pre-8u372 or 11.0.16-) on cgroups v2 host or using a fully non-container-aware OpenJDK the adequate workaround is two-fold:</p>
@@ -362,13 +365,24 @@ To understand how the transition away from cgroups v1 affects your application r
 <div class="ulist">
 <ul>
 <li>
-<p>Manually set <code>-XX:ActiveProcessorCount</code> to match the container CPU limit.</p>
+<p>Manually set <code>-XX:ActiveProcessorCount</code> to match the container CPU limit. That will set the threads pools sizes.</p>
 </li>
 <li>
-<p>Manually set <code>-Xmx</code> to an appropriate value based on your container memory limit (leaving a buffer for all off-heap segments of JVM memory to avoid OOMKilled errors).</p>
+<p>Manually set <code>-Xmx</code> to an appropriate value based on your container memory limit (leaving a buffer for all off-heap segments of JVM memory to avoid OOMKilled errors). That sets the heap size directly.</p>
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p>Cgroups does not determine (by itself) the performance of Java, but Java uses cgroups to set the size of the memory and the CPU limits. That&#8217;s because CPU is abstracted by Java as threads, which is the main concept for running workloads.</p>
+</div>
+<div class="paragraph">
+<p>Therefore, as long as the same QoS, same CPU settings, same context (application) is used, the performance should be the same (or very equivalent).</p>
+</div>
+<div class="paragraph">
+<p>If there is a performance difference: other factors need to explain: Qos, Threads, number of CPUs, throttling on the cgropus v2 nodes.</p>
+</div>
+<div class="paragraph">
+<p>Note that throttling can happen on both scenarios and it is not determined by cgroups. cgropus is just the path and the hierarchy on CPU and memory to be used.</p>
 </div>
 </div>
 </div>
