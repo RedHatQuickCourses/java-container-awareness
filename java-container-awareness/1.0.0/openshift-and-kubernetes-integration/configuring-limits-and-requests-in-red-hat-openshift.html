@@ -452,6 +452,12 @@ Specifically for GC, the number of CPUs sets the Parallel threads (for all Paral
 <div class="paragraph">
 <p>Therefore, as corrolary of the above, we see that the more performant the application, the more likely more than 1 CPU needs to be used: for CPU bounded pools and for GC performance.</p>
 </div>
+<div class="paragraph">
+<p>Over all 1 CPU could be fully valid use case for a small deployments such as quarkus microservices, and small springboot applications. However, the reality is much more nuanced than just a table (use case &#8594; CPU) and requires benchmarking as means to find the most adequate CPU allocation.</p>
+</div>
+<div class="paragraph">
+<p>As everything we suggest fully testing and for critical deployments perhaps 1 CPU may not be entirely adequate, again because CPU is used for thread calculations, including Parallel and concurrent threads for GC collectors, and it is used by the kernel for allocating the time for those threads to run.</p>
+</div>
 </div>
 </div>
 </div>
