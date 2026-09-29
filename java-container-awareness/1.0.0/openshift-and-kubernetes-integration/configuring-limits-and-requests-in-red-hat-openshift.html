@@ -391,9 +391,17 @@
 <p>Although not the core of this course, it is totally possible and sometimes even desired to have Java applications without container limits, the so called unbouded. Scenarios such as very few java applications, large OCP nodes, and specific scearios for high spike demand can justify its utilization.</p>
 </div>
 <div class="paragraph">
-<p>This is achieved by creating an deployment without limits, which will have two main consequences:
-* Java will use the full host as limit: which can make the application use a very large number of CPUs as baseline (for thread pools) and a large memory utilization (given heap will be based on the host value.
-* QoS will be Burstable or Best Effort, depending if requests are set.</p>
+<p>This is achieved by creating an deployment without limits, which will have two main consequences:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Java will use the full host as limit: which can make the application use a very large number of CPUs as baseline (for thread pools) and a large memory utilization (given heap will be based on the host value.</p>
+</li>
+<li>
+<p>QoS will be Burstable or Best Effort, depending if requests are set.</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
 <p>This type of application deployment should be treated with caution, given the fact that several applications (unbouded) will cause a race for the hosts resources and may impact directly on CPU throttling (many threads competing at the same time for CPU and memory resources). Consequently, this can overload the host and create more possibilites for eviction scenarios (several Java unbounded demanding more and more resources) causing generalized evictions.</p>
