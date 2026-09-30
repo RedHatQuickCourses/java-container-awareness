@@ -88,7 +88,7 @@ INFO running in /deployments
 2026-09-21 12:12:09.652  INFO 1 --- [           main] c.r.h.h.HotrodspringbootApplication      : Started HotrodspringbootApplication in 59.731 seconds (JVM running for 61.304)
 ----
 +
-NOTE: The above command will not return back to the prompt.
+NOTE: The above command will not return back to the prompt. Otherwise, if you cannot open another terminal, run the command as background.
 
 . Create a new terminal and follow the below steps in it.
 
