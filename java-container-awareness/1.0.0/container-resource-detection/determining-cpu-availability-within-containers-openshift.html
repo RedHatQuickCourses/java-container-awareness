@@ -405,7 +405,7 @@ sh-5.1$</pre>
 <p>Values below 1 CPU, are set at 1. That would be for very small applications like Quarkus. For Enterprise applications that&#8217;s usually not recommended for several reasons, including the fact the SerialGC would be the most optimal GC for the deployments and the application&#8217;s threads share very small CPU time.</p>
 </li>
 <li>
-<p>Fractional values are truncated, so 2200 millicores, becomes 2 CPU. Not rounded, but truncated.</p>
+<p>Fractional values are truncated, so 2200 millicores, becomes 2 CPU as well as 2950 milicores. Not rounded, but truncated.</p>
 </li>
 <li>
 <p>Java does not care about requests, only limits.</p>
