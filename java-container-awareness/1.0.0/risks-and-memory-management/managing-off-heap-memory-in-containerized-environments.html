@@ -387,6 +387,9 @@ ENTRYPOINT ["java", "-jar", "hotrod-app.jar"]</code></pre>
 <div class="sect1">
 <h2 id="_cgroups_v1_vs_cgropus_v2"><a class="anchor" href="#_cgroups_v1_vs_cgropus_v2"></a>Cgroups v1 vs cgropus v2</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>By default Java OpenJDK detects the container limits via cgroups path, which change according to the version, as below. However, there are specific use cases such as JBoss EAP related products, which initialization scripts may overwrite OpenJDK detection as explained on <a href="https://access.redhat.com/solutions/7131334">What Red Hat middleware software is cgroups v2 compatible?</a>.</p>
+</div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 1. cgroups v1 vs. v2 Memory Metrics</caption>
 <colgroup>
@@ -521,6 +524,13 @@ Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=
 </div>
 </div>
 </li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Note: Since the above deployment method does not set container limits by default, it will default to the host&#8217;s limits. This directly impacts JVM heap allocation, for example, if the heap size exceeds 32 GB+, Compressed Oops will automatically be disabled, and the Heap Address line will be omitted from the <code>VM.info</code> output.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
 <p>Although one may have CPU, without setting memory limits, the container will be limitless, and Java will take the limit from the host size (MaxRAMPercentage at 80% of the host):</p>
 <div class="listingblock">
@@ -866,21 +876,35 @@ cat /sys/fs/cgroup/memory.max</code></pre>
 <div class="paragraph">
 <p>The following risks are possible on the deployment in orchestrators like Openshift 4:</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>OOMKill</strong>: The full memory is above the container size or cgroups v2 detection is failing.</p>
-</li>
-<li>
-<p><strong>OOMException</strong>: Usually off-heap allocation or metaspace, not that if <code>ExitOnOutOfMemoryError</code> flag is enabled, so then the JVM will exit.</p>
-</li>
-<li>
-<p><strong>SIGTERM</strong>: In case communication is impacted or the JVM is unresponsive sigterm can kick in. That will be in the events.</p>
-</li>
-</ul>
-</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Event</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>OOMKill</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The full memory is above the container size or cgroups v2 detection is failing.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>OOMException</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Usually off-heap allocation or metaspace. Note that if the <code>ExitOnOutOfMemoryError</code> flag is enabled, the JVM will exit.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>SIGTERM</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">In case communication is impacted or the JVM is unresponsive, SIGTERM can kick in. That will be in the events.</p></td>
+</tr>
+</tbody>
+</table>
 <div class="paragraph">
-<p>If you encounter <code>cgroup OOMKills</code> despite having a small Java Heap, use <code>jcmd</code> to identify the category consuming unexpected amounts of native memory. From that, investigate off-heap components such as non-container aware libraries, thread pool sizing, and do an investigation from the off-heap size perspective.</p>
+<p>If you encounter <code>cgroup OOMKills</code> despite having a small Java Heap, use <code>jcmd</code> to identify the category consuming unexpected amounts of native memory. From that, investigate off-heap components such as non-container aware libraries, thread pool sizing, and do an investigation from the off-heap size perspective.
+In the first example above, deployment with <code>oc new-app</code> does not set limits so the deployment will be unbounded.</p>
 </div>
 </div>
 </div>
