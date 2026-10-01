@@ -96,6 +96,8 @@ For comprehensive details on configuring Red Hat Universal Base Image (UBI) Open
 
 == Cgroups v1 vs cgropus v2
 
+By default Java OpenJDK detects the container limits via cgroups path, which change according to the version, as below. However, there are specific use cases such as JBoss EAP related products, which initialization scripts may overwrite OpenJDK detection as explained on https://access.redhat.com/solutions/7131334[What Red Hat middleware software is cgroups v2 compatible?].
+
 .cgroups v1 vs. v2 Memory Metrics
 [cols="1,2,2", options="header"]
 |===
@@ -117,6 +119,7 @@ For comprehensive details on configuring Red Hat Universal Base Image (UBI) Open
 | `/sys/fs/cgroup/memory/memory.soft_limit_in_bytes` 
 | `/sys/fs/cgroup/memory.high`
 |===
+
 
 == The Decoupling Risk
 Historically, developers focused exclusively on `-Xmx` (maximum heap size). However, in a container, the JVM sees the container's memory limit. If you configure the Heap to consume too large a percentage of the container's limit, you leave insufficient headroom for Off-Heap requirements. Therefore a percentage approach is used: 
@@ -174,6 +177,8 @@ $ oc rsh <hotrod-app -ID>
 $ jcmd 1 VM.info 
 Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError  /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
 ----
+
+Note: Since the above deployment method does not set container limits by default, it will default to the host's limits. This directly impacts JVM heap allocation, for example, if the heap size exceeds 32 GB+, Compressed Oops will automatically be disabled, and the Heap Address line will be omitted from the `VM.info` output.
 
 . Although one may have CPU, without setting memory limits, the container will be limitless, and Java will take the limit from the host size (MaxRAMPercentage at 80% of the host):
 +
@@ -456,8 +461,19 @@ cat /sys/fs/cgroup/memory.max
 === Troubleshooting Tip
 The following risks are possible on the deployment in orchestrators like Openshift 4:
 
-* **OOMKill**: The full memory is above the container size or cgroups v2 detection is failing.
-* **OOMException**: Usually off-heap allocation or metaspace, not that if `ExitOnOutOfMemoryError` flag is enabled, so then the JVM will exit.
-* **SIGTERM**: In case communication is impacted or the JVM is unresponsive sigterm can kick in. That will be in the events.
+[cols="1,3", options="header"]
+|===
+| Event | Description
 
-If you encounter `cgroup OOMKills` despite having a small Java Heap, use `jcmd` to identify the category consuming unexpected amounts of native memory. From that, investigate off-heap components such as non-container aware libraries, thread pool sizing, and do an investigation from the off-heap size perspective.
+| **OOMKill**
+| The full memory is above the container size or cgroups v2 detection is failing.
+
+| **OOMException**
+| Usually off-heap allocation or metaspace. Note that if the `ExitOnOutOfMemoryError` flag is enabled, the JVM will exit.
+
+| **SIGTERM**
+| In case communication is impacted or the JVM is unresponsive, SIGTERM can kick in. That will be in the events.
+|===
+
+If you encounter `cgroup OOMKills` despite having a small Java Heap, use `jcmd` to identify the category consuming unexpected amounts of native memory. From that, investigate off-heap components such as non-container aware libraries, thread pool sizing, and do an investigation from the off-heap size perspective. 
+In the first example above, deployment with `oc new-app` does not set limits so the deployment will be unbounded.
