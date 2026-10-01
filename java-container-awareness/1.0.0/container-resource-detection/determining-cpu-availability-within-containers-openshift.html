@@ -248,17 +248,8 @@
 </li>
 </ol>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Deploying as above will be without container limits, therefore it will use the host limits. This has implications for heap usage. For example, <code>Compressed Oops</code> mode will come disabled if the heap size is more than 32Gb+ and the VM.info will not show the line <code>Heap Address</code>.
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>NOTe: The deployment above (oc new-app`) does not set container limits, it will default to the host&#8217;s limits. This directly impacts JVM heap allocation; for example, if the heap size exceeds 32 GB, Compressed Oops will automatically be disabled, and the Heap Address line will be omitted from the VM.info output.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
