@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 4941,
+  "totalSeconds": 4961,
   "pageCount": 30,
   "pages": [
     {
@@ -60,7 +60,7 @@
     {
       "module": "container-resource-detection",
       "page": "determining-cpu-availability-within-containers-openshift.adoc",
-      "seconds": 101
+      "seconds": 121
     },
     {
       "module": "risks-and-memory-management",
