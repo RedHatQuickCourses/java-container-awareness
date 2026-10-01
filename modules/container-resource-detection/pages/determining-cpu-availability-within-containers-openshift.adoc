@@ -16,7 +16,7 @@ oc new-project hotrod-s2i-project
 oc new-app registry.access.redhat.com/ubi9/openjdk-17~https://github.com/alexbarbosa1989/hotrodspringboot.git --name=hotrod-app
 ----
 
-NOTE: Deploying as above will be without container limits, therefore it will use the host limits. This has implications for heap usage. For example, `Compressed Oops` mode will come disabled if the heap size is more than 32Gb+ and the VM.info will not show the line `Heap Address`.
+NOTe: The deployment above (oc new-app`) does not set container limits, it will default to the host's limits. This directly impacts JVM heap allocation; for example, if the heap size exceeds 32 GB, Compressed Oops will automatically be disabled, and the Heap Address line will be omitted from the VM.info output.
 
 . Use the following command to check the status of the deployment:
 +
