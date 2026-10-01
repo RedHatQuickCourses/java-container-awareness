@@ -156,7 +156,7 @@ _Note: If your application is highly dependent on Off-Heap (e.g., uses large Dir
 
 This activity guides you through identifying the memory footprint of your Java process.
 
-=== Step 2: Heap details
+=== Step 1: Heap details
 
 Use `jcmd` to inspect the memory distribution of the running containerized application at runtime.
 
@@ -442,7 +442,7 @@ Total: reserved=33545316KB, committed=288676KB
 * **Symbol:** Memory used for string interning.
 * **Thread:** Memory consumed by thread/stack spaces.
 
-=== Step 2: Simulate Constraint Pressure
+=== Step 3: Simulate Constraint Pressure
 To ensure your configuration is resilient, verify that your application does not exceed the container limit.
 
 1. View the current cgroup memory limit for your container:
