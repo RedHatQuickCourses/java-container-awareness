@@ -16,6 +16,8 @@ oc new-project hotrod-s2i-project
 oc new-app registry.access.redhat.com/ubi9/openjdk-17~https://github.com/alexbarbosa1989/hotrodspringboot.git --name=hotrod-app
 ----
 
+NOTE: Deploying as above will be without container limits, therefore it will use the host limits. This has implications for heap usage. For example, `Compressed Oops` mode will come disabled if the heap size is more than 32Gb+ and the VM.info will not show the line `Heap Address`.
+
 . Use the following command to check the status of the deployment:
 +
 [source,bash]
@@ -131,6 +133,7 @@ sh-5.1$
 
 Notes: Given the fact only integers can be used as CPU boundaries:
 
+* Deployment straight with `new-app` does not set requests or limits, so it will come by default as unbounded deployment.
 * Values below 1 CPU, are set at 1. That would be for very small applications like Quarkus. For Enterprise applications that's usually not recommended for several reasons, including the fact the SerialGC would be the most optimal GC for the deployments and the application's threads share very small CPU time.
 * Fractional values are truncated, so 2200 millicores, becomes 2 CPU. Not rounded, but truncated.
 * Java does not care about requests, only limits.
