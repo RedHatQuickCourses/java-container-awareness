@@ -523,14 +523,19 @@ $ oc rsh &lt;hotrod-app -ID&gt;</code></pre>
 Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError  /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar</code></pre>
 </div>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Since the above deployment method does not set container limits by default, it will default to the host&#8217;s limits. This directly impacts JVM heap allocation. For example, if the heap size exceeds 32 GB, Compressed Oops will automatically be disabled, and the Heap Address line will be omitted from the <code>VM.info</code> output.
+</td>
+</tr>
+</table>
+</div>
 </li>
-</ol>
-</div>
-<div class="paragraph">
-<p>Note: Since the above deployment method does not set container limits by default, it will default to the host&#8217;s limits. This directly impacts JVM heap allocation, for example, if the heap size exceeds 32 GB+, Compressed Oops will automatically be disabled, and the Heap Address line will be omitted from the <code>VM.info</code> output.</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
 <li>
 <p>Although one may have CPU, without setting memory limits, the container will be limitless, and Java will take the limit from the host size (MaxRAMPercentage at 80% of the host):</p>
 <div class="listingblock">

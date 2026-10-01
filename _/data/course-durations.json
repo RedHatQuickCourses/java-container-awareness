@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 5003,
+  "totalSeconds": 5002,
   "pageCount": 30,
   "pages": [
     {
@@ -75,7 +75,7 @@
     {
       "module": "risks-and-memory-management",
       "page": "managing-off-heap-memory-in-containerized-environments.adoc",
-      "seconds": 407
+      "seconds": 406
     },
     {
       "module": "risks-and-memory-management",
