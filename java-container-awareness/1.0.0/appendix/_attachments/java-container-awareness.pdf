@@ -4,8 +4,8 @@
 << /Title (Java Container Awareness)
 /Creator <feff>
 /Producer (Asciidoctor PDF 2.3.27, based on Prawn 2.4.0)
-/ModDate (D:20261001224952+00'00')
-/CreationDate (D:20261001224952+00'00')
+/ModDate (D:20261001225540+00'00')
+/CreationDate (D:20261001225540+00'00')
 >>
 endobj
 2 0 obj
@@ -31137,7 +31137,7 @@ ET
 BT
 48.24 733.616 Td
 /F2.0 10.5 Tf
-<5374657020323a20486561702064657461696c73> Tj
+<5374657020313a20486561702064657461696c73> Tj
 ET
 
 0.0 0.0 0.0 SCN
@@ -31838,7 +31838,7 @@ endobj
 endobj
 161 0 obj
 << /Limits [(risks-and-memory-management:implications-of-decoupling-heap-memory-from-container-limits:::_summary_of_implications) (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_step_2_off_heap_details)]
-/Names [(risks-and-memory-management:implications-of-decoupling-heap-memory-from-container-limits:::_summary_of_implications) 141 0 R (risks-and-memory-management:implications-of-decoupling-heap-memory-from-container-limits:::_the_risks_of_manual_overrides) 133 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments) 144 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_best_practices) 156 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_cgroups_v1_vs_cgropus_v2) 150 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_hands_on_activity_analyzing_heap_and_off_heap_settings) 159 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_java_entrypoint_practices) 145 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_references_for_environment_variables) 148 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_step_2_heap_details) 160 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_step_2_off_heap_details) 166 0 R]
+/Names [(risks-and-memory-management:implications-of-decoupling-heap-memory-from-container-limits:::_summary_of_implications) 141 0 R (risks-and-memory-management:implications-of-decoupling-heap-memory-from-container-limits:::_the_risks_of_manual_overrides) 133 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments) 144 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_best_practices) 156 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_cgroups_v1_vs_cgropus_v2) 150 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_hands_on_activity_analyzing_heap_and_off_heap_settings) 159 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_java_entrypoint_practices) 145 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_references_for_environment_variables) 148 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_step_1_heap_details) 160 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_step_2_off_heap_details) 166 0 R]
 >>
 endobj
 162 0 obj
@@ -34819,7 +34819,7 @@ ET
 BT
 48.24 200.176 Td
 /F2.0 10.5 Tf
-[<5374657020323a2053696d756c61746520436f6e737472> 20.01953 <61696e74205072657373757265>] TJ
+[<5374657020333a2053696d756c61746520436f6e737472> 20.01953 <61696e74205072657373757265>] TJ
 ET
 
 0.0 0.0 0.0 SCN
@@ -53470,8 +53470,8 @@ endobj
 [247 0 R /XYZ 0 247.25 null]
 endobj
 251 0 obj
-<< /Limits [(risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_step_2_simulate_constraint_pressure) (troubleshooting-and-tooling:analyzing-container-limits-and-resource-utilization:::_the_mechanics_of_detection)]
-/Names [(risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_step_2_simulate_constraint_pressure) 173 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_the_decoupling_risk) 155 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_troubleshooting_tip) 176 0 R (risks-and-memory-management:risks-and-memory-management) 129 0 R (troubleshooting-and-tooling:analyzing-container-limits-and-resource-utilization) 254 0 R (troubleshooting-and-tooling:analyzing-container-limits-and-resource-utilization:::_hands_on_activity_inspecting_jvm_resource_awareness) 268 0 R (troubleshooting-and-tooling:analyzing-container-limits-and-resource-utilization:::_identifying_limitations_and_misconfigurations) 257 0 R (troubleshooting-and-tooling:analyzing-container-limits-and-resource-utilization:::_references_further_reading) 265 0 R (troubleshooting-and-tooling:analyzing-container-limits-and-resource-utilization:::_the_decoupling_risk) 260 0 R (troubleshooting-and-tooling:analyzing-container-limits-and-resource-utilization:::_the_mechanics_of_detection) 256 0 R]
+<< /Limits [(risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_step_3_simulate_constraint_pressure) (troubleshooting-and-tooling:analyzing-container-limits-and-resource-utilization:::_the_mechanics_of_detection)]
+/Names [(risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_step_3_simulate_constraint_pressure) 173 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_the_decoupling_risk) 155 0 R (risks-and-memory-management:managing-off-heap-memory-in-containerized-environments:::_troubleshooting_tip) 176 0 R (risks-and-memory-management:risks-and-memory-management) 129 0 R (troubleshooting-and-tooling:analyzing-container-limits-and-resource-utilization) 254 0 R (troubleshooting-and-tooling:analyzing-container-limits-and-resource-utilization:::_hands_on_activity_inspecting_jvm_resource_awareness) 268 0 R (troubleshooting-and-tooling:analyzing-container-limits-and-resource-utilization:::_identifying_limitations_and_misconfigurations) 257 0 R (troubleshooting-and-tooling:analyzing-container-limits-and-resource-utilization:::_references_further_reading) 265 0 R (troubleshooting-and-tooling:analyzing-container-limits-and-resource-utilization:::_the_decoupling_risk) 260 0 R (troubleshooting-and-tooling:analyzing-container-limits-and-resource-utilization:::_the_mechanics_of_detection) 256 0 R]
 >>
 endobj
 252 0 obj
