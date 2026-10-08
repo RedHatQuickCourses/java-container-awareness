@@ -1,9 +1,0 @@
-Welcome to the course on Java Container Awareness. 
-
-In this training, we provide a practical introduction to running Java applications as fully containerized services. We will focus specifically on resource detection and memory management within a container environment. You will learn how containerized Java applications integrate with platforms like Kubernetes and OpenShift, and you will discover how to identify common runtime and resource-related issues. Finally, we will explore essential troubleshooting techniques and tools for your containerized Java workloads. This course is designed to be completed in approximately two hours.
-
-The curriculum covers several key areas. We will begin with an introduction to containerized Java, then move into container resource detection. We will discuss risks and memory management, examine integration with OpenShift and Kubernetes, and cover troubleshooting and tooling. The course concludes with a hands-on lab to put these concepts into practice.
-
-Before we begin, please ensure you meet the following prerequisites. This course assumes you already have experience with Java, including an understanding of heap and off-heap allocation. We also assume you have experience with container orchestrators, such as OpenShift, specifically regarding deployment tasks.
-
-As a quick note, please be aware that this publication contains content or media that is generated or assisted by AI tools. However, these training deliverables have primarily human authorship, and all content has been reviewed by a human domain expert to ensure accuracy and quality.
