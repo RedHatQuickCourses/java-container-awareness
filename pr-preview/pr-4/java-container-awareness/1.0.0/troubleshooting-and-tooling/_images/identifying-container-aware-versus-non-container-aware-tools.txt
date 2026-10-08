@@ -1,0 +1,23 @@
+When managing Java applications in Red Hat OpenShift or Kubernetes, it is critical to understand whether your diagnostic tools perceive the underlying host node or the isolated container environment. Misinterpreting these outputs often leads to Out-of-Memory kills or CPU throttling, because your application might be relying on node-level visibility instead of the boundaries set for your container.
+
+To effectively troubleshoot Java in containers, you need to categorize your diagnostic tools based on their ability to parse cgroups, or control groups.
+
+Let’s start by looking at non-container-aware tools. These tools report information regarding the physical or virtual host—the OpenShift node—rather than your specific pod. Relying on these will provide a false sense of resource availability.
+
+For example, the `lscpu` command reports the total CPU architecture and the count of the physical worker node, not the specific CPU quota assigned to your pod. Similarly, `nproc` returns the number of processors available to the host operating system, ignoring the Kubernetes resource limits defined in your pod specification. Finally, the command `free -m` displays the total RAM available to the node. If your pod has a 512-megabyte limit, but the node has 64 gigabytes of memory, this command will inaccurately suggest you have 64 gigabytes available for your heap.
+
+In contrast, container-aware tools interface with the Linux cgroups subsystem to identify the specific constraints imposed by the orchestrator. These tools are the source of truth for your application environment.
+
+Key examples include using the Java flags `-XX:+PrintFlagsFinal` or `-XshowSettings:system`. These instruct the JVM to report the memory and CPU settings it has calculated based on container limits. You should use these to verify if the JVM has correctly identified the container memory boundary. 
+
+Additionally, the `VM.info` command, accessed via `jcmd`, provides a snapshot of the JVM, including flags and internal settings that reflect whether the container-aware logic was successfully applied.
+
+You should also be familiar with `run-java.sh`. This script is present in Red Hat OpenJDK images and automatically sets specific Java flags—such as those for the Parallel Garbage Collector and maximum RAM percentage—before the JVM starts. While this script does not make Java container-aware itself—as that capability is built into the Java runtime—it does influence the default heap percentage. If not specified otherwise, the default OpenJDK behavior should set the heap at 25 percent of the deployment limit.
+
+To verify if your environment is correctly configured, compare the output of host-level tools against JVM-internal tools. Use `free -m` and `nproc` only to verify the underlying node capacity, but ignore them when calculating thread pools or garbage collection threads. Instead, use `java -XshowSettings:system` to confirm the JVM sees the pod’s memory limits, and use `jcmd` with the process ID and `VM.info` for deep runtime inspection of detected resource limits.
+
+If your application is crashing with an OOMKiller signal, follow this diagnostic workflow: 
+
+First, check the JVM visibility by running `java -XshowSettings:system` inside the running container. Second, compare the `MaxHeapSize` and `TotalPhysicalMemory` values in that output against your OpenShift deployment resource requests and limits. Third, review your pod startup logs. If the logs show that the JVM is using a default—such as 25 percent of physical memory—rather than a percentage of the container limit, the JVM is likely not properly detecting the cgroup constraints.
+
+A useful tip to remember: If the application logs indicate it is defaulting to 25 percent of the node's memory rather than the container's limit, verify your OpenJDK version—specifically 8u191 or higher—to ensure it is correctly detecting container limits, such as those for cgroups version 2. If the logs indicate it is defaulting to 25 percent of the container's memory rather than a higher percentage like 50 or 80, verify if your application is deployed with `run-java.sh` as the entry point, which is the default configuration.

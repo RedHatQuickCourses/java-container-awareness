@@ -1,0 +1,13 @@
+Container resource detection allows the Java Virtual Machine, or JVM, to accurately identify the specific resource constraints imposed by your container environment, rather than looking at the capacity of the underlying host node.
+
+Let’s look at the key elements of this process. 
+
+First, consider the evolution of the JVM. Starting with Java 8u191, the JVM gained the ability to parse control group files—or cgroups—to precisely determine its resource boundaries.
+
+Second, the JVM performs memory limit detection. It identifies the specific memory limit assigned to the container, which allows it to scale the heap size appropriately based on the resources actually available to that container.
+
+Third, the JVM handles CPU availability. It detects the number of CPU cores allocated to the container. This is crucial, as it prevents over-provisioning and ensures efficient thread management within your containerized environment.
+
+These features provide significant operational benefits. Most importantly, accurate detection prevents "OutOfMemory" errors and "OutOfMemoryKill" events. These often occur when the JVM incorrectly defaults to the host’s physical memory limits instead of respecting the specific limits set for the container.
+
+In simple terms, you shouldn't worry about manually setting the Xmx flag directly. Instead, focus on determining the correct percentage value for your heap versus off-heap memory allocation.

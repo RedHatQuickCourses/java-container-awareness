@@ -1,0 +1,24 @@
+When deploying Java applications in containerized environments, modern best practices emphasize flexibility and container awareness. Today, we’ll explore how to properly configure Java memory to ensure your applications perform optimally and avoid common pitfalls.
+
+First, it is important to recognize that some traditional Java memory practices are now considered anti-patterns. For instance, the direct use of the `Xmx` flag to define an absolute heap size—such as setting it to two gigabytes—decouples the JVM from the actual container size. This is discouraged because it ignores the constraints of the container. Additionally, avoid hardcoding JVM arguments directly into your Containerfile or Dockerfile. Instead, define these arguments within your deployment resources, such as YAML files, to maintain better customization and flexibility.
+
+When the JVM remains unaware of its container boundaries, it defaults to host-level metrics. This mismatch frequently leads to resource contention, poor performance, or premature out-of-memory kills by the system’s cgroups.
+
+To address this, we shift toward relative size configuration. By allowing the heap size to adjust dynamically based on the container size, you maintain a healthy balance between the JVM heap and the necessary native, or off-heap, memory.
+
+To implement this, follow these four best practices.
+
+First, use percentage-based flags instead of hardcoded values. By using the `MaxRAMPercentage`, `InitialRAMPercentage`, and `MinRAMPercentage` flags, the JVM automatically scales its heap based on the memory limits defined in your Pod specification. For most applications, a `MaxRAMPercentage` between 50 and 80 percent is ideal, though applications that are heavy on off-heap memory will require a lower percentage.
+
+Second, understand your off-heap allocation. Memory not assigned to the heap is not wasted; it is vital for stability. You must ensure you leave enough headroom for Metaspace, Code Cache, thread stacks, direct byte buffers, and garbage collector metadata. If your application relies on high-throughput messaging or streaming, lean toward a lower `MaxRAMPercentage`, such as 50 percent, to prevent hitting the container's hard limit.
+
+Third, avoid using the `MaxRAM` override. Manually setting this flag creates a conflicting view of memory between the operating system and the JVM, which can lead to the kernel triggering an out-of-memory kill.
+
+Finally, align your configurations with your container orchestration. Always set clear memory limits in your deployment configurations. The JVM uses this limit to calculate the heap size. Be careful not to set this limit significantly higher than what your application actually requires, as the JVM will size the heap based on the limit, not actual usage.
+
+In summary, remember that absolute `Xmx` settings are discouraged. We recommend using `MaxRAMPercentage` to keep your heap in sync with container limits, and you should avoid `MaxRAM` overrides entirely. 
+
+Keep in mind that when using Red Hat OpenJDK images, the `run-java.sh` script defaults to a `MaxRAMPercentage` of 80 percent. If you do not use this script, the JVM defaults to 25 percent for the heap, leaving 75 percent for off-heap memory. You can always override these values based on your specific application needs.
+
+If you encounter issues like memory exceptions or container kills, use this diagnostic flow: 
+Start by checking the `VM.info` file using `jcmd`. Next, examine your orchestrator events and deployment logs to identify OOM-Kill events. You can also inspect the `cgroups` memory statistics inside the container to see if you are reaching your limits. If the cause remains unclear, enable Native Memory Tracking with the `-XX:NativeMemoryTracking=summary` flag to determine if the pressure is coming from the heap or native memory. Above all, always perform load testing with a memory profiler before finalizing your production configuration to ensure your off-heap headroom is sufficient for peak traffic.
