@@ -1,6 +1,6 @@
 {
-  "totalSeconds": 5002,
-  "pageCount": 30,
+  "totalSeconds": 5027,
+  "pageCount": 31,
   "pages": [
     {
       "module": "ROOT",
@@ -75,7 +75,12 @@
     {
       "module": "risks-and-memory-management",
       "page": "managing-off-heap-memory-in-containerized-environments.adoc",
-      "seconds": 406
+      "seconds": 228
+    },
+    {
+      "module": "risks-and-memory-management",
+      "page": "hands-on-lab-heap-settings.adoc",
+      "seconds": 203
     },
     {
       "module": "risks-and-memory-management",
