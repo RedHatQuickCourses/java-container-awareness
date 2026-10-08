@@ -1,0 +1,338 @@
+= Hands-on Activity: Analyzing Heap and Off-Heap Settings
+
+This activity guides you through identifying the memory footprint of your Java process.
+
+. Use `jcmd` to inspect the memory distribution of the running containerized application at runtime.
+
+. Assuming the same application as before.
++
+[source,bash]
+----
+oc get deployment
+oc get pods
+----
++
+.Example outpput:
++
+----
+[lab-user@bastion ~]$ oc get deployment
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+hotrod-app   1/1     1            1           2m16s
+[lab-user@bastion ~]$ 
+[lab-user@bastion ~]$ oc get pods
+NAME                          READY   STATUS      RESTARTS   AGE
+hotrod-app-1-build            0/1     Completed   0          12m
+hotrod-app-7569b6c6cd-52dqg   1/1     Running     0          4m28s
+[lab-user@bastion ~]$ 
+----
+
+. Connect to the running container using the `oc rsh` command:
++
+[source,bash]
+----
+oc rsh <pod-name>
+----
+
+. Confirm the default MaxRAMPercentage value is at 80% via jcmd VM.info's `Command Line`: 
++
+[source,bash]
+----
+jcmd 1 VM.info | grep 'Command Line'
+----
++
+.Example output:
++
+----
+sh-5.1$ jcmd 1 VM.info | grep 'Command Line'
+Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+sh-5.1$ 
+----
++
+Note `-XX:MaxRAMPercentage=80.0` set by default in the run-java.sh script. This means that the JVM will use up to 80% of the container's memory limit for the Java Heap.
+
+. Check the Heap Max Capacity, container type, and memory limit in bytes:
++
+[source,bash]
+----
+jcmd 1 VM.info | grep -e 'Heap Max Capacity' -e 'container_type' -e 'memory_limit_in_bytes'
+exit
+----
++
+.Example output:
+----
+sh-5.1$ jcmd 1 VM.info | grep -e 'Heap Max Capacity' -e 'container_type' -e 'memory_limit_in_bytes' 
+ Heap Max Capacity: 103040M <------------------- 103G (80% of 128G)
+container_type: cgroupv2 <------------------------------------------ verifying cgroups v2
+memory_limit_in_bytes: unlimited <------------------ no memory limit set
+sh-5.1$ exit
+[lab-user@bastion ~]$ 
+----
+
+. Check the memory capacity of the node running the pod using the `free` command:
++
+[source,bash]
+----
+oc get pods -o wide
+oc debug node/<node_name> -- bash -c "free -m"
+----
++
+Replace <node_name> with the name of the node where your pod is running. 
++
+.Example output:
++
+----
+[lab-user@bastion ~]$ oc get pods -o wide
+NAME                          READY   STATUS      RESTARTS   AGE   IP             NODE                            NOMINATED NODE   READINESS GATES
+hotrod-app-1-build            0/1     Completed   0          44m   10.232.0.221   control-plane-cluster-phzlt-1   <none>           <none>
+hotrod-app-7569b6c6cd-52dqg   1/1     Running     0          37m   10.232.0.223   control-plane-cluster-phzlt-1   <none>           <none>
+[lab-user@bastion ~]$ 
+[lab-user@bastion ~]$ oc debug node/control-plane-cluster-phzlt-1 -- bash -c "free -m"
+Temporary namespace openshift-debug-vq288 is created for debugging node...
+Starting pod/control-plane-cluster-phzlt-1-debug-72n7v ...
+To use host binaries, run `chroot /host`. Instead, if you need to access host namespaces, run `nsenter -a -t 1`.
+               total        used        free      shared  buff/cache   available
+Mem:          128797       21721       55812         273       52770      107075
+Swap:              0           0           0
+
+Removing debug pod ...
+Temporary namespace openshift-debug-vq288 was removed.
+[lab-user@bastion ~]$ 
+----
++
+Note the total memory of the node is 128G, which matches the Heap Max Capacity of 103G (80% of 128G) seen in the previous step.
++
+NOTE: Although a container may have CPU limits configured, without an explicit memory limit, it can use memory without a defined container-level constraint. In this case, Java determines its memory limit based on the host's available memory, with MaxRAMPercentage set to 80% of the host memory.
+
+. Let's set a limit on the container memory and verify the percentage.
+
+. Set 2Gi limit on the container and leave the MaxRAMPercentage at default 80%
++
+[source,bash]
+----
+oc set resources deployment/hotrod-app --limits=memory="2Gi"
+----
+
+. Get the pod name and go inside the pod:
++
+[source,bash]
+----
+oc get pod
+oc rsh <pod-name>
+----
+
+. Check the Heap Max Capacity and memory limit in bytes:
++
+[source,bash]
+----
+jcmd 1 VM.info | grep -e 'Heap Max Capacity' -e 'memory_limit_in_bytes'
+exit
+----
++
+.Example output:
+----
+sh-5.1$ jcmd 1 VM.info | grep -e 'Heap Max Capacity' -e 'memory_limit_in_bytes'
+ Heap Max Capacity: 1640M <------------------- 1640M (80% of 2Gi)
+memory_limit_in_bytes: 2097152 k <------------------ 2Gi limit set on the container
+sh-5.1$ 
+----
+
+. Assuming 80% is an inadequate value, let's set the MaxRAMPercentage to 50% and verify the Heap Max Capacity again.
++
+[source,bash]
+----
+oc set env deployment/hotrod-app JAVA_OPTS_APPEND="-XX:MaxRAMPercentage=50.0"
+oc get pod
+oc rsh <pod-name>
+----
+
+. Check the MaxRAMPercentage, Heap Max Capacity and memory limit in bytes:
++
+[source,bash]
+----
+jcmd 1 VM.info | grep -e 'Command Line' -e 'Heap Max Capacity' -e 'memory_limit_in_bytes'
+exit
+----
++
+.Example output:
+----
+sh-5.1$ jcmd 1 VM.info | grep -e 'Command Line' -e 'Heap Max Capacity' -e 'memory_limit_in_bytes'
+Command Line: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -XX:MaxRAMPercentage=50.0 /deployments/hotrodspringboot-0.0.1-SNAPSHOT.jar
+ Heap Max Capacity: 1G
+memory_limit_in_bytes: 2097152 k
+sh-5.1$ exit
+[lab-user@bastion ~]$ 
+----
++
+Note that the `Command Line` shows both `-XX:MaxRAMPercentage=80.0` and `-XX:MaxRAMPercentage=50.0`. The latter takes precedence, resulting in a Heap Max Capacity of 1G (50% of 2Gi).
+
+. For more details on off-heap settings, deploy with NativeMemoryTracking (NMT) as below:
+
+. Deploy the application with NativeMemoryTracking summary (or details)
++
+[source,bash]
+----
+oc set env deployment/hotrod-app JAVA_OPTS_APPEND="-XX:NativeMemoryTracking=summary"
+----
+
+. Connect to the running container using the `oc rsh` command
++
+[source,bash]
+----
+oc get pod
+oc rsh <pod-name>
+----
+
+. Confirm the application has the correct JVM argument, NativeMemoryTracking, applied:
++
+[source,bash]
+----
+jcmd 1 VM.info | grep jvm_args
+----
++
+.Example output:
+----
+sh-5.1$ jcmd 1 VM.info | grep jvm_args
+jvm_args: -XX:MaxRAMPercentage=80.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -XX:NativeMemoryTracking=summary <-------------- HERE
+sh-5.1$ 
+----
+
+. Full example output for VM.native_memory summary:
++
+----
+sh-5.3$ jcmd 1 VM.native_memory summary
+1:
+$ jcmd 1 VM.native_memory
+1:
+Native Memory Tracking: (Omitting categories weighting less than 1KB)
+Total: reserved=28725786KB, committed=1518126KB
+       malloc: 62206KB #254051
+       mmap:   reserved=28663580KB, committed=1455920KB
+
+-                 Java Heap (reserved=26286080KB, committed=514048KB)
+                            (mmap: reserved=26286080KB, committed=514048KB) 
+ 
+-                     Class (reserved=1049363KB, committed=5779KB)
+                            (classes #8643)
+                            (  instance classes #8081, array classes #562)
+                            (malloc=787KB #18256) (at peak) 
+                            (mmap: reserved=1048576KB, committed=4992KB) 
+                            (  Metadata:   )
+                            (    reserved=65536KB, committed=32256KB)
+                            (    used=32053KB)
+                            (    waste=203KB =0.63%)
+                            (  Class space:)
+                            (    reserved=1048576KB, committed=4992KB)
+                            (    used=4780KB)
+                            (    waste=212KB =4.25%)
+ 
+-                    Thread (reserved=39016KB, committed=2836KB)
+                            (thread #39)
+                            (stack: reserved=38912KB, committed=2732KB)
+                            (malloc=61KB #232) (peak=72KB #242) 
+                            (arena=43KB #74) (peak=471KB #42)
+ 
+-                      Code (reserved=248583KB, committed=14187KB)
+                            (malloc=895KB #5162) (peak=895KB #5163) 
+                            (mmap: reserved=247688KB, committed=13292KB) 
+ 
+-                        GC (reserved=989213KB, committed=905329KB)
+                            (malloc=28853KB #134) (peak=28861KB #136) 
+                            (mmap: reserved=960360KB, committed=876476KB) 
+ 
+-                  Compiler (reserved=195KB, committed=195KB)
+                            (malloc=30KB #355) (peak=66KB #139) 
+                            (arena=165KB #5) (peak=54165KB #23)
+ 
+-                  Internal (reserved=12650KB, committed=12650KB)
+                            (malloc=12614KB #5439) (peak=12741KB #5348) 
+                            (mmap: reserved=36KB, committed=36KB) 
+ 
+-                     Other (reserved=4892KB, committed=4892KB)
+                            (malloc=4892KB #20) (peak=4902KB #22) 
+ 
+-                    Symbol (reserved=9203KB, committed=9203KB)
+                            (malloc=8524KB #220921) (at peak) 
+                            (arena=680KB #1) (at peak)
+----
++
+If you see "Native memory tracking is not enabled", you must enable it by adding the following JVM option:
+
+* Option 1 - `-XX:NativeMemoryTracking=summary`
+* Option 2 - `-XX:NativeMemoryTracking=details`
+
+. Update the current deployment with this setting
++
+[source,bash]
+----
+$ oc set env deployment/hotrod-app JAVA_OPTS_APPEND="-XX:NativeMemoryTracking=detail"
+----
+
+. Access the terminal of your new running pod:
++
+[source,bash]
+----
+oc rsh <pod-name>
+----
+
+. Inspect the memory distribution:
++
+[source,bash]
+----
+jcmd 1 VM.native_memory summary
+----
++
+Example output:
++
+[source,bash]
+----
+sh-5.3$ jcmd 1 VM.native_memory summary 
+Picked up JAVA_OPTS_APPEND: -XX:NativeMemoryTracking=summary
+1:
+Native Memory Tracking:
+(Omitting categories weighting less than 1KB)
+
+Total: reserved=33545316KB, committed=288676KB
+       malloc: 59876KB #80575, peak=111544KB #81451
+       mmap:   reserved=33485440KB, committed=228800KB
+
+-                 Java Heap (reserved=31424512KB, committed=147456KB)
+                            (mmap: reserved=31424512KB, committed=147456KB, at peak)
+
+. . . 
+
+-      String Deduplication (reserved=1KB, committed=1KB)
+                            (malloc=1KB tag=String Deduplication #8) (at peak)
+
+-           Object Monitors (reserved=75KB, committed=75KB)
+                            (malloc=75KB tag=Object Monitors #385) (at peak)
+
+----
+
+**Additional Notes:**
+
+* To analyze the output for off-heap, look at sections such as:
+  ** **Internal:** Memory used by the JVM internal structures.
+  ** **Symbol:** Memory used for string interning.
+  ** **Thread:** Memory consumed by thread/stack spaces.
+
+* To ensure your configuration is resilient, verify that your application does not exceed the container limit.
+* View the current cgroup memory limit for your container:
++
+----
+### CGROUPS V1
+cat /sys/fs/cgroup/memory/memory.limit_in_bytes
+### CGROUPS V2
+cat /sys/fs/cgroup/memory.max
+----
+
+* Compare this value against your calculated Heap + Off-Heap usage. If your application's `Total` committed memory (as seen in NMT) + heap usage exceeds this limit, one must adjust your `MaxRAMPercentage` downward or increase the container's memory limit in OpenShift `Deployment` YAML.
+
+**Troubleshooting Tip:**
+
+The following risks are possible on the deployment in orchestrators like Openshift 4:
+
+* **OOMKill**: The full memory is above the container size or cgroups v2 detection is failing.
+* **OOMException**: Usually off-heap allocation or metaspace, not that if `ExitOnOutOfMemoryError` flag is enabled, so then the JVM will exit.
+* **SIGTERM**: In case communication is impacted or the JVM is unresponsive sigterm can kick in. That will be in the events.
+
+If you encounter `cgroup OOMKills` despite having a small Java Heap, use `jcmd` to identify the category consuming unexpected amounts of native memory. From that, investigate off-heap components such as non-container aware libraries, thread pool sizing, and do an investigation from the off-heap size perspective.
