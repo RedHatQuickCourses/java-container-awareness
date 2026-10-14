@@ -16,7 +16,7 @@ oc new-project hotrod-s2i-project
 oc new-app registry.access.redhat.com/ubi9/openjdk-17~https://github.com/alexbarbosa1989/hotrodspringboot.git --name=hotrod-app
 ----
 
-NOTe: The deployment above (oc new-app`) does not set container limits, it will default to the host's limits. This directly impacts JVM heap allocation; for example, if the heap size exceeds 32 GB, Compressed Oops will automatically be disabled, and the Heap Address line will be omitted from the VM.info output.
+NOTE: In the above deployment, `oc new-app` does not set container limits, it will default to the host's limits. This directly impacts JVM heap allocation; for example, if the heap size exceeds 32 GB, Compressed Oops will automatically be disabled, and the Heap Address line will be omitted from the VM.info output.
 
 . Use the following command to check the status of the deployment:
 +
@@ -25,6 +25,8 @@ NOTe: The deployment above (oc new-app`) does not set container limits, it will 
 oc get deployment
 oc get pods
 ----
++
+IMPORTANT: Wait for a few minutes until the build pod is completed and the application pod is running. You can use the `oc get pods` command to check the status of the pods.
 +
 Initially you will see the build pod running as follows.
 +
@@ -131,10 +133,12 @@ active_processor_count: 2
 sh-5.1$ 
 ----
 
-Notes: Given the fact only integers can be used as CPU boundaries:
+**Notes:** Given that CPU boundaries are expressed as integers in this lab, keep the following points in mind:
 
-* Deployment straight with `new-app` does not set requests or limits, so it will come by default as unbounded deployment.
-* Values below 1 CPU, are set at 1. That would be for very small applications like Quarkus. For Enterprise applications that's usually not recommended for several reasons, including the fact the SerialGC would be the most optimal GC for the deployments and the application's threads share very small CPU time.
-* Fractional values are truncated, so 2200 millicores, becomes 2 CPU as well as 2950 milicores. Not rounded, but truncated.
-* Java does not care about requests, only limits.
-* Java workloads usually run best in performance given CPU and Memory limits for a series of reasons, see `unbouded deployment` for details.
+- Deployments created directly using `new-app` do not explicitly set CPU requests or limits. Consequently, they may run without CPU constraints unless defaults are applied by the cluster or namespace configuration.
+- CPU values below 1 are effectively set to 1 CPU in this lab. This may be suitable for very small applications, such as Quarkus workloads, but is generally not recommended for enterprise applications. Limited CPU availability can constrain application threads and affect garbage collection (GC) behavior. In particular, the Serial GC may be more appropriate for workloads with limited CPU resources.
+- Fractional CPU values are truncated, not rounded, when converted to integer CPU boundaries. For example, both 2200 millicores and 2950 millicores result in 2 CPUs.
+- Java does not use CPU requests to determine its available processor count; it relies on CPU limits when container awareness is enabled and the runtime correctly detects the container's resource constraints.
+- Java workloads can benefit from explicitly configured CPU and memory limits for more predictable resource usage and performance. See `unbounded deployment` for further details.
+
+
