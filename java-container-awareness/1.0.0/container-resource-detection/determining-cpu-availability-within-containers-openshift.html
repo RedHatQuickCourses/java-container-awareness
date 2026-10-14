@@ -251,8 +251,17 @@
 </li>
 </ol>
 </div>
-<div class="paragraph">
-<p>NOTe: The deployment above (oc new-app`) does not set container limits, it will default to the host&#8217;s limits. This directly impacts JVM heap allocation; for example, if the heap size exceeds 32 GB, Compressed Oops will automatically be disabled, and the Heap Address line will be omitted from the VM.info output.</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+In the above deployment, <code>oc new-app</code> does not set container limits, it will default to the host&#8217;s limits. This directly impacts JVM heap allocation; for example, if the heap size exceeds 32 GB, Compressed Oops will automatically be disabled, and the Heap Address line will be omitted from the VM.info output.
+</td>
+</tr>
+</table>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -263,6 +272,18 @@
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get deployment
 oc get pods</code></pre>
 </div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Wait for a few minutes until the build pod is completed and the application pod is running. You can use the <code>oc get pods</code> command to check the status of the pods.
+</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
 <p>Initially you will see the build pod running as follows.</p>
@@ -388,24 +409,24 @@ sh-5.1$</pre>
 </ol>
 </div>
 <div class="paragraph">
-<p>Notes: Given the fact only integers can be used as CPU boundaries:</p>
+<p><strong>Notes:</strong> Given that CPU boundaries are expressed as integers in this lab, keep the following points in mind:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Deployment straight with <code>new-app</code> does not set requests or limits, so it will come by default as unbounded deployment.</p>
+<p>Deployments created directly using <code>new-app</code> do not explicitly set CPU requests or limits. Consequently, they may run without CPU constraints unless defaults are applied by the cluster or namespace configuration.</p>
 </li>
 <li>
-<p>Values below 1 CPU, are set at 1. That would be for very small applications like Quarkus. For Enterprise applications that&#8217;s usually not recommended for several reasons, including the fact the SerialGC would be the most optimal GC for the deployments and the application&#8217;s threads share very small CPU time.</p>
+<p>CPU values below 1 are effectively set to 1 CPU in this lab. This may be suitable for very small applications, such as Quarkus workloads, but is generally not recommended for enterprise applications. Limited CPU availability can constrain application threads and affect garbage collection (GC) behavior. In particular, the Serial GC may be more appropriate for workloads with limited CPU resources.</p>
 </li>
 <li>
-<p>Fractional values are truncated, so 2200 millicores, becomes 2 CPU as well as 2950 milicores. Not rounded, but truncated.</p>
+<p>Fractional CPU values are truncated, not rounded, when converted to integer CPU boundaries. For example, both 2200 millicores and 2950 millicores result in 2 CPUs.</p>
 </li>
 <li>
-<p>Java does not care about requests, only limits.</p>
+<p>Java does not use CPU requests to determine its available processor count; it relies on CPU limits when container awareness is enabled and the runtime correctly detects the container&#8217;s resource constraints.</p>
 </li>
 <li>
-<p>Java workloads usually run best in performance given CPU and Memory limits for a series of reasons, see <code>unbouded deployment</code> for details.</p>
+<p>Java workloads can benefit from explicitly configured CPU and memory limits for more predictable resource usage and performance. See <code>unbounded deployment</code> for further details.</p>
 </li>
 </ul>
 </div>

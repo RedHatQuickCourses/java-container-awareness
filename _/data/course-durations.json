@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 5027,
+  "totalSeconds": 5055,
   "pageCount": 31,
   "pages": [
     {
@@ -55,12 +55,12 @@
     {
       "module": "container-resource-detection",
       "page": "determining-cpu-availability-within-containers-podman.adoc",
-      "seconds": 121
+      "seconds": 132
     },
     {
       "module": "container-resource-detection",
       "page": "determining-cpu-availability-within-containers-openshift.adoc",
-      "seconds": 124
+      "seconds": 141
     },
     {
       "module": "risks-and-memory-management",
