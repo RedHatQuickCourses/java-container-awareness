@@ -1,0 +1,23 @@
+In modern containerized environments, such as Red Hat OpenShift, Red Hat OpenJDK is fully capable of detecting container boundaries. Rather than relying on static configurations, the JVM now respects the cgroup limits assigned to your container. Tuning the Java heap using percentages is the recommended, standard approach to ensure your JVM remains flexible and accurately aligned with your container's resource allocation.
+
+Historically, developers used the dash Xmx flag to set an absolute heap size, such as two gigabytes. In a container, this creates a static configuration that ignores the actual memory limit of the container. If that limit is ever lowered, the JVM may attempt to exceed it, leading to a cgroup out-of-memory kill. 
+
+By using RAM percentage flags, you decouple the specific memory limit from your application code. This allows the JVM to calculate its heap size dynamically based on the memory available to the container.
+
+There are three key configuration flags to know. First, dash XX:MaxRAMPercentage sets the maximum heap size as a percentage of the container's memory limit. While the default upstream limit is 25 percent, specialized container images, such as those using Red Hat’s run-java scripts, often default to 80 percent. Second, dash XX:InitialRAMPercentage sets the starting heap size. Finally, dash XX:MinRAMPercentage defines the minimum heap size used when the container memory limit is small.
+
+It is important to remember that the total container memory must accommodate more than just the heap. You must account for off-heap memory, which includes metaspace for class metadata, thread stacks, the code cache, garbage collection structures, internal JVM native memory, and off-heap buffers used by services like Netty, AMQ, or Data Grid. If you set your maximum RAM percentage too high, for instance at 95 percent, you leave insufficient room for native memory, which will inevitably lead to native memory pressure and a container-level out-of-memory kill.
+
+Now, let's walk through a hands-on lab to tune the heap for a containerized application. For this, you will need access to an OpenShift cluster or a local Docker environment, along with a containerized Java application image.
+
+Step one is to inspect your current configuration. Verify that your application is running without hardcoded dash Xmx flags, or is already using percentage-based flags. You can do this by checking the environment variables or the deployment configuration using the command: oc set env deployment, followed by your deployment name, and the dash-list flag.
+
+Step two is to configure the percentage-based heap. Update your deployment configuration to utilize MaxRAMPercentage. This ensures that if you increase the pod's memory limit in the future, the heap scales automatically. Apply these environment variables to your deployment using the command: oc set env deployment, your deployment name, followed by JAVA_OPTIONS set to dash XX:MaxRAMPercentage equals 75.0, and dash XX:InitialRAMPercentage equals 50.0.
+
+Step three is to validate the configuration. After the deployment restarts, first get your pod name by running oc get pods. Then, run the jcmd command inside the container to inspect the virtual machine arguments by using: oc exec, your pod name, followed by jcmd 1 VM.flags. In the output, look for the MaxRAMPercentage flag. If you check VM.max_heap_size, you will see an absolute byte value calculated based on that 75 percent ratio. You can also use the command jcmd 1 VM.info to retrieve even more detailed information about the container size and settings.
+
+Finally, step four is monitoring. Use the OpenShift web console or CLI to monitor memory usage. Compare your actual usage metric against the container limit to ensure it remains below the total threshold, leaving that necessary gap for off-heap memory. 
+
+A useful tip: if you observe Metaspace errors or native crashes, your percentage value is likely too aggressive. Try lowering it by 5 to 10 percent and redeploying.
+
+For further reading, you can consult the official Red Hat knowledgebase. The referenced solution, number 6973111, provides guidance on interpreting the VM.info file, which contains important details like JVM build versions, operating system environment specifications, and default sizing parameters.
