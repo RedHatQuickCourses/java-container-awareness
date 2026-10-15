@@ -82,12 +82,12 @@ cgroups v2 flattened and simplified the hierarchy. Here is where to find the equ
 
 **Q4: How has JVM container memory awareness evolved?**
 
-Modern JVMs natively understand container limits, whereas legacy versions relied on the host's physical RAM size.
+Modern JVMs natively understand container limits, whereas previous non-container aware versions relied on the host's physical RAM size.
 
 .JVM Container Awareness Evolution
 [cols="1,2,2", options="header"]
 |===
-| Feature | Legacy Behavior (Pre-8u191) | Modern Behavior (8u191+)
+| Feature | Previous Behavior (Pre-8u191) | Current Behavior (8u191+)
 
 | **Memory Source** 
 | Queries `/proc/meminfo` (Host RAM) 
@@ -101,6 +101,8 @@ Modern JVMs natively understand container limits, whereas legacy versions relied
 | Decoupled; changing container size requires manual JVM tuning 
 | Coupled; scaling container limits automatically adjusts heap
 |===
+
+Note that cgroups v2 compliant is only enabled fully on Java 8u372, Java 11.0.16, Java 17+.
 
 **Q5: Should I use the `run-java.sh` script or start Java directly in my container?**
 
