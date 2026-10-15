@@ -9,7 +9,7 @@ To ensure Java applications perform predictably within Red Hat OpenShift or Kube
 The primary challenge in containerized Java is the discrepancy between what the Operating System sees (physical host) and what the container runtime enforces (cgroup limits).
 
 ### The Mechanics of Detection
-Container-aware JVMs (starting from Java 8u191 and newer) automatically inspect cgroup files, such as `memory.limit_in_bytes` to size the heap, but cgroups will also be used to determine the available processor count (for thread pool calculations).
+Container-aware JVMs (starting from Java 8u191 and newer) automatically inspect cgroups v2 files hierarch, such as `memory.limit_in_bytes` to size the heap, but cgroups will also be used to determine the available processor count that are used for Java thread pool calculations.
 
 When analyzing your application, you can extract this metadata using `jcmd`. If your JVM is properly detecting the container environment, the output will reveal specific cgroup configurations:
 
@@ -24,14 +24,15 @@ memory_usage_in_bytes: 125108224
 ----
 
 *   **`active_processor_count`**: Essential for the JVM to size its internal thread pools (e.g., ForkJoinPool).
-*   **`memory_limit_in_bytes`**: Dictates the physical memory limit the JVM uses to calculate its initial heap size (typically 1/4 of the container limit by default).
+*   **`memory_limit_in_bytes`**: Dictates the physical memory limit the JVM uses to calculate its heap size. By default the percentage for heap max size will be 25% (on upstream default) or 80% (when starting with `run-java.sh`).
 
 == Identifying Limitations and Misconfigurations
 
 Analyzing resource utilization requires verifying that your JVM heap plus off-heap requirements remain within the Kubernetes/OpenShift `limits`.
 
 === The Decoupling Risk
-There are several risks of decoupling.
+There are several risks of decoupling, i.e. manually setting Xmx separately from the container size:
+
 - The Xmx set the full size of the heap, given it is unrelated so the container size can reduce and starve the application or have too much space useless.
 - A common pitfall is ignoring the off-heap footprint. If the Java Heap (Xmx) to 80% of your container limit, but your application requires 30% for off-heap memory (Metaspace, Code Cache, Thread stacks, Direct Buffers), the container will exceed its memory limit and OOMKill.
 
@@ -44,7 +45,7 @@ When analyzing resource constraints, follow these steps:
 2.  **Verify Cgroup Awareness:** Use `jcmd` to verify if the JVM identifies the correct `memory_limit_in_bytes`. If this shows `-1` or reflects host memory, the JVM is not container-aware, and you must explicitly configure `-XX:MaxRAMPercentage`.
 3.  **Monitor via Tools:** 
     *   **Container-aware:** Use `kubectl top pod` or the OpenShift Web Console metrics.
-    *   **Non-container-aware:** Avoid using legacy `top` or `free` commands inside the container, as they often report host-level data rather than container-constrained data.
+    *   **Non-container-aware:** Avoid using `top` or `free` commands inside the container, as they will report host-level data rather than container-constrained data.
 
 == Troubleshooting table
 
