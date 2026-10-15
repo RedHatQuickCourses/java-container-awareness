@@ -13,6 +13,8 @@ Cgroups allow the kernel to organize processes into hierarchical groups and allo
 * cgroups v1: /sys/fs/cgroup/memory/memory.max_usage_in_bytes 
 * cgroups v2: /sys/fs/cgroup/memory.max
 
+Java developers do not (necessarily) need to understanding specific details on this matter, as long use the latest versions that are fully container-aware and understand that Java detects the container limits.
+
 === CPU and Memory Enforcement
 *   **CPU Limits:** Java applications are inelastic regarding CPU detection - it won't detect every 10s, it will detect once at start-up. Upon startup, the JVM queries the cgroup filesystem to determine how many CPU cores are available. It uses this information to size its internal thread pools (e.g., the Common ForkJoinPool). Once started, this value generally remains fixed. If a container is restricted via a quota, the kernel throttles the CPU cycles available to the JVM.
 *   **Memory Limits:** The JVM monitors the `memory.limit_in_bytes` (cgroups v1) or `memory.max` (cgroups v2) files. If the JVM is container-aware, it uses these values to calculate default heap sizing. The exact percentage will depend on the version and method of starting: 25% for deployment without run-java.sh, 80% for run-java.sh script (current Red Hat OpenJDK images) and 50% for run-java.sh script started (old Red Hat OpenJDK images).
@@ -31,7 +33,7 @@ When the JVM heap size (`-Xmx`) is set higher than the actual memory limit enfor
 
 To ensure your Java applications coexist healthily with cgroup limits, adopt the following strategies:
 
-*   **Utilize Container-Aware JVMs:** Always use Java 8u191+ or modern versions (Java 11, 17, 21+), which include the JDK8146115 enhancement. These versions automatically read the cgroup filesystem to adjust memory ergonomics.
+*   **Utilize Container-Aware JVMs:** Always latest versions (or minor versions) Java: Java 8u372+, Java 11, 17, 21+, which are fully container aware natively. These versions automatically read the cgroup filesystem to adjust memory ergonomics on both cgroups v1 and v2.
 *   **Use Relative Sizing:** Instead of hardcoding `-Xmx` values (e.g., `-Xmx2g`), use container-aware flags like `-XX:MaxRAMPercentage`. This allows the JVM to scale its heap dynamically based on the memory limit assigned to the container (e.g., `-XX:MaxRAMPercentage=75.0` will set the heap to 75% of the container limit).
 *   **Account for Off-Heap Memory:** Remember that the total memory used by a container includes the heap, the Metaspace, stack space for threads, code cache, and native buffers (Direct Byte Buffers). Ensure the percentage (MaxRAMPercentage) leaves sufficient room for heap to grow and for non-heap segments, or the container will exceed its cgroup limit triggering an OOMKill.
 
