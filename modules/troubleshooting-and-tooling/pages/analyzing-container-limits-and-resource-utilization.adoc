@@ -28,7 +28,8 @@ memory_usage_in_bytes: 125108224
 
 == Identifying Limitations and Misconfigurations
 
-Analyzing resource utilization requires verifying that your JVM heap plus off-heap requirements remain within the Kubernetes/OpenShift `limits`.
+Analyzing resource utilization requires verifying that your JVM heap plus off-heap requirements remain within the Kubernetes/OpenShift container `limits`. OOMKill does not happen necessarily on first allocation that crosses, it happens on the subsequent allocation, because the kernel doesn't immmediately kills the application on the spot.
+Technically speaking the kernel decides to trigger the OOMKill based on the RSS since OOMKill triggers on a lack of pageable addresses and OOMKill is SIGKILL, without chance to TERM in any capacity.
 
 === The Decoupling Risk
 There are several risks of decoupling, i.e. manually setting Xmx separately from the container size:
