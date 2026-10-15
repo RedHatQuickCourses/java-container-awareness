@@ -317,13 +317,16 @@ In summary, the Java Virtual Machine (JVM) was designed to use hard-coded values
 </div>
 </div>
 <div class="sect2">
-<h3 id="_transition_period"><a class="anchor" href="#_transition_period"></a>Transition period</h3>
+<h3 id="_partial_container_awareness_transition_period"><a class="anchor" href="#_partial_container_awareness_transition_period"></a>Partial container-awareness - transition period</h3>
 <div class="paragraph">
-<p>Before detecting the values nativerly, Red Hat OpenJDK passed through a periodic where the heap values would be calculated from an wrapper script, i.e. an initilization script, which would detect the cgroups limits and then start Java. This initialization scripts are still present in some Red Hat Java products.</p>
+<p>Before detecting the values nativerly, Red Hat OpenJDK passed through a periodic where the heap values would be calculated from an wrapper script, i.e. an initilization script, which would detect the cgroups limits and then start Java (usually via a value for <code>Xmx</code>).</p>
+</div>
+<div class="paragraph">
+<p>This initialization scripts are still present in some Red Hat Java container images, however not for cgroups detection anymore, instead only for JVM settings such as Garbage Collection and JVM parameters.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_container_aware_java_after_jdk_8146115"><a class="anchor" href="#_container_aware_java_after_jdk_8146115"></a>Container-Aware Java: After JDK-8146115</h3>
+<h3 id="_fully_container_aware_java"><a class="anchor" href="#_fully_container_aware_java"></a>Fully Container-Aware Java</h3>
 <div class="paragraph">
 <p>The implementation shift occurred with the implementation of <strong>JDK-8146115</strong>, starting with Java 8u191 implementation and then improved with other jiras, currently Java relies on cgroups natively for detection and memory percentage bootstrap. In other words, those updates enabled the JVM to detect its container <code>cgroup</code> filesystem natively, rather than relying on a initialization script for limit detection. The JVM natively starts Java heap as a percentage of the limits detected and uses the CPU limits for thread calculations.</p>
 </div>
