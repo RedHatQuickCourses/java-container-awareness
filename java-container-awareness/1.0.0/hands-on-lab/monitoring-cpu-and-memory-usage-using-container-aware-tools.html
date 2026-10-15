@@ -324,7 +324,7 @@ current number of tasks: 98</code></pre>
 <p>The step-by-step procedure for this comparison — logging into the pod and contrasting non-container aware tools (<code>free -m</code>, <code>nproc</code>) against container-aware output (<code>java -XshowSettings:system -version</code> and <code>jcmd $PID VM.info</code>) — is walked through on the same <code>hotrod-app</code> deployment in <a href="../container-resource-detection/determining-cpu-availability-within-containers-openshift.html" class="xref page">Inspecting CPU-Aware Deployments in OpenShift</a>, which contrasts <code>nproc</code> with <code>active_processor_count</code>.</p>
 </div>
 <div class="paragraph">
-<p>As you run it there, keep this "Visibility Gap" framing in mind — it is the point of this activity:</p>
+<p>As you run it there, keep this difference in mind — it is the point of this activity:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -332,7 +332,7 @@ current number of tasks: 98</code></pre>
 <p><strong>Non-container-aware tools</strong> (<code>free -m</code>, <code>nproc</code>, <code>top</code>, <code>lscpu</code>) report the resources of the entire OpenShift worker node, <strong>not</strong> the container. Do not use them for capacity planning inside a container.</p>
 </li>
 <li>
-<p><strong>Container-aware output</strong> (<code>java -XshowSettings:system</code>, <code>jcmd $PID VM.info</code>) reflects the cgroup limits actually applied to the container. Confirm that <code>memory_limit_in_bytes</code> and <code>active_processor_count</code> match the <code>limits</code> defined in side the pod YAML; if they differ, verify your JVM is 8u191 or later, as older versions lack proper cgroup awareness. The versions 8u372+, 11.0.16+, 17+ are required for cgroups v2 complaince.</p>
+<p><strong>Container-aware output</strong> (<code>java -XshowSettings:system</code>, <code>jcmd $PID VM.info</code>) reflects the cgroup limits actually applied to the container. Confirm that <code>memory_limit_in_bytes</code> and <code>active_processor_count</code> match the <code>limits</code> defined in side the pod YAML; if they differ, verify your JVM is 8u191 or later, as older versions lack proper cgroup awareness. The versions 8u372+, 11.0.16+, 17+ are required for cgroups v2 compliance.</p>
 </li>
 </ul>
 </div>
