@@ -166,7 +166,7 @@
 <ul class="nav-list">
   <li class="nav-item" data-depth="1">
     <button class="nav-item-toggle"></button>
-    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Tuning, Monitoring, and Troubleshooting Container-Aware Java</a>
 <ul class="nav-list">
   <li class="nav-item" data-depth="2">
     <a class="nav-link" href="../hands-on-lab/tuning-java-heap-settings-percentage-based-on-container-limits.html">Tuning Java Heap Settings Based on Container Limits</a>
@@ -411,47 +411,23 @@ memory_usage_in_bytes: 125108224</code></pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_hands_on_activity_inspecting_jvm_resource_awareness"><a class="anchor" href="#_hands_on_activity_inspecting_jvm_resource_awareness"></a>Hands-on Activity: Inspecting JVM Resource Awareness</h2>
+<h2 id="_verifying_jvm_resource_awareness_reference"><a class="anchor" href="#_verifying_jvm_resource_awareness_reference"></a>Verifying JVM Resource Awareness (Reference)</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>FIXME: This can be general instructions and not hands-on activity to be followed by learner.</p>
+<p>Use the following as general guidance to confirm that a running pod is correctly interpreting its cgroup limits. For the full hands-on Native Memory Tracking (NMT) walkthrough — enabling <code>-XX:NativeMemoryTracking</code> and reading <code>jcmd 1 VM.native_memory summary</code> — follow <a href="../risks-and-memory-management/hands-on-lab-heap-settings.html" class="xref page">Analyzing Heap and Off-Heap Settings</a>.</p>
 </div>
-<div class="paragraph">
-<p>In this activity, you will verify if your currently running pod is correctly interpreting its cgroup limits.</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
+<div class="ulist">
+<ul>
 <li>
-<p><strong>Access the running pod:</strong></p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc rsh &lt;pod-name&gt;</code></pre>
-</div>
-</div>
+<p><strong>Access the pod and identify the Java PID</strong> with <code>oc rsh &lt;pod-name&gt;</code> followed by <code>jps</code> (or <code>ps -aux</code>, or <code>jcmd</code>); the application typically runs as PID 1.</p>
 </li>
 <li>
-<p><strong>Identify the PID of the Java process:</strong></p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jps (or ps -aux, or jcmd)
-# Output: 1 AppMain</code></pre>
-</div>
-</div>
+<p><strong>Check resource visibility</strong> with <code>jcmd &lt;pid&gt; VM.native_memory summary</code> and look for the container-specific configuration in the diagnostic output.</p>
 </li>
 <li>
-<p><strong>Run the diagnostic command to check resource visibility:</strong></p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">jcmd 1234 VM.native_memory summary
-# Look for container-specific configuration in the JVM diagnostic output</code></pre>
-</div>
-</div>
+<p><strong>Cross-reference with OpenShift limits:</strong> Compare the <code>memory_limit_in_bytes</code> reported by the JVM with the memory limit defined in the deployment YAML. If they do not align, verify that the application is container-aware and using <code>run-java.sh</code>. When <code>run-java.sh</code> is the entrypoint, you can adjust <code>JAVA_OPTS</code> and <code>JAVA_OPTS_APPEND</code> with <code>-XX:MaxRAMPercentage</code>; these environment variables only take effect with that entrypoint.</p>
 </li>
-<li>
-<p><strong>Cross-reference with OpenShift limits:</strong>
-Compare the <code>memory_limit_in_bytes</code> reported by the JVM with the memory limit defined in the deployment YAML. If they do not align, verify if the application is container aware, it is using <code>java-run.sh</code>. In case needed, one can adjust the JAVA_OPTS` and <code>JAVA_OPTS_APPEND</code> using <code>-XX:MaxRAMPercentage</code> in case <code>java-run.sh</code> is used. The environment variables: <code>JAVA_OPTS</code> and <code>JAVA_OPTS_APPEND</code> can be used as long as java-run.sh are used.</p>
-</li>
-</ol>
+</ul>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -470,7 +446,7 @@ memory_soft_limit_in_bytes: 716800 k &lt;-------------- soft limit 700mb</code><
 </td>
 <td class="content">
 <div class="paragraph">
-<p>If you observe <code>cgroup OOMKills</code> despite the JVM reporting correct memory usage, analyze your off-heap usage via <code>jcmd &lt;pid&gt; NativeMemoryTracking=summary</code>. You may need to decrease your <code>MaxRAMPercentage</code> to provide more "breathing room" for the native memory footprint.</p>
+<p>If you observe <code>cgroup OOMKills</code> despite the JVM reporting correct memory usage, analyze your off-heap usage via <code>jcmd &lt;pid&gt; VM.native_memory summary</code>. You may need to decrease your <code>MaxRAMPercentage</code> to provide more "breathing room" for the native memory footprint.</p>
 </div>
 </td>
 </tr>

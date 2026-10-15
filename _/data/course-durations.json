@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 5055,
+  "totalSeconds": 4938,
   "pageCount": 31,
   "pages": [
     {
@@ -60,7 +60,7 @@
     {
       "module": "container-resource-detection",
       "page": "determining-cpu-availability-within-containers-openshift.adoc",
-      "seconds": 141
+      "seconds": 150
     },
     {
       "module": "risks-and-memory-management",
@@ -80,7 +80,7 @@
     {
       "module": "risks-and-memory-management",
       "page": "hands-on-lab-heap-settings.adoc",
-      "seconds": 203
+      "seconds": 197
     },
     {
       "module": "risks-and-memory-management",
@@ -95,7 +95,7 @@
     {
       "module": "openshift-and-kubernetes-integration",
       "page": "configuring-limits-and-requests-in-red-hat-openshift.adoc",
-      "seconds": 467
+      "seconds": 392
     },
     {
       "module": "openshift-and-kubernetes-integration",
@@ -120,12 +120,12 @@
     {
       "module": "troubleshooting-and-tooling",
       "page": "analyzing-container-limits-and-resource-utilization.adoc",
-      "seconds": 129
+      "seconds": 91
     },
     {
       "module": "troubleshooting-and-tooling",
       "page": "diagnostic-strategies-for-java-deployments-in-openshift.adoc",
-      "seconds": 295
+      "seconds": 278
     },
     {
       "module": "troubleshooting-and-tooling",
@@ -135,22 +135,22 @@
     {
       "module": "hands-on-lab",
       "page": "hands-on-lab.adoc",
-      "seconds": 20
+      "seconds": 55
     },
     {
       "module": "hands-on-lab",
       "page": "tuning-java-heap-settings-percentage-based-on-container-limits.adoc",
-      "seconds": 184
+      "seconds": 149
     },
     {
       "module": "hands-on-lab",
       "page": "monitoring-cpu-and-memory-usage-using-container-aware-tools.adoc",
-      "seconds": 160
+      "seconds": 174
     },
     {
       "module": "hands-on-lab",
       "page": "troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.adoc",
-      "seconds": 95
+      "seconds": 91
     },
     {
       "module": "appendix",

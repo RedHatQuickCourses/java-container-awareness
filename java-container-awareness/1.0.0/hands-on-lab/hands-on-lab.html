@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Hands-on Lab :: Java Container Awareness</title>
+    <title>Tuning, Monitoring, and Troubleshooting Container-Aware Java :: Java Container Awareness</title>
     <link rel="prev" href="../troubleshooting-and-tooling/java-diagnostics-jcmd.html">
     <link rel="next" href="tuning-java-heap-settings-percentage-based-on-container-limits.html">
     <meta name="generator" content="Antora 3.2.0-alpha.12">
@@ -166,7 +166,7 @@
 <ul class="nav-list">
   <li class="nav-item is-current-page" data-depth="1">
     <button class="nav-item-toggle"></button>
-    <a class="nav-link" href="hands-on-lab.html">Hands-on Lab</a>
+    <a class="nav-link" href="hands-on-lab.html">Tuning, Monitoring, and Troubleshooting Container-Aware Java</a>
 <ul class="nav-list">
   <li class="nav-item" data-depth="2">
     <a class="nav-link" href="tuning-java-heap-settings-percentage-based-on-container-limits.html">Tuning Java Heap Settings Based on Container Limits</a>
@@ -217,7 +217,7 @@
 <nav class="breadcrumbs" aria-label="breadcrumbs">
   <ul>
     <li><a href="../index.html">Java Container Awareness</a></li>
-    <li><a href="hands-on-lab.html">Hands-on Lab</a></li>
+    <li><a href="hands-on-lab.html">Tuning, Monitoring, and Troubleshooting Container-Aware Java</a></li>
   </ul>
 </nav>
 </div>
@@ -226,20 +226,20 @@
   <div class="toc-menu"></div>
 </aside>
 <article class="doc" data-audio-src="hands-on-lab.wav" data-transcript-src="hands-on-lab.txt">
-<h1 class="page">Hands-on Lab</h1>
+<h1 class="page">Tuning, Monitoring, and Troubleshooting Container-Aware Java</h1>
 <div class="paragraph">
-<p>The hands-on lab focuses on practical application of container awareness principles within an OpenShift environment. Key activities include:</p>
+<p>This capstone module puts the container-awareness principles from the earlier chapters into practice on a running OpenShift deployment. Rather than repeating the core CPU and heap walkthroughs, each lab focuses on its own distinct skill and links back to the canonical reference exercise for the shared setup and verification steps:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Resource Tuning:</strong> Adjusting Java heap settings using percentage-based configurations to align with container-imposed limits.</p>
+<p><strong>Resource Tuning:</strong> Move from fixed <code>-Xmx</code> to percentage-based heap flags (<code>MaxRAMPercentage</code>, <code>InitialRAMPercentage</code>, <code>MinRAMPercentage</code>), account for off-heap memory, avoid baking memory settings into the image, and tune the heap percentage per entrypoint (<code>run-java.sh</code> defaults to 80%, direct <code>java</code> to 25%).</p>
 </li>
 <li>
-<p><strong>Monitoring:</strong> Utilizing container-aware diagnostic tools to track actual CPU and memory utilization rather than host-level metrics.</p>
+<p><strong>Monitoring:</strong> Close the "visibility gap" by distinguishing container-aware output (<code>jcmd VM.info</code>, <code>java -XshowSettings:system</code>) from node-aware tools (<code>free</code>, <code>nproc</code>, <code>lscpu</code>, <code>top</code>), and read the <code>container (cgroup) information</code> section to confirm the JVM sees the pod&#8217;s real limits.</p>
 </li>
 <li>
-<p><strong>Troubleshooting:</strong> Applying diagnostic strategies—such as inspecting pod configurations and resource constraints—to resolve deployment issues within or outside OpenShift.</p>
+<p><strong>Troubleshooting:</strong> Correlate the OpenShift, kernel/cgroup, and JVM layers using <code>oc describe</code>, <code>oc debug</code>, and <code>jcmd</code>, then deliberately trigger and diagnose a <code>cgroup</code> OOMKill — reading pod events, exit code 137, and the terminated reason — to connect misconfigured limits to an observable failure.</p>
 </li>
 </ul>
 </div>

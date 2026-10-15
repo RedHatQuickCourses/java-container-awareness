@@ -166,7 +166,7 @@
 <ul class="nav-list">
   <li class="nav-item" data-depth="1">
     <button class="nav-item-toggle"></button>
-    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Tuning, Monitoring, and Troubleshooting Container-Aware Java</a>
 <ul class="nav-list">
   <li class="nav-item" data-depth="2">
     <a class="nav-link" href="../hands-on-lab/tuning-java-heap-settings-percentage-based-on-container-limits.html">Tuning Java Heap Settings Based on Container Limits</a>
@@ -237,7 +237,7 @@
 <p>Use <code>jcmd</code> to inspect the memory distribution of the running containerized application at runtime.</p>
 </li>
 <li>
-<p>Assuming the same application as before.</p>
+<p>Assuming the same application as before — the one deployed in <a href="../container-resource-detection/determining-cpu-availability-within-containers-openshift.html" class="xref page">Inspecting CPU-Aware Deployments in OpenShift</a>.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get deployment
@@ -310,7 +310,7 @@ sh-5.1$ exit
 <p>Check the memory capacity of the node running the pod using the <code>free</code> command:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods -o wide
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get nodes -o wide
 oc debug node/&lt;node_name&gt; -- bash -c "free -m"</code></pre>
 </div>
 </div>
@@ -320,10 +320,9 @@ oc debug node/&lt;node_name&gt; -- bash -c "free -m"</code></pre>
 <div class="listingblock">
 <div class="title">Example output:</div>
 <div class="content">
-<pre>[lab-user@bastion ~]$ oc get pods -o wide
-NAME                          READY   STATUS      RESTARTS   AGE   IP             NODE                            NOMINATED NODE   READINESS GATES
-hotrod-app-1-build            0/1     Completed   0          44m   10.232.0.221   control-plane-cluster-phzlt-1   &lt;none&gt;           &lt;none&gt;
-hotrod-app-7569b6c6cd-52dqg   1/1     Running     0          37m   10.232.0.223   control-plane-cluster-phzlt-1   &lt;none&gt;           &lt;none&gt;
+<pre>[lab-user@bastion ~]$ oc get nodes
+NAME                            STATUS   ROLES                         AGE   VERSION
+control-plane-cluster-phzlt-1   Ready    control-plane,master,worker   22h   v1.34.9
 [lab-user@bastion ~]$
 [lab-user@bastion ~]$ oc debug node/control-plane-cluster-phzlt-1 -- bash -c "free -m"
 Temporary namespace openshift-debug-vq288 is created for debugging node...
@@ -539,7 +538,7 @@ Total: reserved=28725786KB, committed=1518126KB
 <p>Update the current deployment with this setting</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ oc set env deployment/hotrod-app JAVA_OPTS_APPEND="-XX:NativeMemoryTracking=detail"</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc set env deployment/hotrod-app JAVA_OPTS_APPEND="-XX:NativeMemoryTracking=detail"</code></pre>
 </div>
 </div>
 </li>

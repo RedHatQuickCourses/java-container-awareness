@@ -166,7 +166,7 @@
 <ul class="nav-list">
   <li class="nav-item" data-depth="1">
     <button class="nav-item-toggle"></button>
-    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Tuning, Monitoring, and Troubleshooting Container-Aware Java</a>
 <ul class="nav-list">
   <li class="nav-item" data-depth="2">
     <a class="nav-link" href="../hands-on-lab/tuning-java-heap-settings-percentage-based-on-container-limits.html">Tuning Java Heap Settings Based on Container Limits</a>
@@ -469,124 +469,6 @@ Specifically for GC, the number of CPUs sets the Parallel threads (for all Paral
 <div class="paragraph">
 <p>As everything we suggest fully testing and for critical deployments perhaps 1 CPU may not be entirely adequate, again because CPU is used for thread calculations, including Parallel and concurrent threads for GC collectors, and it is used by the kernel for allocating the time for those threads to run.</p>
 </div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_hands_on_activity_inspecting_cgroup_resource_constraints"><a class="anchor" href="#_hands_on_activity_inspecting_cgroup_resource_constraints"></a>Hands-on Activity: Inspecting cgroup Resource Constraints</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>In this activity, you will verify how OpenShift translates your YAML configuration into cgroup settings visible to the Java application.</p>
-</div>
-<div class="paragraph">
-<p><strong>Prerequisites:</strong></p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>An active OpenShift cluster (OCP 4 for Openshift Operators deployments).</p>
-</li>
-<li>
-<p><code>oc</code> CLI authenticated with administrative or project-level access.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Note: When deploying with an Operator, the Operator will control the deployment directly, therfore the user needs to modify the settings via the respective Custom Resource.</p>
-</div>
-<div class="paragraph">
-<p><strong>Steps:</strong></p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p><strong>Deploy a sample Java application (which will use run-java.sh as ENTRYPOINT) </strong> with defined limits and requests:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">###
-### Create a specific namespace for deployment
-###
-$ oc new-project hotrod-s2i-project
-###
-### Deployment of the applicatoin
-###
-$ oc new-app registry.access.redhat.com/ubi9/openjdk-17~https://github.com/alexbarbosa1989/hotrodspringboot.git --name=hotrod-app
-###
-### Set the limits and requests differently
-###
-$ oc set resources deployment/hotrod-app --limits=cpu="2",memory="2Gi" --requests=cpu="1",memory="1Gi"
-deployment.apps/hotrod-app resource requirements updated</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p><strong>Access the running Pod</strong> to inspect the cgroup limits:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ oc get pod
-NAME                          READY   STATUS      RESTARTS   AGE
-hotrod-app-ID                 1/1     Running     0          24m
-oc rsh &lt;hotrod-app-ID&gt;</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p><strong>Check the CPU details</strong>:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ cat /sys/fs/cgroup/cpu.max &lt;----------------- cgroups v2
-200000 100000 &lt;-------------------------------- limit 2 CPU, request 1 CPU
-# This will return 100000 (100ms), confirming the 1000m CPU limit.
-$ jcmd 1 VM.info | grep active_processor_count
-active_processor_count: 2 &lt;-------------------- confirms 2 CPUs limit (request is ignored)</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p><strong>Check the Memory details</strong>:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">sh-5.1$ cat /sys/fs/cgroup/memory.max &lt;-------- cgroups v2
-2147483648 &lt;----------------------------------- that's 2Gi
-$ jcmd 1 VM.info | grep "Heap address: 0x00000000c0000000"
-Heap address: 0x00000000c0000000, size: 1024 MB &lt;------ that's 50% of 2Gi</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>VM.info brings speciifc section for cgroups:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ jcmd 1 VM.info | grep -A18 "container (cgroup) information:"
-container (cgroup) information:
-container_type: cgroupv2 &lt;--------------------------------- cgroups v2
-cpu_cpuset_cpus: not supported
-cpu_memory_nodes: not supported
-active_processor_count: 2 &lt;--------------------------------- 2 CPU limits
-cpu_quota: 200000 &lt;----------------------------------------- 2 CPU limit
-cpu_period: 100000 &lt;---------------------------------------- 1 CPU request
-cpu_shares: no shares
-memory_limit_in_bytes: 2097152 k &lt;--------------------------- 2Gi limit
-memory_and_swap_limit_in_bytes: 2097152 k
-memory_soft_limit_in_bytes: 0
-memory_usage_in_bytes: 169868 k &lt;--------------------------- current usage
-memory_max_usage_in_bytes: not supported
-rss_usage_in_bytes: 165596 k
-cache_usage_in_bytes: 160 k
-memory_swap_current_in_bytes: 0
-memory_swap_max_limit_in_bytes: 0
-maximum number of tasks: unlimited
-current number of tasks: 54</code></pre>
-</div>
-</div>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>Above for the output related to <code>Max. Heap Size</code> and <code>active_processor_count</code>. You will notice these values are derived from the limits, not the requests.</p>
-</div>
-<div class="paragraph">
-<p>Finally, above shows the Java is fully complaint with cgroups v2, in case it wasn&#8217;t so then the container limits couldn&#8217;t be detected and the VM.info container details would not show those constraints.</p>
 </div>
 <div class="sect2">
 <h3 id="_default_red_hat_openjdks_entrypoint_vs_direct_java_execution"><a class="anchor" href="#_default_red_hat_openjdks_entrypoint_vs_direct_java_execution"></a>Default Red Hat OpenJDK&#8217;s ENTRYPOINT vs direct Java execution</h3>

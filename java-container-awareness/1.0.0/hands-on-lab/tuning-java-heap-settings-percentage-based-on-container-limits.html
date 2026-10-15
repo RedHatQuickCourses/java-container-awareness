@@ -166,7 +166,7 @@
 <ul class="nav-list">
   <li class="nav-item" data-depth="1">
     <button class="nav-item-toggle"></button>
-    <a class="nav-link" href="hands-on-lab.html">Hands-on Lab</a>
+    <a class="nav-link" href="hands-on-lab.html">Tuning, Monitoring, and Troubleshooting Container-Aware Java</a>
 <ul class="nav-list">
   <li class="nav-item is-current-page" data-depth="2">
     <a class="nav-link" href="tuning-java-heap-settings-percentage-based-on-container-limits.html">Tuning Java Heap Settings Based on Container Limits</a>
@@ -217,7 +217,7 @@
 <nav class="breadcrumbs" aria-label="breadcrumbs">
   <ul>
     <li><a href="../index.html">Java Container Awareness</a></li>
-    <li><a href="hands-on-lab.html">Hands-on Lab</a></li>
+    <li><a href="hands-on-lab.html">Tuning, Monitoring, and Troubleshooting Container-Aware Java</a></li>
     <li><a href="tuning-java-heap-settings-percentage-based-on-container-limits.html">Tuning Java Heap Settings Based on Container Limits</a></li>
   </ul>
 </nav>
@@ -299,28 +299,29 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_hands_on_lab_tuning_heap_for_a_containerized_application"><a class="anchor" href="#_hands_on_lab_tuning_heap_for_a_containerized_application"></a>Hands-on Lab: Tuning Heap for a Containerized Application</h2>
+<h2 id="_applying_percentage_based_heap_settings"><a class="anchor" href="#_applying_percentage_based_heap_settings"></a>Applying Percentage-Based Heap Settings</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>In this lab, you will configure a Java application to use container-aware memory settings instead of hardcoded heap limits.</p>
+<p>This section covers the configuration you apply to use container-aware memory settings instead of hardcoded heap limits.</p>
 </div>
-<div class="sect2">
-<h3 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Access to an OpenShift cluster or a local Docker environment.</p>
-</li>
-<li>
-<p>A containerized Java application image.</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_step_1_inspect_current_runtime_configuration"><a class="anchor" href="#_step_1_inspect_current_runtime_configuration"></a>Step 1: Inspect Current Runtime Configuration</h3>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
 <div class="paragraph">
-<p>First, verify that your application is currently running without explicit <code>-Xmx</code> flags or is using percentage-based flags. Check the environment variables or the deployment configuration:</p>
+<p>For the full hands-on walkthrough — changing <code>MaxRAMPercentage</code> from 80% to 50% on the running <code>hotrod-app</code>, then verifying the resulting <code>Heap Max Capacity</code> with <code>jcmd 1 VM.info</code> — follow <a href="../risks-and-memory-management/hands-on-lab-heap-settings.html" class="xref page">Analyzing Heap and Off-Heap Settings</a>. That lab reuses the deployment from <a href="../container-resource-detection/determining-cpu-availability-within-containers-openshift.html" class="xref page">Inspecting CPU-Aware Deployments in OpenShift</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_inspect_the_current_configuration"><a class="anchor" href="#_inspect_the_current_configuration"></a>Inspect the current configuration</h3>
+<div class="paragraph">
+<p>First, verify that your application is running without explicit <code>-Xmx</code> flags or is already using percentage-based flags:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -329,7 +330,7 @@ oc set env deployment/&lt;deployment-name&gt; --list</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The step above will not show building ENV variables such as the example below (which shouldn&#8217;t be used)</p>
+<p>Do <strong>not</strong> bake the memory constraints into the image. The following Dockerfile pattern should be avoided — set the percentage through deployment environment variables instead, so it stays decoupled from the image:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -346,9 +347,9 @@ ENV JAVA_OPTS_APPEND="-XX:MaxRAMPercentage=50.0"
 </div>
 </div>
 <div class="sect2">
-<h3 id="_step_2_tune_percentage_based_heap"><a class="anchor" href="#_step_2_tune_percentage_based_heap"></a>Step 2: Tune Percentage-Based Heap</h3>
+<h3 id="_default_heap_allocation_by_entrypoint"><a class="anchor" href="#_default_heap_allocation_by_entrypoint"></a>Default heap allocation by entrypoint</h3>
 <div class="paragraph">
-<p>By default an OpenJDK application is container aware and already will detect the container and set the heap size from there. The difference will be on the percentage:</p>
+<p>By default an OpenJDK application is container-aware and will detect the container and size the heap from there. The difference is the percentage:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -372,11 +373,11 @@ ENV JAVA_OPTS_APPEND="-XX:MaxRAMPercentage=50.0"
 </tr>
 </tbody>
 </table>
-<div class="paragraph">
-<p>Given the percentage already comes by default, the user has to do nothing to set it up. However, in case they would like to tune it it is possible via environment variables.</p>
 </div>
+<div class="sect2">
+<h3 id="_tuning_the_percentage"><a class="anchor" href="#_tuning_the_percentage"></a>Tuning the percentage</h3>
 <div class="paragraph">
-<p>Apply the following environment variables to your deployment according to the deployment method:</p>
+<p>The default comes for free, so the user has to do nothing to set it up. To tune it, apply the environment variable that matches your entrypoint:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -400,40 +401,8 @@ ENV JAVA_OPTS_APPEND="-XX:MaxRAMPercentage=50.0"
 </tr>
 </tbody>
 </table>
-</div>
-<div class="sect2">
-<h3 id="_step_3_validate_the_configuration"><a class="anchor" href="#_step_3_validate_the_configuration"></a>Step 3: Validate the Configuration</h3>
 <div class="paragraph">
-<p>After the deployment restarts, verify that the JVM has correctly calculated the heap size relative to your pod&#8217;s memory limit.</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Get the pod name:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>Run <code>jcmd</code> inside the container to inspect the VM arguments:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc exec &lt;pod-name&gt; -- jcmd 1 VM.flags</code></pre>
-</div>
-</div>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p><strong>Observe the output:</strong> You should see the <code>-XX:MaxRAMPercentage</code> flag active. If you check <code>VM.max_heap_size</code>, you will see an absolute byte value calculated based on the 75% ratio of your current container limit. jcmd VM.info will bring much more details and container size/settings.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_step_4_monitoring"><a class="anchor" href="#_step_4_monitoring"></a>Step 4: Monitoring</h3>
-<div class="paragraph">
-<p>Use the OpenShift web console or CLI to monitor memory usage. Compare the Memory Usage metric against the container Limit. Ensure that the usage remains below the total limit, accounting for the gap required for native off-heap memory.</p>
+<p>After the deployment restarts, validate that the JVM calculated the heap size relative to the pod&#8217;s memory limit (look for the active <code>-XX:MaxRAMPercentage</code> flag and the resulting <code>VM.max_heap_size</code>) by following the <code>jcmd</code> verification in <a href="../risks-and-memory-management/hands-on-lab-heap-settings.html" class="xref page">Analyzing Heap and Off-Heap Settings</a>. Then monitor memory usage via the OpenShift web console or CLI, keeping usage below the container limit to leave headroom for native off-heap memory.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -489,7 +458,7 @@ ENV JAVA_OPTS_APPEND="-XX:MaxRAMPercentage=50.0"
 </div>
 </div>
 <nav class="pagination">
-  <span class="prev"><a href="hands-on-lab.html">Hands-on Lab</a></span>
+  <span class="prev"><a href="hands-on-lab.html">Tuning, Monitoring, and Troubleshooting Container-Aware Java</a></span>
   <span class="next"><a href="monitoring-cpu-and-memory-usage-using-container-aware-tools.html">Monitoring CPU and Memory Usage with Container-Aware Tools</a></span>
 </nav>
 </article>

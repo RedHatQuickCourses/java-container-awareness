@@ -166,7 +166,7 @@
 <ul class="nav-list">
   <li class="nav-item" data-depth="1">
     <button class="nav-item-toggle"></button>
-    <a class="nav-link" href="hands-on-lab.html">Hands-on Lab</a>
+    <a class="nav-link" href="hands-on-lab.html">Tuning, Monitoring, and Troubleshooting Container-Aware Java</a>
 <ul class="nav-list">
   <li class="nav-item" data-depth="2">
     <a class="nav-link" href="tuning-java-heap-settings-percentage-based-on-container-limits.html">Tuning Java Heap Settings Based on Container Limits</a>
@@ -217,7 +217,7 @@
 <nav class="breadcrumbs" aria-label="breadcrumbs">
   <ul>
     <li><a href="../index.html">Java Container Awareness</a></li>
-    <li><a href="hands-on-lab.html">Hands-on Lab</a></li>
+    <li><a href="hands-on-lab.html">Tuning, Monitoring, and Troubleshooting Container-Aware Java</a></li>
     <li><a href="troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.html">Troubleshooting Resource Constraints in and out of OpenShift</a></li>
   </ul>
 </nav>
@@ -354,7 +354,7 @@ oc exec &lt;pod-name&gt; -- jcmd 1 VM.flags</code></pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_hands_on_lab_troubleshooting_a_resource_constrained_pod"><a class="anchor" href="#_hands_on_lab_troubleshooting_a_resource_constrained_pod"></a>Hands-on Lab: Troubleshooting a Resource-Constrained Pod</h2>
+<h2 id="_troubleshooting_a_resource_constrained_pod"><a class="anchor" href="#_troubleshooting_a_resource_constrained_pod"></a>Troubleshooting a Resource-Constrained Pod</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>In this exercise, you will diagnose a pod experiencing memory constraints.</p>
@@ -415,8 +415,8 @@ oc get events
 Check the deployment configuration to see the discrepancy between your <code>limit</code> and the JVM&#8217;s <code>-Xmx</code> setting.</p>
 </li>
 <li>
-<p><strong>Remediate:</strong>
-Adjust the deployment YAML to either increase the container memory limit or update the JVM flags using the <code>JAVA_OPTS</code> (or <code>JAVA_OPTS_APPEND</code>) environment variables to reflect a lower heap percentage - both are available in run-java.sh script ENTRYPOINT.</p>
+<p><strong>Remediate and re-verify:</strong>
+Adjust the deployment to either increase the container memory limit or lower the heap percentage via <code>JAVA_OPTS_APPEND="-XX:MaxRAMPercentage=50.0"</code> (available when <code>run-java.sh</code> is the entrypoint), then use <code>jcmd</code> inside the container to confirm the new <code>MaxHeapSize</code> is calculated correctly against the updated container limit.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">  env:
@@ -424,10 +424,9 @@ Adjust the deployment YAML to either increase the container memory limit or upda
        value: "-XX:MaxRAMPercentage=50.0"</code></pre>
 </div>
 </div>
-</li>
-<li>
-<p><strong>Re-verify:</strong>
-After applying the change, use <code>jcmd</code> inside the container to confirm the new <code>MaxHeapSize</code> is calculated correctly based on the updated container limit.</p>
+<div class="paragraph">
+<p>The full tuning-and-verification walkthrough is covered in <a href="../risks-and-memory-management/hands-on-lab-heap-settings.html" class="xref page">Analyzing Heap and Off-Heap Settings</a> and summarized in <a href="tuning-java-heap-settings-percentage-based-on-container-limits.html" class="xref page">Tuning Java Heap Settings Based on Container Limits</a>.</p>
+</div>
 </li>
 </ol>
 </div>

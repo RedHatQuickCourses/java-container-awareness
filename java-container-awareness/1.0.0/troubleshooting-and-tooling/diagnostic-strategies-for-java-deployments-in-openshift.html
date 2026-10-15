@@ -166,7 +166,7 @@
 <ul class="nav-list">
   <li class="nav-item" data-depth="1">
     <button class="nav-item-toggle"></button>
-    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Tuning, Monitoring, and Troubleshooting Container-Aware Java</a>
 <ul class="nav-list">
   <li class="nav-item" data-depth="2">
     <a class="nav-link" href="../hands-on-lab/tuning-java-heap-settings-percentage-based-on-container-limits.html">Tuning Java Heap Settings Based on Container Limits</a>
@@ -277,19 +277,11 @@ Heap address: 0x00000000c0000000, size: 1024 MB, Compressed Oops mode: 32-bit</c
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check perceived limit from within the pod
-oc exec &lt;pod-name&gt; -- jcmd 1 VM.info | grep -A18 "container (cgroup) information:"
-container_type: cgroupv2 &lt;-------------------------- cgroups v2
-cpu_cpuset_cpus: not supported
-cpu_memory_nodes: not supported
-active_processor_count: 2 &lt;-------------------------- CPU limits
-cpu_quota: 200000
-cpu_period: 100000
-cpu_shares: no shares
-memory_limit_in_bytes: 2097152 k  &lt;------------------- Memory limits
-memory_and_swap_limit_in_bytes: 2097152 k
-memory_soft_limit_in_bytes: 0
-memory_usage_in_bytes: 186764 k &lt;---------------------- Usage</code></pre>
+oc exec &lt;pod-name&gt; -- jcmd 1 VM.info | grep -A18 "container (cgroup) information:"</code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>For the full annotated <code>container (cgroup) information</code> output and how each field maps to your YAML limits and requests, see <a href="../openshift-and-kubernetes-integration/configuring-limits-and-requests-in-red-hat-openshift.html" class="xref page">Configuring Limits and Requests in Red Hat OpenShift</a>.</p>
 </div>
 <div class="paragraph">
 <p>Check if Heap is calculated correctly based on the container memory limit rather than the worker node&#8217;s total memory.</p>
@@ -393,64 +385,14 @@ memory_usage_in_bytes: 186764 k &lt;---------------------- Usage</code></pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_hands_on_lab_analyzing_resource_constraints"><a class="anchor" href="#_hands_on_lab_analyzing_resource_constraints"></a>Hands-on Lab: Analyzing Resource Constraints</h2>
+<h2 id="_analyzing_resource_constraints"><a class="anchor" href="#_analyzing_resource_constraints"></a>Analyzing Resource Constraints</h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p>In this lab, we will use <code>jcmd</code> to inspect a running Java process and verify its awareness of container limits.</p>
-</div>
-<div class="sect2">
-<h3 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h3>
-<div class="ulist">
-<ul>
-<li>
-<p>An active OpenShift cluster with a running Java pod.</p>
-</li>
-<li>
-<p><code>oc</code> CLI configured with cluster access.</p>
-</li>
-</ul>
-</div>
-</div>
 <div class="sect2">
 <h3 id="_step_1_verify_jvm_resource_settings"><a class="anchor" href="#_step_1_verify_jvm_resource_settings"></a>Step 1: Verify JVM resource settings</h3>
 <div class="paragraph">
-<p>Execute into the pod to check how the JVM views the memory limits.</p>
+<p>Use the <code>hotrod-app-*</code> container from the previous exercise to confirm the JVM&#8217;s container (cgroup) awareness before diagnosing throttling.
+The expected heap-to-container ratios (80% / 50% with <code>run-java.sh</code>, 25% for direct <code>java</code>) are explained in <a href="../hands-on-lab/tuning-java-heap-settings-percentage-based-on-container-limits.html" class="xref page">Tuning Java Heap Settings Based on Container Limits</a>.</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Run the VM settings check
-oc exec &lt;pod-name&gt; -- java 1 VM.info | grep -A18 "container (cgroup) information"</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Verify the output and see how it correlates with the host and container limits:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Output/Resource Allocation</th>
-<th class="tableblock halign-left valign-top">Deployment Condition</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">50% of the container</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">run-java.sh as ENTRYPOINT and container aware  - previous MaxRAMPercentage</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">80% of the container</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">run-java.sh as ENTRYPOINT and container aware - current MaxRAMPercentage</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">25% of the host</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">non-container aware or unbounded deployment - verify if the container has limits</p></td>
-</tr>
-</tbody>
-</table>
 </div>
 <div class="sect2">
 <h3 id="_step_2_use_jcmd_to_analyze_the_process_flags"><a class="anchor" href="#_step_2_use_jcmd_to_analyze_the_process_flags"></a>Step 2: Use <code>jcmd</code> to analyze the process flags</h3>
