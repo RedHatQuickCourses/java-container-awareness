@@ -287,7 +287,7 @@
 <h2 id="_current_fully_container_aware_java"><a class="anchor" href="#_current_fully_container_aware_java"></a>Current Fully Container-Aware Java</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Currently, container awareness is the standard expectation for cloud-native Java development for Java 8u372+, 11.0.16+, 17+ such as 21 and 25. The transition from unaware to fully container-aware has considerably streamlined the DevOps workflow:</p>
+<p>Currently, container awareness is the standard expectation for cgroups v1 and cgroups v2 complaince Java development for Java 8u372+, 11.0.16+, 17+ such as 21 and 25. The transition from unaware to fully container-aware has considerably streamlined the DevOps workflow:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -303,7 +303,7 @@
 </ul>
 </div>
 <div class="paragraph">
-<p>Specifically in terms of Red Hat build of OpenJDK, our images rely on the script <code>run-java.sh</code> script as <code>ENTRYPOINT</code>, which currently is not use anymore for detecting limits from the container but to add features and optimizations: such as ParallelGc, <code>MaxRAMPercentage</code> at 80%, <code>JAVA_OPTS</code> and <code>JAVA_OPTS_APPEND</code> environment variables. The 80% heap limit therefore does not come by default, but rather by the script&#8217;s <code>MaxRAMPercentage</code>.</p>
+<p>Specifically in terms of Red Hat build of OpenJDK, Red hat&#8217;s OpenJDK images rely in a custom script <code>run-java.sh</code> script as <code>ENTRYPOINT</code>, which currently is not use anymore for detecting limits from the container but to add features and optimizations: such as ParallelGc, <code>MaxRAMPercentage</code> at 80%, <code>JAVA_OPTS</code> and <code>JAVA_OPTS_APPEND</code> environment variables. The current 80% heap limit therefore does not come by default, but rather by the script&#8217;s <code>MaxRAMPercentage</code>.</p>
 </div>
 <div class="paragraph">
 <p>Understanding this evolution is important for any team moving toward microservices architectures. Container awareness provides a foundation that requires the Development team (who handles the Java settings) and the Deployment team (who handles the container size) to communicate and understand that Java will behave differently at runtime inside a container according to its runtime settings to avoid diffent behaviour.</p>
