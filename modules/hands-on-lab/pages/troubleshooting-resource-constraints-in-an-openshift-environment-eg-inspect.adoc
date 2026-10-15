@@ -2,17 +2,17 @@
 :page-audio-src: troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.wav
 :page-transcript-src: troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.txt
 
-When Java applications run in OpenShift, they operate within the constraints defined by the Linux kernel's control groups (cgroups). If these constraints are misconfigured or if the Java Virtual Machine (JVM) is unaware of them, you may encounter performance degradation, unexpected `OutOfMemoryError` (OOM) exceptions (that may, or may not exit the container), or even container restarts due to OOMKills.
+When Java applications run in OpenShift, user can define container limits within the Java application where the Linux's kernel control groups (cgroups) set memory and/or CPU boundaries. If these constraints are unset, misconfigured or if the Java Virtual Machine (JVM) is unaware of them, one may encounter performance degradation, unexpected `OutOfMemoryError` (OOM) exceptions (that may, or may not exit the container), container restarts due to OOMKills or even generic OOMKills in the full OCP cluster.
 
 This section focuses on diagnostic strategies and using tools to inspect resource constraints for Java workloads in OpenShift.
 
 == Diagnostic Strategy
 
-To effectively troubleshoot resource constraints, you must correlate three distinct layers:
+To effectively troubleshoot resource constraints, you must understand three distinct layers:
 
 1.  **OpenShift/Kubernetes Layer:** The resource requests and limits defined in your `Deployment` or `Pod` specification.
 2.  **Kernel/Cgroup Layer:** The actual hardware quotas enforced by the container runtime.
-3.  **JVM Layer:** The memory and CPU settings perceived by the Java process.
+3.  **JVM Layer:** The memory and CPU settings perceived by the Java process. Java only cares about limits for Java's thread setting.
 
 === Identifying Misalignment
 A common pitfall is the misalignment between the container limit and the JVM heap size. If your container limit is 1Gi but the JVM is configured with `-Xmx2G` (which should be avoided), the process will likely fail immediately or fail shortly after starting, being killed by the kernel when it attempts to allocate memory beyond the cgroup boundary.
@@ -42,7 +42,7 @@ oc debug pod/<pod-name> --image=registry.access.redhat.com/ubi9/ubi-minimal
 cat /sys/fs/cgroup/memory/memory.limit_in_bytes
 ----
 
-*Note: In cgroup v2 environments, the path will change:
+**Note:** In cgroup v2 environments, the path will change:
 
 [cols="1,2", options="header"]
 |===
@@ -60,8 +60,9 @@ The `jcmd` utility is the standard diagnostic tool for Java. Since Java 8u191+, 
 
 [source,bash]
 ----
-# Run jcmd inside the container to see VM flags
-oc exec <pod-name> -- jcmd 1 VM.flags
+# Run jcmd inside the container to see VM flags - example with PID equals 1, given example with hotrod-app
+# oc exec <pod-name> -- jcmd $PID VM.info
+oc exec <pod-name> -- jcmd 1 VM.info
 ----
 
 *   **Look for:** `Heap size`
@@ -100,7 +101,7 @@ oc get pod <pod-name> -o jsonpath='{.status.containerStatuses[0].state.terminate
 *If the result is `OOMKilled`, the kernel terminated the process because it exceeded the cgroup memory limit.*
 
 3. **Verify the limits:**
-Check the deployment configuration to see the discrepancy between your `limit` and the JVM's `-Xmx` setting.
+Check the deployment configuration to see the discrepancy between your `limit` and the JVM's Heap setting.
 
 4. **Remediate and re-verify:**
 Adjust the deployment to either increase the container memory limit or lower the heap percentage via `JAVA_OPTS_APPEND="-XX:MaxRAMPercentage=50.0"` (available when `run-java.sh` is the entrypoint), then use `jcmd` inside the container to confirm the new `MaxHeapSize` is calculated correctly against the updated container limit.
