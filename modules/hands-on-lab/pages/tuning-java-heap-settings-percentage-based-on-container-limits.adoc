@@ -6,9 +6,9 @@ In containerized environments orchestrators, Red Hat OpenShift, Red Hat OpenJDK 
 
 == The Shift to Percentage-Based Memory Management
 
-Historically since Java inception, developers used the `-Xmx` flag to set an absolute heap size (e.g., `-Xmx2g`). In a container, this creates a static configuration that ignores the actual memory limit of the container. If the container limit is lowered, the JVM may attempt to exceed it, leading to a `cgroup` OOM-Kill.
+Historically since Java inception, developers used the `-Xmx` flag to set directly the heap size as absolute value (e.g., `-Xmx2g`). However, deploying with container aware Java inside a container, Java will calculate (entirely by default - user needs to do nothing) the Java heap size as a percentage from the container size. Therefore, setting `Xmx` manually becomes a liability making Java ignore the actual memory limit of the container. If the heap is inadequately set the JVM will eventually exceed the container size leading to a `cgroup` OOM-Kill.
 
-By using **RAM Percentage flags**, you decouple the specific memory limit from the application code, allowing the JVM to calculate its heap size dynamically based on the container's available memory.
+The default behavior uses **RAM Percentage flags** where by default the heap size is associated with the container's memory limit, allowing the JVM to calculate its heap size dynamically based on the container's available memory and re-size upon JVM restart.
 
 === Key Configuration Flags
 *   `-XX:MaxRAMPercentage=N`: Sets the maximum heap size as a percentage of the container's memory limit. The default upstream limit is25%, though specialized container images (like Red Hat’s `run-java.sh` scripts) will default to 80%.
@@ -17,7 +17,7 @@ By using **RAM Percentage flags**, you decouple the specific memory limit from t
 
 [IMPORTANT]
 ====
-When tuning these percentages, remember that the **total container memory** must accommodate more than just the heap. You must account for **off-heap memory**, which includes:
+When tuning these percentages, remember that the **total container memory** must accommodate more than just the heap. One must account for **off-heap memory**, which includes:
 
 *   Metaspace (Class metadata)
 *   Thread stacks
@@ -25,7 +25,8 @@ When tuning these percentages, remember that the **total container memory** must
 *   GC structures and internal JVM native memory
 *   Off-heap buffers (used by Netty, AMQ, or Data Grid)
 
-Setting `-XX:MaxRAMPercentage` too high (e.g., 95%) leaves insufficient room for native memory, inevitably leading to native memory pressure and `cgroups` OOM-Kill.
+Setting `-XX:MaxRAMPercentage` too high leaves insufficient room for native memory, inevitably leading to native memory pressure and `cgroups` OOM-Killer. The exact percentage cannot be precised without application direct knowledge. Details on https://access.redhat.com/solutions/7141090[Can Red Hat provide optimal MaxRAMPercentage or related flags for SpringBoot or Java applications].
+
 ====
 
 == Applying Percentage-Based Heap Settings
@@ -95,7 +96,7 @@ After the deployment restarts, validate that the JVM calculated the heap size re
 
 [TIP]
 ====
-If you observe `java.lang.OutOfMemoryError: Metaspace` or native crashes, your `MaxRAMPercentage` is too aggressive. Lower the value by 5-10% and redeploy.
+If you observe `java.lang.OutOfMemoryError: Metaspace` verify the MaxMetaspace flag, which sets the Metaspace limit and although present in the off-heap has its own cap. Details https://developers.redhat.com/articles/2024/07/19/metaspace-setting-and-tuning-jdk-8-applications-and-outside-containers[Metaspace setting and tuning in JDK 8+ Applications: in and outside containers].
 ====
 
 == Reference Documentation
