@@ -4,7 +4,7 @@ This activity guides you through identifying the memory footprint of your Java p
 
 . Use `jcmd` to inspect the memory distribution of the running containerized application at runtime.
 
-. Assuming the same application as before.
+. Assuming the same application as before — the one deployed in xref:container-resource-detection:determining-cpu-availability-within-containers-openshift.adoc[Inspecting CPU-Aware Deployments in OpenShift].
 +
 [source,bash]
 ----
@@ -72,7 +72,7 @@ sh-5.1$ exit
 +
 [source,bash]
 ----
-oc get pods -o wide
+oc get nodes -o wide
 oc debug node/<node_name> -- bash -c "free -m"
 ----
 +
@@ -81,10 +81,9 @@ Replace <node_name> with the name of the node where your pod is running.
 .Example output:
 +
 ----
-[lab-user@bastion ~]$ oc get pods -o wide
-NAME                          READY   STATUS      RESTARTS   AGE   IP             NODE                            NOMINATED NODE   READINESS GATES
-hotrod-app-1-build            0/1     Completed   0          44m   10.232.0.221   control-plane-cluster-phzlt-1   <none>           <none>
-hotrod-app-7569b6c6cd-52dqg   1/1     Running     0          37m   10.232.0.223   control-plane-cluster-phzlt-1   <none>           <none>
+[lab-user@bastion ~]$ oc get nodes
+NAME                            STATUS   ROLES                         AGE   VERSION
+control-plane-cluster-phzlt-1   Ready    control-plane,master,worker   22h   v1.34.9
 [lab-user@bastion ~]$ 
 [lab-user@bastion ~]$ oc debug node/control-plane-cluster-phzlt-1 -- bash -c "free -m"
 Temporary namespace openshift-debug-vq288 is created for debugging node...
@@ -264,7 +263,7 @@ If you see "Native memory tracking is not enabled", you must enable it by adding
 +
 [source,bash]
 ----
-$ oc set env deployment/hotrod-app JAVA_OPTS_APPEND="-XX:NativeMemoryTracking=detail"
+oc set env deployment/hotrod-app JAVA_OPTS_APPEND="-XX:NativeMemoryTracking=detail"
 ----
 
 . Access the terminal of your new running pod:

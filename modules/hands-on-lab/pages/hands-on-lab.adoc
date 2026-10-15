@@ -1,9 +1,9 @@
-= Hands-on Lab
+= Tuning, Monitoring, and Troubleshooting Container-Aware Java
 :page-audio-src: hands-on-lab.wav
 :page-transcript-src: hands-on-lab.txt
 
-The hands-on lab focuses on practical application of container awareness principles within an OpenShift environment. Key activities include:
+This capstone module puts the container-awareness principles from the earlier chapters into practice on a running OpenShift deployment. Rather than repeating the core CPU and heap walkthroughs, each lab focuses on its own distinct skill and links back to the canonical reference exercise for the shared setup and verification steps:
 
-* **Resource Tuning:** Adjusting Java heap settings using percentage-based configurations to align with container-imposed limits.
-* **Monitoring:** Utilizing container-aware diagnostic tools to track actual CPU and memory utilization rather than host-level metrics.
-* **Troubleshooting:** Applying diagnostic strategies—such as inspecting pod configurations and resource constraints—to resolve deployment issues within or outside OpenShift.
+* **Resource Tuning:** Move from fixed `-Xmx` to percentage-based heap flags (`MaxRAMPercentage`, `InitialRAMPercentage`, `MinRAMPercentage`), account for off-heap memory, avoid baking memory settings into the image, and tune the heap percentage per entrypoint (`run-java.sh` defaults to 80%, direct `java` to 25%).
+* **Monitoring:** Close the "visibility gap" by distinguishing container-aware output (`jcmd VM.info`, `java -XshowSettings:system`) from node-aware tools (`free`, `nproc`, `lscpu`, `top`), and read the `container (cgroup) information` section to confirm the JVM sees the pod's real limits.
+* **Troubleshooting:** Correlate the OpenShift, kernel/cgroup, and JVM layers using `oc describe`, `oc debug`, and `jcmd`, then deliberately trigger and diagnose a `cgroup` OOMKill — reading pod events, exit code 137, and the terminated reason — to connect misconfigured limits to an observable failure.

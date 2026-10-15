@@ -28,16 +28,17 @@ When tuning these percentages, remember that the **total container memory** must
 Setting `-XX:MaxRAMPercentage` too high (e.g., 95%) leaves insufficient room for native memory, inevitably leading to native memory pressure and `cgroups` OOM-Kill.
 ====
 
-== Hands-on Lab: Tuning Heap for a Containerized Application
+== Applying Percentage-Based Heap Settings
 
-In this lab, you will configure a Java application to use container-aware memory settings instead of hardcoded heap limits.
+This section covers the configuration you apply to use container-aware memory settings instead of hardcoded heap limits.
 
-### Prerequisites
-*   Access to an OpenShift cluster or a local Docker environment.
-*   A containerized Java application image.
+[NOTE]
+====
+For the full hands-on walkthrough — changing `MaxRAMPercentage` from 80% to 50% on the running `hotrod-app`, then verifying the resulting `Heap Max Capacity` with `jcmd 1 VM.info` — follow xref:risks-and-memory-management:hands-on-lab-heap-settings.adoc[Analyzing Heap and Off-Heap Settings]. That lab reuses the deployment from xref:container-resource-detection:determining-cpu-availability-within-containers-openshift.adoc[Inspecting CPU-Aware Deployments in OpenShift].
+====
 
-### Step 1: Inspect Current Runtime Configuration
-First, verify that your application is currently running without explicit `-Xmx` flags or is using percentage-based flags. Check the environment variables or the deployment configuration:
+=== Inspect the current configuration
+First, verify that your application is running without explicit `-Xmx` flags or is already using percentage-based flags:
 
 [source,bash]
 ----
@@ -45,7 +46,7 @@ First, verify that your application is currently running without explicit `-Xmx`
 oc set env deployment/<deployment-name> --list
 ----
 
-The step above will not show building ENV variables such as the example below (which shouldn't be used)
+Do **not** bake the memory constraints into the image. The following Dockerfile pattern should be avoided — set the percentage through deployment environment variables instead, so it stays decoupled from the image:
 
 [source,dockerfile]
 ----
@@ -60,9 +61,9 @@ ENV JAVA_OPTS_APPEND="-XX:MaxRAMPercentage=50.0"
 # No ENTRYPOINT required; the base image automatically executes run-java.sh
 ----
 
-### Step 2: Tune Percentage-Based Heap
+=== Default heap allocation by entrypoint
 
-By default an OpenJDK application is container aware and already will detect the container and set the heap size from there. The difference will be on the percentage:
+By default an OpenJDK application is container-aware and will detect the container and size the heap from there. The difference is the percentage:
 
 [cols="1,1", options="header"]
 |===
@@ -75,9 +76,9 @@ By default an OpenJDK application is container aware and already will detect the
 | 25%
 |===
 
-Given the percentage already comes by default, the user has to do nothing to set it up. However, in case they would like to tune it it is possible via environment variables. 
+=== Tuning the percentage
 
-Apply the following environment variables to your deployment according to the deployment method:
+The default comes for free, so the user has to do nothing to set it up. To tune it, apply the environment variable that matches your entrypoint:
 
 [cols="1,2", options="header"]
 |===
@@ -90,28 +91,7 @@ Apply the following environment variables to your deployment according to the de
 | `JAVA_TOOLS_OPTIONS="-XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0"`
 |===
 
-
-### Step 3: Validate the Configuration
-After the deployment restarts, verify that the JVM has correctly calculated the heap size relative to your pod's memory limit.
-
-1.  Get the pod name:
-+
-[source,bash]
-----
-oc get pods
-----
-
-2.  Run `jcmd` inside the container to inspect the VM arguments:
-+
-[source,bash]
-----
-oc exec <pod-name> -- jcmd 1 VM.flags
-----
-
-*Observe the output:* You should see the `-XX:MaxRAMPercentage` flag active. If you check `VM.max_heap_size`, you will see an absolute byte value calculated based on the 75% ratio of your current container limit. jcmd VM.info will bring much more details and container size/settings.
-
-### Step 4: Monitoring
-Use the OpenShift web console or CLI to monitor memory usage. Compare the Memory Usage metric against the container Limit. Ensure that the usage remains below the total limit, accounting for the gap required for native off-heap memory.
+After the deployment restarts, validate that the JVM calculated the heap size relative to the pod's memory limit (look for the active `-XX:MaxRAMPercentage` flag and the resulting `VM.max_heap_size`) by following the `jcmd` verification in xref:risks-and-memory-management:hands-on-lab-heap-settings.adoc[Analyzing Heap and Off-Heap Settings]. Then monitor memory usage via the OpenShift web console or CLI, keeping usage below the container limit to leave headroom for native off-heap memory.
 
 [TIP]
 ====

@@ -98,36 +98,13 @@ a| *Impact:* The JVM aborts immediately without running shutdown hooks and dumps
 
 * For more details on this behavior, refer to the Red Hat Knowledgebase article: https://access.redhat.com/solutions/6968671[Troubleshoot options for Data Grid pod crash]
 
-== Hands-on Activity: Inspecting JVM Resource Awareness
-FIXME: This can be general instructions and not hands-on activity to be followed by learner.
+== Verifying JVM Resource Awareness (Reference)
 
-In this activity, you will verify if your currently running pod is correctly interpreting its cgroup limits.
+Use the following as general guidance to confirm that a running pod is correctly interpreting its cgroup limits. For the full hands-on Native Memory Tracking (NMT) walkthrough — enabling `-XX:NativeMemoryTracking` and reading `jcmd 1 VM.native_memory summary` — follow xref:risks-and-memory-management:hands-on-lab-heap-settings.adoc[Analyzing Heap and Off-Heap Settings].
 
-. **Access the running pod:**
-+
-[source,bash]
-----
-oc rsh <pod-name>
-----
-
-. **Identify the PID of the Java process:**
-+
-[source,bash]
-----
-jps (or ps -aux, or jcmd)
-# Output: 1 AppMain
-----
-
-. **Run the diagnostic command to check resource visibility:**
-+
-[source,bash]
-----
-jcmd 1234 VM.native_memory summary
-# Look for container-specific configuration in the JVM diagnostic output
-----
-
-. **Cross-reference with OpenShift limits:**
-Compare the `memory_limit_in_bytes` reported by the JVM with the memory limit defined in the deployment YAML. If they do not align, verify if the application is container aware, it is using `java-run.sh`. In case needed, one can adjust the JAVA_OPTS` and `JAVA_OPTS_APPEND` using `-XX:MaxRAMPercentage` in case `java-run.sh` is used. The environment variables: `JAVA_OPTS` and `JAVA_OPTS_APPEND` can be used as long as java-run.sh are used.
+*   **Access the pod and identify the Java PID** with `oc rsh <pod-name>` followed by `jps` (or `ps -aux`, or `jcmd`); the application typically runs as PID 1.
+*   **Check resource visibility** with `jcmd <pid> VM.native_memory summary` and look for the container-specific configuration in the diagnostic output.
+*   **Cross-reference with OpenShift limits:** Compare the `memory_limit_in_bytes` reported by the JVM with the memory limit defined in the deployment YAML. If they do not align, verify that the application is container-aware and using `run-java.sh`. When `run-java.sh` is the entrypoint, you can adjust `JAVA_OPTS` and `JAVA_OPTS_APPEND` with `-XX:MaxRAMPercentage`; these environment variables only take effect with that entrypoint.
 
 [source,text]
 ----
@@ -140,5 +117,5 @@ memory_soft_limit_in_bytes: 716800 k <-------------- soft limit 700mb
 
 [NOTE]
 ====
-If you observe `cgroup OOMKills` despite the JVM reporting correct memory usage, analyze your off-heap usage via `jcmd <pid> NativeMemoryTracking=summary`. You may need to decrease your `MaxRAMPercentage` to provide more "breathing room" for the native memory footprint.
+If you observe `cgroup OOMKills` despite the JVM reporting correct memory usage, analyze your off-heap usage via `jcmd <pid> VM.native_memory summary`. You may need to decrease your `MaxRAMPercentage` to provide more "breathing room" for the native memory footprint.
 ====

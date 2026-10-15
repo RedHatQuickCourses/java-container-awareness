@@ -51,57 +51,13 @@ maximum number of tasks: 98938
 current number of tasks: 98
 ----
 
-== Hands-on Activity: Verifying Container Limits
+== Verifying Container Limits
 
-In this activity, you will compare "Node-aware" vs "Container-aware" data to ensure your JVM is correctly bounded.
+The step-by-step procedure for this comparison — logging into the pod and contrasting node-aware tools (`free -m`, `nproc`) against container-aware output (`java -XshowSettings:system -version` and `jcmd 1 VM.info`) — is walked through on the same `hotrod-app` deployment in xref:container-resource-detection:determining-cpu-availability-within-containers-openshift.adoc[Inspecting CPU-Aware Deployments in OpenShift], which contrasts `nproc` with `active_processor_count`.
 
-[NOTE]
-====
-Ensure you have a running Java pod in your OpenShift/Kubernetes environment and access to `oc rsh` or `kubectl exec`.
-====
+As you run it there, keep this "Visibility Gap" framing in mind — it is the point of this activity:
 
-=== Step 1: Compare Node vs. Container Visibility
-1. Log into your running Java pod:
-+
-[source,bash]
-----
-oc rsh <pod-name>
-----
+*   **Node-aware tools** (`free -m`, `nproc`, `top`, `lscpu`) report the resources of the entire OpenShift worker node, *not* your pod. Do not use them for capacity planning inside a container.
+*   **Container-aware output** (`java -XshowSettings:system`, `jcmd 1 VM.info`) reflects the cgroup limits actually applied to the pod. Confirm that `memory_limit_in_bytes` and `active_processor_count` match the `limits` defined in your pod's YAML; if they differ, verify your JVM is 8u191 or later, as older versions lack proper cgroup awareness.
 
-2. Run a non-container-aware command to see the node's resources:
-+
-[source,bash]
-----
-free -m
-nproc
-----
-*Observe: The output reflects the total RAM and CPUs of the entire OpenShift worker node.*
-
-3. Run the container-aware JVM setting command:
-+
-[source,bash]
-----
-java -XshowSettings:system -version
-----
-
-=== Step 2: Analyze the JVM Output
-Locate the container information section in the output. You should see entries similar to:
-----
-container (cgroup) information:
-    container_type: cgroupv2
-    cpu_cpuset_cpus: 0-1
-    active_processor_count: 2
-    memory_limit_in_bytes: 536870912
-----
-
-*   **Verification:** Confirm that `memory_limit_in_bytes` aligns with the memory `limit` defined in your pod's YAML configuration. 
-*   **Action:** If these numbers differ from your configured limits, check if your JVM version is 8u191 or later, as older versions lack proper cgroup awareness.
-
-=== Step 3: Real-time Analysis with jcmd
-1. While the application is running, use `jcmd` to inspect the live process:
-+
-[source,bash]
-----
-jcmd <pid> VM.info
-----
-2. Search for the `container` section in the output (cgroup). This provides a real-time snapshot of the container metrics, including `memory_usage_in_bytes`. Use this to determine if your heap size (typically a percentage of the limit) is appropriately leaving enough headroom for off-heap memory.
+For the full annotated `container (cgroup) information` block and how each field maps to your YAML, see xref:openshift-and-kubernetes-integration:configuring-limits-and-requests-in-red-hat-openshift.adoc[Configuring Limits and Requests in Red Hat OpenShift].

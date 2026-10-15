@@ -32,18 +32,9 @@ Verify the JVM limits being detected:
 ----
 # Check perceived limit from within the pod
 oc exec <pod-name> -- jcmd 1 VM.info | grep -A18 "container (cgroup) information:"
-container_type: cgroupv2 <-------------------------- cgroups v2
-cpu_cpuset_cpus: not supported
-cpu_memory_nodes: not supported
-active_processor_count: 2 <-------------------------- CPU limits
-cpu_quota: 200000
-cpu_period: 100000
-cpu_shares: no shares
-memory_limit_in_bytes: 2097152 k  <------------------- Memory limits
-memory_and_swap_limit_in_bytes: 2097152 k
-memory_soft_limit_in_bytes: 0
-memory_usage_in_bytes: 186764 k <---------------------- Usage
 ----
+
+For the full annotated `container (cgroup) information` output and how each field maps to your YAML limits and requests, see xref:openshift-and-kubernetes-integration:configuring-limits-and-requests-in-red-hat-openshift.adoc[Configuring Limits and Requests in Red Hat OpenShift].
 
 Check if Heap is calculated correctly based on the container memory limit rather than the worker node's total memory.
 
@@ -99,38 +90,11 @@ For specific scenarios, it is possible to use certain flags to verify the issue:
 | Use to intentionally trigger an OS-level `OOMKilled` event. This is helpful to test OpenShift resource quota enforcement, eviction behavior, or monitoring and alerting rules.
 |===
 
-== Hands-on Lab: Analyzing Resource Constraints
-
-In this lab, we will use `jcmd` to inspect a running Java process and verify its awareness of container limits.
-
-=== Prerequisites
-*   An active OpenShift cluster with a running Java pod.
-*   `oc` CLI configured with cluster access.
+== Analyzing Resource Constraints
 
 === Step 1: Verify JVM resource settings
-Execute into the pod to check how the JVM views the memory limits.
-
-[source,bash]
-----
-# Run the VM settings check
-oc exec <pod-name> -- java 1 VM.info | grep -A18 "container (cgroup) information"
-----
-
-Verify the output and see how it correlates with the host and container limits:
-
-[cols="1,1", options="header"]
-|===
-| Output/Resource Allocation | Deployment Condition
-
-| 50% of the container
-| run-java.sh as ENTRYPOINT and container aware  - previous MaxRAMPercentage
-
-| 80% of the container
-| run-java.sh as ENTRYPOINT and container aware - current MaxRAMPercentage
-
-| 25% of the host
-| non-container aware or unbounded deployment - verify if the container has limits
-|===
+Use the `hotrod-app-*` container from the previous exercise to confirm the JVM's container (cgroup) awareness before diagnosing throttling. 
+The expected heap-to-container ratios (80% / 50% with `run-java.sh`, 25% for direct `java`) are explained in xref:hands-on-lab:tuning-java-heap-settings-percentage-based-on-container-limits.adoc[Tuning Java Heap Settings Based on Container Limits].
 
 === Step 2: Use `jcmd` to analyze the process flags
 Access the container shell to utilize `jcmd`.
