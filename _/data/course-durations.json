@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 4953,
+  "totalSeconds": 4969,
   "pageCount": 31,
   "pages": [
     {
@@ -130,7 +130,7 @@
     {
       "module": "troubleshooting-and-tooling",
       "page": "java-diagnostics-jcmd.adoc",
-      "seconds": 104
+      "seconds": 120
     },
     {
       "module": "hands-on-lab",
