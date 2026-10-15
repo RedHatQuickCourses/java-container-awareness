@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 5107,
+  "totalSeconds": 5120,
   "pageCount": 31,
   "pages": [
     {
@@ -100,7 +100,7 @@
     {
       "module": "openshift-and-kubernetes-integration",
       "page": "understanding-cgroups-implications-for-java-applications.adoc",
-      "seconds": 168
+      "seconds": 181
     },
     {
       "module": "openshift-and-kubernetes-integration",

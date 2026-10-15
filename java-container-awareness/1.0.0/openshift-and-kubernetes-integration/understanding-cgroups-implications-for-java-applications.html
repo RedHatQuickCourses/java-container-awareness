@@ -254,6 +254,9 @@
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p>Java developers do not (necessarily) need to understanding specific details on this matter, as long use the latest versions that are fully container-aware and understand that Java detects the container limits.</p>
+</div>
 <div class="sect2">
 <h3 id="_cpu_and_memory_enforcement"><a class="anchor" href="#_cpu_and_memory_enforcement"></a>CPU and Memory Enforcement</h3>
 <div class="ulist">
@@ -302,7 +305,7 @@
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Utilize Container-Aware JVMs:</strong> Always use Java 8u191+ or modern versions (Java 11, 17, 21+), which include the JDK8146115 enhancement. These versions automatically read the cgroup filesystem to adjust memory ergonomics.</p>
+<p><strong>Utilize Container-Aware JVMs:</strong> Always latest versions (or minor versions) Java: Java 8u372+, Java 11, 17, 21+, which are fully container aware natively. These versions automatically read the cgroup filesystem to adjust memory ergonomics on both cgroups v1 and v2.</p>
 </li>
 <li>
 <p><strong>Use Relative Sizing:</strong> Instead of hardcoding <code>-Xmx</code> values (e.g., <code>-Xmx2g</code>), use container-aware flags like <code>-XX:MaxRAMPercentage</code>. This allows the JVM to scale its heap dynamically based on the memory limit assigned to the container (e.g., <code>-XX:MaxRAMPercentage=75.0</code> will set the heap to 75% of the container limit).</p>
