@@ -152,9 +152,6 @@ For more specifics, check the https://rh-openjdk.github.io/redhat-openjdk-contai
 | `JAVA_HOME`
 | Points to the installation directory of the Java Runtime Environment (JRE) or Java Development Kit (JDK).
 
-| `NODE_ENV`
-| Indicates the environment in which a Node.js application is running (e.g., `development`, `production`).
-
 | `KUBECONFIG`
 | Holds a list of paths to Kubernetes configuration files used by `kubectl` and other tools.
 |===
