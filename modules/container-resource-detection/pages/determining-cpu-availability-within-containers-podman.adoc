@@ -198,4 +198,4 @@ active_processor_count: 1
 +
 NOTE: The output above shows that the application is now using only 1 CPU, which is the limit we set for the container. This indicates that the application is container-aware therefore detects (and respects) the CPU limits set for its container. Java does not distinguish vCPUs from CPU, and calculates the limtis  a cgroups perspective (quota/period).
 
-IMPORTANT: **Never assign a single vCPU to a Java application in a production environment.** This lab uses a single CPU only to demonstrate CPU limits for a Java process, due to resource constraints (the bastion host has only 2 CPUs). In production, allocate at least 2 vCPUs to every Java application to ensure sufficient CPU resources for execution. 
+IMPORTANT: **In production applications never assign a single vCPU to a Java application in a production environment.** This lab uses a single CPU only to demonstrate CPU limits for a Java process, due to resource constraints (the bastion host has only 2 CPUs). In production, allocate 2 CPUs or more to critical applications ensuring sufficient CPU resources for execution. 
