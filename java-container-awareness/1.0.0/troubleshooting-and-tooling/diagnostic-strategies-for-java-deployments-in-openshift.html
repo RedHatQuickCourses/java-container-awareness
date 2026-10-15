@@ -330,7 +330,7 @@ oc exec &lt;pod-name&gt; -- jcmd 1 VM.info | grep -A18 "container (cgroup) infor
 <p><strong>Inspect Pod Events:</strong> Use <code>oc describe pod &lt;pod-name&gt;</code> to check for the <code>OOMKilled</code> state.</p>
 </li>
 <li>
-<p><strong>Check Exit Codes:</strong> An exit code of <code>137</code> is a strong indicator that the container was terminated by the OOM killer because it exceeded the OpenShift memory limit.</p>
+<p><strong>Check Exit Codes:</strong> An exit code of <code>137</code> is a strong indicator that the container was terminated by the OOM killer because it exceeded its respective container memory limit.</p>
 </li>
 </ul>
 </div>
