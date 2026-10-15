@@ -244,8 +244,13 @@
 <div class="paragraph">
 <p>In other words, despite running inside a container, Java was unable to detect the container&#8217;s limits. It would only detect the host limits regardless of the deployment. Consequently, the DevOps team needed to set the heap limits (Xmx) manually as a size and make sure those two were approapriate: container size and Java heap size.</p>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_partial_container_awareness"><a class="anchor" href="#_partial_container_awareness"></a>Partial container awareness</h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>Later, evolving this concept, Java was it was encapsulated via an initialization script: run-java.sh, which would then detect the container limits and deploy Java with those limits via Xmx (script &#8594; detect container limits &#8594; start Java). Java did not know about cgroups itself. It would just start with the values provided by the initialization script (e.g. Xmx).</p>
+<p>Later, evolving this concept, Java was it was encapsulated via an initialization script: run-java.sh, which would then detect the container limits and deploy Java with those limits via Xmx (script &#8594; detect container limits &#8594; start Java). Java did not know about cgroups itself. It would just start with the values provided by the initialization script (e.g. Xmx). The initization script would usually set only heap values and not isolate the CPU settings for Java.</p>
 </div>
 </div>
 </div>
