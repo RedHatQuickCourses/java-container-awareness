@@ -257,6 +257,9 @@ Currently, Java runtimes utilize container awareness to detect cgroup limits, al
 <p>The images of Red Hat build of OpenJDK are fully supported on Openshift 4 and podman. Additionally they are also tested on podman-docker emulator, therefore the images are fully expected to work on Docker including the s2i Toolkit.</p>
 </div>
 <div class="paragraph">
+<p>Inside a container, Java ignores CPU requests and only takes into consideration CPU limits. Finally, it behaves exactly the same in a container as in off-container, the only difference is the memory and CPU limits used where a container will be usually a subset of the host, unless unbouded deployment is used.</p>
+</div>
+<div class="paragraph">
 <p>This course is fully based on the current OpenJDK implementation and the article <a href="https://developers.redhat.com/articles/2024/03/14/how-use-java-container-awareness-openshift-4" target="_blank" rel="noopener">How to use Java container awareness in OpenShift 4</a>.</p>
 </div>
 <nav class="pagination">
