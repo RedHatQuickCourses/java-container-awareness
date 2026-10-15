@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 5005,
+  "totalSeconds": 5006,
   "pageCount": 31,
   "pages": [
     {
@@ -145,7 +145,7 @@
     {
       "module": "hands-on-lab",
       "page": "monitoring-cpu-and-memory-usage-using-container-aware-tools.adoc",
-      "seconds": 177
+      "seconds": 178
     },
     {
       "module": "hands-on-lab",
