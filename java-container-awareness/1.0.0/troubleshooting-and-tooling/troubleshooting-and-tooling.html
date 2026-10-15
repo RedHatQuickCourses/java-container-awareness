@@ -236,7 +236,10 @@
 <p><strong>Host-level vs. Container-aware Tools</strong>: Standard Linux utilities like <code>lscpu</code>, <code>nproc</code>, and <code>free -m</code> reflect the underlying node&#8217;s resources rather than container limits.</p>
 </li>
 <li>
-<p><strong>Container-aware Diagnostics</strong>: Utilize JVM-specific tools such as jcmd&#8217;s <code>VM.info</code> or <code>-XX:+PrintFlagsFinal</code> (via <code>--XshowSettings:system</code>) to accurately retrieve the memory and CPU constraints enforced on the container.</p>
+<p><strong>Container-aware Limits</strong>: Utilize JVM-specific tools such as jcmd&#8217;s <code>VM.info</code> or <code>-XX:+PrintFlagsFinal</code> (via <code>--XshowSettings:system</code>) to accurately retrieve container memory and CPU constraints enforced on the container.</p>
+</li>
+<li>
+<p><strong>Container-aware Diagnostics</strong>: Utilize JVM-specific tools such as jcmd&#8217;s <code>VM.info</code> to accurately verify the JVM&#8217;s memory (percentage), thread details, and CPU constraints currently being used by Java at runtime.</p>
 </li>
 <li>
 <p><strong>Deployment Inspection</strong>: Analyze pod logs to verify if scripts like <code>run-java.sh</code> are active or if the default OpenJDK memory allocation is scaling correctly.</p>
