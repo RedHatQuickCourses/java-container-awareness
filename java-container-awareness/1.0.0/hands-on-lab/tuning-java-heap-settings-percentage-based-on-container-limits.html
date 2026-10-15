@@ -239,7 +239,7 @@
 <h2 id="_the_shift_to_percentage_based_memory_management"><a class="anchor" href="#_the_shift_to_percentage_based_memory_management"></a>The Shift to Percentage-Based Memory Management</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Historically since Java inception, developers used the <code>-Xmx</code> flag to set directly the heap size as absolute value (e.g., <code>-Xmx2g</code>). However, deploying with container aware Java inside a container, Java will calculate (entirely by default - user needs to do nothing) the Java heap size as a percentage from the container size. Therefore, setting <code>Xmx</code> manually becomes a liability making Java ignore the actual memory limit of the container. If the heap is inadequately set the JVM will eventually exceed the container size leading to a <code>cgroup</code> OOM-Kill.</p>
+<p>Historically since Java started, developers used the <code>-Xmx</code> flag to set directly the heap size as absolute value (e.g., <code>-Xmx2g</code>). However, deploying with container aware Java inside a container, Java will calculate (entirely by default - user needs to do nothing) the Java heap size as a percentage from the container size. Therefore, setting <code>Xmx</code> manually becomes a liability making Java ignore the actual memory limit of the container. If the heap is inadequately set the JVM will eventually exceed the container size leading to a <code>cgroup</code> OOM-Kill.</p>
 </div>
 <div class="paragraph">
 <p>The default behavior uses <strong>RAM Percentage flags</strong> where by default the heap size is associated with the container&#8217;s memory limit, allowing the JVM to calculate its heap size dynamically based on the container&#8217;s available memory and re-size upon JVM restart.</p>
@@ -299,10 +299,10 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_applying_percentage_based_heap_settings"><a class="anchor" href="#_applying_percentage_based_heap_settings"></a>Applying Percentage-Based Heap Settings</h2>
+<h2 id="_tuning_percentage_based_heap_settings"><a class="anchor" href="#_tuning_percentage_based_heap_settings"></a>Tuning Percentage-Based Heap Settings</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This section covers the configuration you apply to use container-aware memory settings instead of hardcoded heap limits.</p>
+<p>This section covers the configuration the user can tune container-aware memory settings instead of hardcoded heap limits.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -330,7 +330,7 @@ oc set env deployment/&lt;deployment-name&gt; --list</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Do <strong>not</strong> bake the memory constraints into the image. The following Dockerfile pattern should be avoided — set the percentage through deployment environment variables instead, so it stays decoupled from the image:</p>
+<p>Do <strong>not</strong> set the memory constraints into the image, in fact all JVM flags should be set at runtime rather than build time. The following Containerfile (Dockerfile) pattern should be avoided — set the percentage through deployment environment variables instead, so it stays decoupled from the image:</p>
 </div>
 <div class="listingblock">
 <div class="content">
