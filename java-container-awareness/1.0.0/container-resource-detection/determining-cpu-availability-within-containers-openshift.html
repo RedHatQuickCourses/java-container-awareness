@@ -429,16 +429,19 @@ sh-5.1$</pre>
 <p>Deployments created directly using <code>new-app</code> do not explicitly set CPU requests or limits. Consequently, they may run without CPU constraints unless defaults are applied by the cluster or namespace configuration.</p>
 </li>
 <li>
-<p>CPU values below 1 are effectively set to 1 CPU in this lab. This may be suitable for very small applications, such as Quarkus workloads, but is generally not recommended for enterprise applications. Limited CPU availability can constrain application threads and affect garbage collection (GC) behavior. In particular, the Serial GC may be more appropriate for workloads with limited CPU resources.</p>
+<p>CPU values below 1 are effectively set to 1 CPU in this lab. This may be suitable for very small applications, such as Quarkus workloads, but is generally not recommended for enterprise applications. Limited CPU boundaries can constrain application threads and affect garbage collection (GC) behavior. Consequently, the Serial GC may be more appropriate for workloads with limited CPU resources.</p>
 </li>
 <li>
 <p>Fractional CPU values are truncated, not rounded, when converted to integer CPU boundaries. For example, both 2200 millicores and 2950 millicores result in 2 CPUs.</p>
 </li>
 <li>
-<p>Java does not use CPU requests to determine its available processor count; it relies on CPU limits when container awareness is enabled and the runtime correctly detects the container&#8217;s resource constraints.</p>
+<p>Java does not use CPU requests to determine its available processor count. It relies on CPU limits when container awareness is enabled and the runtime correctly detects the container&#8217;s resource constraints.</p>
 </li>
 <li>
 <p>Java workloads can benefit from explicitly configured CPU and memory limits for more predictable resource usage and performance. See <code>unbounded deployment</code> for further details.</p>
+</li>
+<li>
+<p>In the VM.info file, the line <code>Heap address: 0x00000000e0000000, size: MB</code>, Compressed Oops mode: 32-bit, will only appear if the heap is lower than 30Gb, otherwise <code>Compressed Oops</code> will be disabled and the line won&#8217;t be there. Set <code>-XX:+UseCompressedOops</code> manually in case the heap is higher than 30Gb to see that line.</p>
 </li>
 </ul>
 </div>
