@@ -28,13 +28,13 @@ Containers achieve isolation through **Control Groups (cgroups)**, which is a Li
 
 == Current Fully Container-Aware Java
 
-Currently, container awareness is the standard expectation for cloud-native Java development for Java 8u372+, 11.0.16+, 17+ such as 21 and 25. The transition from unaware to fully container-aware has considerably streamlined the DevOps workflow:
+Currently, container awareness is the standard expectation for cgroups v1 and cgroups v2 complaince Java development for Java 8u372+, 11.0.16+, 17+ such as 21 and 25. The transition from unaware to fully container-aware has considerably streamlined the DevOps workflow:
 
 *   **Self-Tuning:** Applications can now adjust their memory footprint automatically to fit within Kubernetes/OpenShift resource requests and limits upon start/restart.
 *   **Improved Stability:** By aligning the JVM's view of resources with the kernel-enforced limits, the frequency of container restarts due to resource exhaustion is drastically reduced.
 *   **Reduced Configuration Overhead:** Developers do not spend time tuning CPU values and  heap limits (`-Xmx`), as the JVM can now effectively derive them from the container environment deployed by an orchestrator via percentage automatically by having MaxRAMPercentage at 25% (upstream value).
 
-Specifically in terms of Red Hat build of OpenJDK, our images rely on the script `run-java.sh` script as `ENTRYPOINT`, which currently is not use anymore for detecting limits from the container but to add features and optimizations: such as ParallelGc, `MaxRAMPercentage` at 80%, `JAVA_OPTS` and `JAVA_OPTS_APPEND` environment variables. The 80% heap limit therefore does not come by default, but rather by the script's `MaxRAMPercentage`.
+Specifically in terms of Red Hat build of OpenJDK, Red hat's OpenJDK images rely in a custom script `run-java.sh` script as `ENTRYPOINT`, which currently is not use anymore for detecting limits from the container but to add features and optimizations: such as ParallelGc, `MaxRAMPercentage` at 80%, `JAVA_OPTS` and `JAVA_OPTS_APPEND` environment variables. The current 80% heap limit therefore does not come by default, but rather by the script's `MaxRAMPercentage`.
 
 Understanding this evolution is important for any team moving toward microservices architectures. Container awareness provides a foundation that requires the Development team (who handles the Java settings) and the Deployment team (who handles the container size) to communicate and understand that Java will behave differently at runtime inside a container according to its runtime settings to avoid diffent behaviour.
 
