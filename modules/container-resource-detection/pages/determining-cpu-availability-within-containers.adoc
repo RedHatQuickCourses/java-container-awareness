@@ -2,24 +2,25 @@
 :page-audio-src: determining-cpu-availability-within-containers.wav
 :page-transcript-src: determining-cpu-availability-within-containers.txt
 
-In a virtualized or bare-metal environment, the Java Virtual Machine (JVM) traditionally queries the operating system for the total number of physical CPUs available on the host. However, in containerized environments like Red Hat OpenShift or Kubernetes, a container is typically restricted to a subset of the host's compute resources.
+In a virtualized or bare-metal host, the Java Virtual Machine (JVM) will query the operating system for the total number of physical CPUs and memory available on the host. However, in containerized environments the resources will be restricted to a subset of the host's compute resources. A container deployed by OpenShift or Kubernetes may (or may not) have container limits, a deployment without limits is called unbounded deployment.
 
-If the JVM is not container-aware, it may incorrectly identify the host's total CPU count rather than the container's allocated limit. This mismatch can lead to inefficient thread pool sizing (such as `ForkJoinPool` or parallel garbage collection threads), causing contention and performance degradation.
+If the JVM is not container-aware, it may incorrectly have a Xmx hard-coded or identify the host's total CPU count rather than the container's allocated limit. This mismatch can lead to inefficient thread pool sizing (such as `ForkJoinPool` or parallel garbage collection threads), causing contention and performance degradation.
 
 == How Java Detects CPU Resources
 
 Current JDKs (Java 8u191+ and all subsequent versions) use **cgroups (Control Groups)** to determine CPU availability. The JVM reads the cgroup filesystem to calculate the `ActiveProcessorCount`. 
 
-- For cgroups v1, versions Java 8u191+ should be enough.
+- For cgroups v1, versions Java 8u191+ are cgroups v1 complaint.
 - For cgroups v2, versions Java 8u372+ or Java 11.0.16+ are required.
 
+Red Hat's recommendation is always to use the latest possible image and version allowed for a series of reasons.
+
 === The Calculation Logic
-When running inside a container, the JVM inspects two primary metrics from the cgroup controller to determine how many processors it should use:
+When running inside a container, the JVM inspects two primary metrics from the cgroup controller to determine container limits:
 
-1.  **CPU Shares (`cpu.shares`):** This represents the relative weight of the container. If the host has 64 cores and your container has a share weight that equates to 2 cores, the JVM uses this to influence its internal parallelism.
-2.  **CPU Quota and Period (`cpu.cfs_quota_us` and `cpu.cfs_period_us`):** These define a hard limit. For example, if the quota is 200,000 and the period is 100,000, the container is limited to 2 cores (200,000 / 100,000 = 2). 
+**CPU Quota and Period (`cpu.cfs_quota_us` and `cpu.cfs_period_us`):** These define the hard limit. For example, if the quota is 200,000 and the period is 100,000, the container is limited to 2 cores (200,000 / 100,000 = 2). 
 
-The JVM calculates the number of processors as the minimum of the host's processors and the calculated container limit.
+The JVM calculates the CPU limits of processors as the minimum of the host's processors and the calculated container limit. The JVM ignores requests (cpu.weights or cpu.shares) altogether given it does not matter for JVM's thread calculation.
 
 == Diagnostic Tools: Container-Aware vs. Non-Aware
 
@@ -29,7 +30,7 @@ To verify how your Java application perceives CPU availability, you must disting
 |===
 | Tool Category | Examples | Insight
 | **Non-Container Aware** | `lscpu`, `nproc` | Returns the total CPU count of the **underlying OpenShift Node**. This is often misleading for capacity planning.
-| **Container Aware** | `VM.info`, `-XX:+PrintFlagsFinal` | Returns the `active_processor_count` as perceived by the JVM based on cgroup limits.
+| **Container Aware** | `VM.info`, `-XshowSettings:system` | Returns the `active_processor_count` as perceived by the JVM based on cgroup limits.
 |===
 
 === Verifying CPU Detection
@@ -41,7 +42,7 @@ You can inspect the JVM's view of your container's resources by using the `jcmd`
 2. Run `jcmd` to print VM information:
    `jcmd <pid> VM.info`
 
-Look for the `container` section in the output. A container-aware JVM will report output similar to this:
+Look for the `container` section in the output. A container-aware cgroups v1 JVM will report output similar to this:
 
 [source,text]
 ----
@@ -53,6 +54,19 @@ active_processor_count: 1  <-- JVM correctly sees 1 CPU limit
 cpu_quota: -1
 cpu_period: 100000
 cpu_shares: 51
+----
+
+A container-aware cgroups v2 `XshowSettings` JVM will report output similar to the one below:
+
+[source,text]
+----
+$ java -XshowSettings:system -version
+Operating System Metrics:
+    Provider: cgroupv2
+    System not containerized.
+openjdk version "21.0.12.1" 2026-08-18
+OpenJDK Runtime Environment (Red_Hat-21.0.12.1.1-1) (build 21.0.12.1+1)
+OpenJDK 64-Bit Server VM (Red_Hat-21.0.12.1.1-1) (build 21.0.12.1+1, mixed mode, sharing)
 ----
 
 == Best Practices for CPU Configuration
@@ -69,9 +83,11 @@ To understand how the transition away from cgroups v1 affects your application r
 * Manually set `-XX:ActiveProcessorCount` to match the container CPU limit. That will set the threads pools sizes.
 * Manually set `-Xmx` to an appropriate value based on your container memory limit (leaving a buffer for all off-heap segments of JVM memory to avoid OOMKilled errors). That sets the heap size directly.
 
-Cgroups does not determine (by itself) the performance of Java, but Java uses cgroups to set the size of the memory and the CPU limits. That's because CPU is abstracted by Java as threads, which is the main concept for running workloads.
+Cgroups does not determine (by itself) the performance of Java that is determined by the Java threads, but Java uses cgroups to set the size of the memory and the CPU limits. That's because CPU is abstracted by Java as threads, which is the main concept for running and cleaning workloads
 
-Therefore, as long as the same QoS, same CPU settings, same context (application) is used, the performance should be the same (or very equivalent). 
+Therefore, as long as the same QoS, same CPU settings, same context (application) is used, the performance should be the same, or very equivalent. 
+
+Specifically in terms of memory allocation, to set an appropriate Xmx, it is necessary to use memory calculations, application benchmarking, and workload testing. However, it is possible to extrapolate the memory via previous deployments and calculate from there. Example: in cgroups v1 nodes it used to consume 500mb heap inside a 1Gi container, so similar can be set i.e. Xmx for 500mb.
 
 If there is a performance difference: other factors need to explain: Qos, Threads, number of CPUs, throttling on the cgropus v2 nodes. 
 
