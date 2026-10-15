@@ -38,10 +38,12 @@ In a non-container-aware Java deployment, if you deploy a Java application with 
 
 When the JVM allocates this memory, the host kernel will trigger a cgroup **Out-of-Memory (OOM) Kill** event. The process is terminated abruptly because it breached the container's allowed boundary, despite the JVM assuming it had plenty of memory available. Note that JVM allocation and application consumption are separated and may considerably diverge, because the JVM may allocate more than the application is in fact currently using.
 
-=== Transition period
-Before detecting the values nativerly, Red Hat OpenJDK passed through a periodic where the heap values would be calculated from an wrapper script, i.e. an initilization script, which would detect the cgroups limits and then start Java. This initialization scripts are still present in some Red Hat Java products.
+=== Partial container-awareness - transition period
+Before detecting the values nativerly, Red Hat OpenJDK passed through a periodic where the heap values would be calculated from an wrapper script, i.e. an initilization script, which would detect the cgroups limits and then start Java (usually via a value for `Xmx`).
 
-=== Container-Aware Java: After JDK-8146115
+This initialization scripts are still present in some Red Hat Java container images, however not for cgroups detection anymore, instead only for JVM settings such as Garbage Collection and JVM parameters.
+
+=== Fully Container-Aware Java
 The implementation shift occurred with the implementation of **JDK-8146115**, starting with Java 8u191 implementation and then improved with other jiras, currently Java relies on cgroups natively for detection and memory percentage bootstrap. In other words, those updates enabled the JVM to detect its container `cgroup` filesystem natively, rather than relying on a initialization script for limit detection. The JVM natively starts Java heap as a percentage of the limits detected and uses the CPU limits for thread calculations.
 
 When running a container-aware JVM, the process performs the following detection:
