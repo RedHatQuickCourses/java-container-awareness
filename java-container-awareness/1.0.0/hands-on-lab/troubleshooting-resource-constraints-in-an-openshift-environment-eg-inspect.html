@@ -231,7 +231,7 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>When Java applications run in OpenShift, they operate within the constraints defined by the Linux kernel&#8217;s control groups (cgroups). If these constraints are misconfigured or if the Java Virtual Machine (JVM) is unaware of them, you may encounter performance degradation, unexpected <code>OutOfMemoryError</code> (OOM) exceptions (that may, or may not exit the container), or even container restarts due to OOMKills.</p>
+<p>When Java applications run in OpenShift, user can define container limits within the Java application where the Linux&#8217;s kernel control groups (cgroups) set memory and/or CPU boundaries. If these constraints are unset, misconfigured or if the Java Virtual Machine (JVM) is unaware of them, one may encounter performance degradation, unexpected <code>OutOfMemoryError</code> (OOM) exceptions (that may, or may not exit the container), container restarts due to OOMKills or even generic OOMKills in the full OCP cluster.</p>
 </div>
 <div class="paragraph">
 <p>This section focuses on diagnostic strategies and using tools to inspect resource constraints for Java workloads in OpenShift.</p>
@@ -242,7 +242,7 @@
 <h2 id="_diagnostic_strategy"><a class="anchor" href="#_diagnostic_strategy"></a>Diagnostic Strategy</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>To effectively troubleshoot resource constraints, you must correlate three distinct layers:</p>
+<p>To effectively troubleshoot resource constraints, you must understand three distinct layers:</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -253,7 +253,7 @@
 <p><strong>Kernel/Cgroup Layer:</strong> The actual hardware quotas enforced by the container runtime.</p>
 </li>
 <li>
-<p><strong>JVM Layer:</strong> The memory and CPU settings perceived by the Java process.</p>
+<p><strong>JVM Layer:</strong> The memory and CPU settings perceived by the Java process. Java only cares about limits for Java&#8217;s thread setting.</p>
 </li>
 </ol>
 </div>
@@ -304,7 +304,7 @@ cat /sys/fs/cgroup/memory/memory.limit_in_bytes</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>*Note: In cgroup v2 environments, the path will change:</p>
+<p><strong>Note:</strong> In cgroup v2 environments, the path will change:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -336,8 +336,9 @@ cat /sys/fs/cgroup/memory/memory.limit_in_bytes</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Run jcmd inside the container to see VM flags
-oc exec &lt;pod-name&gt; -- jcmd 1 VM.flags</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Run jcmd inside the container to see VM flags - example with PID equals 1, given example with hotrod-app
+# oc exec &lt;pod-name&gt; -- jcmd $PID VM.info
+oc exec &lt;pod-name&gt; -- jcmd 1 VM.info</code></pre>
 </div>
 </div>
 <div class="ulist">
@@ -412,7 +413,7 @@ oc get events
 <ol class="arabic">
 <li>
 <p><strong>Verify the limits:</strong>
-Check the deployment configuration to see the discrepancy between your <code>limit</code> and the JVM&#8217;s <code>-Xmx</code> setting.</p>
+Check the deployment configuration to see the discrepancy between your <code>limit</code> and the JVM&#8217;s Heap setting.</p>
 </li>
 <li>
 <p><strong>Remediate and re-verify:</strong>

@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 4992,
+  "totalSeconds": 5005,
   "pageCount": 31,
   "pages": [
     {
@@ -150,7 +150,7 @@
     {
       "module": "hands-on-lab",
       "page": "troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.adoc",
-      "seconds": 91
+      "seconds": 104
     },
     {
       "module": "appendix",
