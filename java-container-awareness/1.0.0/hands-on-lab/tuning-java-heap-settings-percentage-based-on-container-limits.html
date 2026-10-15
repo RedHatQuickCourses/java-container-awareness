@@ -245,7 +245,7 @@
 <p>The default behavior uses <strong>RAM Percentage flags</strong> where by default the heap size is associated with the container&#8217;s memory limit, allowing the JVM to calculate its heap size dynamically based on the container&#8217;s available memory and re-size upon JVM restart.</p>
 </div>
 <div class="sect2">
-<h3 id="_key_configuration_flags"><a class="anchor" href="#_key_configuration_flags"></a>Key Configuration Flags</h3>
+<h3 id="_key_jvm_heap_percentage_flags"><a class="anchor" href="#_key_jvm_heap_percentage_flags"></a>Key JVM Heap Percentage Flags</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -255,7 +255,7 @@
 <p><code>-XX:InitialRAMPercentage=N</code>: Sets the initial heap size as a percentage of the container limit.</p>
 </li>
 <li>
-<p><code>-XX:MinRAMPercentage=N</code>: Defines the minimum heap size used when the container memory limit is small.</p>
+<p><code>-XX:MinRAMPercentage=N</code>: Defines the minimum heap size used when the application usage is small, based on the container size.</p>
 </li>
 </ul>
 </div>
@@ -364,11 +364,15 @@ ENV JAVA_OPTS_APPEND="-XX:MaxRAMPercentage=50.0"
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Red Hat OpenJDK&#8217;s run-java.sh ENTRYPOINT</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">80% (previously was 50%)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Red Hat OpenJDK&#8217;s <code>run-java.sh</code> <code>ENTRYPOINT</code> (Current)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">80%</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Direct java ENTRYPOINT</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Red Hat OpenJDK&#8217;s <code>run-java.sh</code> <code>ENTRYPOINT</code> (Previous)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">50%</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Direct <code>java</code> <code>ENTRYPOINT</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">25%</p></td>
 </tr>
 </tbody>
@@ -402,7 +406,10 @@ ENV JAVA_OPTS_APPEND="-XX:MaxRAMPercentage=50.0"
 </tbody>
 </table>
 <div class="paragraph">
-<p>After the deployment restarts, validate that the JVM calculated the heap size relative to the pod&#8217;s memory limit (look for the active <code>-XX:MaxRAMPercentage</code> flag and the resulting <code>VM.max_heap_size</code>) by following the <code>jcmd</code> verification in <a href="../risks-and-memory-management/hands-on-lab-heap-settings.html" class="xref page">Analyzing Heap and Off-Heap Settings</a>. Then monitor memory usage via the OpenShift web console or CLI, keeping usage below the container limit to leave headroom for native off-heap memory.</p>
+<p>After the deployment restarts, validate that the JVM calculated the heap size relative to the container&#8217;s memory limit (look if <code>-XX:MaxRAMPercentage</code> flag is active and the resulting Max heap) by following the <code>jcmd</code> verification in <a href="../risks-and-memory-management/hands-on-lab-heap-settings.html" class="xref page">Analyzing Heap and Off-Heap Settings</a>.</p>
+</div>
+<div class="paragraph">
+<p>When monitoring memory usage via the OpenShift web console, the scrapping will use cadAdvisor/cgroups output, which present the JVM as a black box, and reports all JVM&#8217;s touched/allocated pages. Ensure the heap percentage is enough for off-heap and subsequent application nominal growth and workload.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -412,7 +419,7 @@ ENV JAVA_OPTS_APPEND="-XX:MaxRAMPercentage=50.0"
 </td>
 <td class="content">
 <div class="paragraph">
-<p>If you observe <code>java.lang.OutOfMemoryError: Metaspace</code> verify the MaxMetaspace flag, which sets the Metaspace limit and although present in the off-heap has its own cap. Details <a href="https://developers.redhat.com/articles/2024/07/19/metaspace-setting-and-tuning-jdk-8-applications-and-outside-containers">Metaspace setting and tuning in JDK 8+ Applications: in and outside containers</a>.</p>
+<p>If you observe <code>java.lang.OutOfMemoryError: Metaspace</code> verify the MaxMetaspace flag, which sets the Metaspace limit and although present in the off-heap has its own cap - the value may or may not be set depending on the context. Details <a href="https://developers.redhat.com/articles/2024/07/19/metaspace-setting-and-tuning-jdk-8-applications-and-outside-containers">Metaspace setting and tuning in JDK 8+ Applications: in and outside containers</a>.</p>
 </div>
 </td>
 </tr>
