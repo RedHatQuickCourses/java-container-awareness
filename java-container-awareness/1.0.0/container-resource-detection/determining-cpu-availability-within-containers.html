@@ -231,10 +231,10 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>In a virtualized or bare-metal environment, the Java Virtual Machine (JVM) traditionally queries the operating system for the total number of physical CPUs available on the host. However, in containerized environments like Red Hat OpenShift or Kubernetes, a container is typically restricted to a subset of the host&#8217;s compute resources.</p>
+<p>In a virtualized or bare-metal host, the Java Virtual Machine (JVM) will query the operating system for the total number of physical CPUs and memory available on the host. However, in containerized environments the resources will be restricted to a subset of the host&#8217;s compute resources. A container deployed by OpenShift or Kubernetes may (or may not) have container limits, a deployment without limits is called unbounded deployment.</p>
 </div>
 <div class="paragraph">
-<p>If the JVM is not container-aware, it may incorrectly identify the host&#8217;s total CPU count rather than the container&#8217;s allocated limit. This mismatch can lead to inefficient thread pool sizing (such as <code>ForkJoinPool</code> or parallel garbage collection threads), causing contention and performance degradation.</p>
+<p>If the JVM is not container-aware, it may incorrectly have a Xmx hard-coded or identify the host&#8217;s total CPU count rather than the container&#8217;s allocated limit. This mismatch can lead to inefficient thread pool sizing (such as <code>ForkJoinPool</code> or parallel garbage collection threads), causing contention and performance degradation.</p>
 </div>
 </div>
 </div>
@@ -247,30 +247,26 @@
 <div class="ulist">
 <ul>
 <li>
-<p>For cgroups v1, versions Java 8u191+ should be enough.</p>
+<p>For cgroups v1, versions Java 8u191+ are cgroups v1 complaint.</p>
 </li>
 <li>
 <p>For cgroups v2, versions Java 8u372+ or Java 11.0.16+ are required.</p>
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p>Red Hat&#8217;s recommendation is always to use the latest possible image and version allowed for a series of reasons.</p>
+</div>
 <div class="sect2">
 <h3 id="_the_calculation_logic"><a class="anchor" href="#_the_calculation_logic"></a>The Calculation Logic</h3>
 <div class="paragraph">
-<p>When running inside a container, the JVM inspects two primary metrics from the cgroup controller to determine how many processors it should use:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p><strong>CPU Shares (<code>cpu.shares</code>):</strong> This represents the relative weight of the container. If the host has 64 cores and your container has a share weight that equates to 2 cores, the JVM uses this to influence its internal parallelism.</p>
-</li>
-<li>
-<p><strong>CPU Quota and Period (<code>cpu.cfs_quota_us</code> and <code>cpu.cfs_period_us</code>):</strong> These define a hard limit. For example, if the quota is 200,000 and the period is 100,000, the container is limited to 2 cores (200,000 / 100,000 = 2).</p>
-</li>
-</ol>
+<p>When running inside a container, the JVM inspects two primary metrics from the cgroup controller to determine container limits:</p>
 </div>
 <div class="paragraph">
-<p>The JVM calculates the number of processors as the minimum of the host&#8217;s processors and the calculated container limit.</p>
+<p><strong>CPU Quota and Period (<code>cpu.cfs_quota_us</code> and <code>cpu.cfs_period_us</code>):</strong> These define the hard limit. For example, if the quota is 200,000 and the period is 100,000, the container is limited to 2 cores (200,000 / 100,000 = 2).</p>
+</div>
+<div class="paragraph">
+<p>The JVM calculates the CPU limits of processors as the minimum of the host&#8217;s processors and the calculated container limit. The JVM ignores requests (cpu.weights or cpu.shares) altogether given it does not matter for JVM&#8217;s thread calculation.</p>
 </div>
 </div>
 </div>
@@ -300,7 +296,7 @@
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Container Aware</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VM.info</code>, <code>-XX:+PrintFlagsFinal</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VM.info</code>, <code>-XshowSettings:system</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Returns the <code>active_processor_count</code> as perceived by the JVM based on cgroup limits.</p></td>
 </tr>
 </tbody>
@@ -323,7 +319,7 @@
 </ol>
 </div>
 <div class="paragraph">
-<p>Look for the <code>container</code> section in the output. A container-aware JVM will report output similar to this:</p>
+<p>Look for the <code>container</code> section in the output. A container-aware cgroups v1 JVM will report output similar to this:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -335,6 +331,20 @@ active_processor_count: 1  &lt;-- JVM correctly sees 1 CPU limit
 cpu_quota: -1
 cpu_period: 100000
 cpu_shares: 51</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A container-aware cgroups v2 <code>XshowSettings</code> JVM will report output similar to the one below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">$ java -XshowSettings:system -version
+Operating System Metrics:
+    Provider: cgroupv2
+    System not containerized.
+openjdk version "21.0.12.1" 2026-08-18
+OpenJDK Runtime Environment (Red_Hat-21.0.12.1.1-1) (build 21.0.12.1+1)
+OpenJDK 64-Bit Server VM (Red_Hat-21.0.12.1.1-1) (build 21.0.12.1+1, mixed mode, sharing)</code></pre>
 </div>
 </div>
 </div>
@@ -376,10 +386,13 @@ To understand how the transition away from cgroups v1 affects your application r
 </ul>
 </div>
 <div class="paragraph">
-<p>Cgroups does not determine (by itself) the performance of Java, but Java uses cgroups to set the size of the memory and the CPU limits. That&#8217;s because CPU is abstracted by Java as threads, which is the main concept for running workloads.</p>
+<p>Cgroups does not determine (by itself) the performance of Java that is determined by the Java threads, but Java uses cgroups to set the size of the memory and the CPU limits. That&#8217;s because CPU is abstracted by Java as threads, which is the main concept for running and cleaning workloads</p>
 </div>
 <div class="paragraph">
-<p>Therefore, as long as the same QoS, same CPU settings, same context (application) is used, the performance should be the same (or very equivalent).</p>
+<p>Therefore, as long as the same QoS, same CPU settings, same context (application) is used, the performance should be the same, or very equivalent.</p>
+</div>
+<div class="paragraph">
+<p>Specifically in terms of memory allocation, to set an appropriate Xmx, it is necessary to use memory calculations, application benchmarking, and workload testing. However, it is possible to extrapolate the memory via previous deployments and calculate from there. Example: in cgroups v1 nodes it used to consume 500mb heap inside a 1Gi container, so similar can be set i.e. Xmx for 500mb.</p>
 </div>
 <div class="paragraph">
 <p>If there is a performance difference: other factors need to explain: Qos, Threads, number of CPUs, throttling on the cgropus v2 nodes.</p>
