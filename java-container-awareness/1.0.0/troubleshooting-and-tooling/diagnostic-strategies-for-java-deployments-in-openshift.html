@@ -469,10 +469,10 @@ burst_usec 0</code></pre>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Avoid reling on <code>free</code> or <code>top</code></strong> inside a container for memory capacity planning.</p>
+<p><strong>Avoid reling on <code>free</code> or <code>top</code></strong> inside a container for memory capacity verification.</p>
 </li>
 <li>
-<p><strong>Always use <code>-XX:MaxRAMPercentage</code></strong> instead of fixed <code>-Xmx</code> values to ensure the heap scales dynamically with the container limit.</p>
+<p><strong>Always use <code>-XX:MaxRAMPercentage</code></strong> instead of fixed <code>-Xmx</code> values to ensure the heap scales dynamically with the container limit, avoiding decoupling.</p>
 </li>
 <li>
 <p><strong>Prioritize <code>jcmd</code></strong> for all runtime analysis, as it is native to the OpenJDK and fully supports container-cgroup awareness.</p>
