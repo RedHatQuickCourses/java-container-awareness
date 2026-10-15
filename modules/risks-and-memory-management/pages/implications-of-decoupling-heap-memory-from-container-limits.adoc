@@ -21,7 +21,7 @@ For Red Hat's OpenJDK containers, the run-java.sh allows `JAVA_OPTS` and `JAVA_O
 == Decoupling is an Anti-Pattern
 Decoupling occurs when the JVM’s memory configuration ignores the orchestrator’s resource constraints. This makes the application blind to the environment it resides in.
 
-Modern Java versions (Java 8u191+, Java 11+) are designed to be container-aware, meaning they automatically derive memory settings from cgroups. Overriding this by hardcoding heap values removes the benefits of this feature, essentially reverting the JVM to a legacy mode that is non-container aware  of its surroundings.
+Current Java versions (Java 8u191+, Java 11.0.16+, Java 17+) are designed to be fully container-aware on both cgroups v1 and cgroups natively, meaning they automatically derive memory settings from cgroups. Overriding this by hardcoding heap values removes the benefits of this feature, essentially reverting the JVM to a legacy mode that is non-container aware of its surroundings.
 
 == Best Practices: The Percentage-Based Approach
 To avoid decoupling, the recommendation is to shift from absolute values (`-Xmx`) to relative values. The percentage already comes by default and the user can tune that via `-XX:MaxRAMPercentage`, the JVM maintains a coupled relationship with the container:
