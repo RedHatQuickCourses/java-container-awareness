@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 4969,
+  "totalSeconds": 4968,
   "pageCount": 31,
   "pages": [
     {
@@ -135,7 +135,7 @@
     {
       "module": "hands-on-lab",
       "page": "hands-on-lab.adoc",
-      "seconds": 55
+      "seconds": 54
     },
     {
       "module": "hands-on-lab",
