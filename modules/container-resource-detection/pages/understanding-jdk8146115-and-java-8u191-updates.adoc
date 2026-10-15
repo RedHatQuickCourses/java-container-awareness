@@ -9,23 +9,21 @@ In early containerized environments, the JVM would query the underlying host ope
 
 This behavior led to a critical disconnect:
 
-* **Memory Miscalculation:** The JVM would attempt to size its heap based on the host's physical RAM, often exceeding the container's hard memory limit set by Kubernetes or OpenShift.
-* **OOM Killer Intervention:** Once the Java process exceeded the container's cgroup memory limit, the OCP node kernel's Out-Of-Memory (OOM) Killer would terminate the process, leading to unexpected pod restarts.
-* **CPU Throttling:** Similar issues occurred with CPU calculation, where the JVM would perceive all host cores as available, leading to inefficient thread pool sizing and potential overhead, such as context-switching and multiple threads competing for resources.
+* **Memory Miscalculation:** The JVM would attempt to size its heap based a specific Xmx value, often exceeding the container's hard memory limit set by Kubernetes or OpenShift. This would lead to OOM Killer occurences: once the Java process exceeded the container's cgroup memory limit, the OCP node kernel's Out-Of-Memory (OOM) Killer would terminate the process, leading to unexpected pod restarts.
+* **CPU and thread calculation:** The CPUs limits would be detected from the host in any situation, leading to inefficient thread pool sizing and potential overhead, such as context-switching and multiple threads competing for resources and even including CPU throttling.
 
 == The Turning Point: JDK8146115
 To address these issues, the OpenJDK community introduced **JDK8146115**. This enhancement provided the necessary infrastructure for the JVM to correctly read and respect cgroup memory and CPU limits.
 
-Instead of querying `/proc/meminfo` or `/proc/stat`—which reflect host-level resources—the JVM was updated to inspect the cgroup filesystem (`/sys/fs/cgroup/`) directly. This allows the JVM to identify the specific constraints applied to the process namespace.
+Instead of querying `/proc/meminfo` or `/proc/stat` that reflect host-level resources, the JVM was updated to inspect the cgroup filesystem hierarch directly (`/sys/fs/cgroup/`). This allows the JVM to identify the specific constraints applied to the process namespace.
 
-== Java 8u191: The Paradigm Shift
-While JDK8146115 provided the foundational logic, the release of **Java 8u191** served as the catalyst for widespread adoption. This update backported the container-awareness features, effectively bringing modern cloud-native capabilities to long-standing Java 8 applications.
+== Java 8u191: Beginning of container-awareness
+The release of **Java 8u191** that had JDK-8146115 provided the first step towards fully container awareness. This update backported the container-awareness features, bringing container detection capabilities to Java 8 deployments. After this version more improvements were done to have a full percentage setting of the heap based on the container size.
 
-Key changes introduced in 8u191 include:
-
-* **Native Cgroup Awareness:** The JVM now automatically detects container limits at startup.
+* **Native Cgroup Awareness:** The JVM automatically detects container limits at startup for both cgroups v1 and cgroups v2 (8u372, 11.0.16+, 17+).
+* **Native Cgroup cgroups v2 compliance:** Both cgroups v1 and cgroups v2 (8u372, 11.0.16+, 17+) limits are detected.
 * **Default Ergonomics:** The default heap size calculation logic was updated to use a fraction of the container’s memory limit instead of the host's physical memory.
-* **New JVM Flags:** Introduction of flags such as `-XX:MaxRAMPercentage`, `-XX:MinRAMPercentage`, and `-XX:InitialRAMPercentage`, allowing developers to define heap sizes as a ratio of the container limit rather than hard-coded values.
+* **Specific JVM Flags:** Introduction of flags such as `-XX:MaxRAMPercentage`, `-XX:MinRAMPercentage`, and `-XX:InitialRAMPercentage`, allowing developers to define heap sizes as a ratio of the container limit rather than hard-coded values.
 
 === Impact on Current Deployments
 With Java 8u191+ (and later versions), the relationship between the container (cgroups) and the JVM became **coupled**. 
@@ -34,7 +32,7 @@ With Java 8u191+ (and later versions), the relationship between the container (c
 |===
 | Feature 
 | Legacy Behavior (Pre-8u191) 
-| Current Behavior (8u191+)
+| Current Behavior (After 8u191+)
 
 | *Memory Source* 
 | Queries `/proc/meminfo` (Host RAM) 
