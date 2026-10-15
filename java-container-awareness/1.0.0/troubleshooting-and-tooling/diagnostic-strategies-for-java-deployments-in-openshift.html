@@ -406,8 +406,11 @@ The expected heap-to-container ratios (80% / 50% with <code>run-java.sh</code>, 
 # List running Java processes
 jcmd
 
+# Get a summary of the current flags the JVM is using
+jcmd &lt;pid&gt; VM.flags
+
 # Get a detailed report of the VM's perceived memory constraints
-jcmd &lt;pid&gt; VM.flags</code></pre>
+jcmd &lt;pid&gt; VM.info</code></pre>
 </div>
 </div>
 </div>
