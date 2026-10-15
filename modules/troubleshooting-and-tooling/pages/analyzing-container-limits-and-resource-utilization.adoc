@@ -9,7 +9,7 @@ To ensure Java applications perform predictably within Red Hat OpenShift or Kube
 The primary challenge in containerized Java is the discrepancy between what the Operating System sees (physical host) and what the container runtime enforces (cgroup limits).
 
 ### The Mechanics of Detection
-Container-aware JVMs (starting from Java 8u191 and newer) automatically inspect cgroups v2 files hierarch, such as `memory.limit_in_bytes` to size the heap, but cgroups will also be used to determine the available processor count that are used for Java thread pool calculations.
+Container-aware JVMs (starting from Java 8u191 and newer) automatically inspect cgroups files hierarch, such as `memory.limit_in_bytes` to size the heap, but cgroups will also be used to determine the available processor count that are used for Java thread pool calculations. Latest Java versions are fully cgroups v1 and v2 complaint.
 
 When analyzing your application, you can extract this metadata using `jcmd`. If your JVM is properly detecting the container environment, the output will reveal specific cgroup configurations:
 
@@ -45,7 +45,7 @@ When analyzing resource constraints, follow these steps:
 2.  **Verify Cgroup Awareness:** Use `jcmd` to verify if the JVM identifies the correct `memory_limit_in_bytes`. If this shows `-1` or reflects host memory, the JVM is not container-aware, and you must explicitly configure `-XX:MaxRAMPercentage`.
 3.  **Monitor via Tools:** 
     *   **Container-aware:** Use `kubectl top pod` or the OpenShift Web Console metrics.
-    *   **Non-container-aware:** Avoid using `top` or `free` commands inside the container, as they will report host-level data rather than container-constrained data.
+    *   **Non-container-aware:** Using `top` or `free` commands inside the container will report host-level data rather than container-constrained data.
 
 == Troubleshooting table
 
@@ -118,5 +118,5 @@ memory_soft_limit_in_bytes: 716800 k <-------------- soft limit 700mb
 
 [NOTE]
 ====
-If you observe `cgroup OOMKills` despite the JVM reporting correct memory usage, analyze your off-heap usage via `jcmd <pid> VM.native_memory summary`. You may need to decrease your `MaxRAMPercentage` to provide more "breathing room" for the native memory footprint.
+If you observe `cgroup OOMKills` despite the JVM reporting correct memory percentage (e.g. 25%, 50%, or 80%), analyze your off-heap usage via `jcmd <pid> VM.native_memory summary`. You may need to decrease your `MaxRAMPercentage` to provide more breathing room for the native memory footprint, such as instrumentation or `Metaspace`.
 ====
