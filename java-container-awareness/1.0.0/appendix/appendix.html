@@ -378,7 +378,7 @@
 <p><strong>Q4: How has JVM container memory awareness evolved?</strong></p>
 </div>
 <div class="paragraph">
-<p>Modern JVMs natively understand container limits, whereas legacy versions relied on the host&#8217;s physical RAM size.</p>
+<p>Modern JVMs natively understand container limits, whereas previous non-container aware versions relied on the host&#8217;s physical RAM size.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 3. JVM Container Awareness Evolution</caption>
@@ -390,8 +390,8 @@
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top">Feature</th>
-<th class="tableblock halign-left valign-top">Legacy Behavior (Pre-8u191)</th>
-<th class="tableblock halign-left valign-top">Modern Behavior (8u191+)</th>
+<th class="tableblock halign-left valign-top">Previous Behavior (Pre-8u191)</th>
+<th class="tableblock halign-left valign-top">Current Behavior (8u191+)</th>
 </tr>
 </thead>
 <tbody>
@@ -412,6 +412,9 @@
 </tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p>Note that cgroups v2 compliant is only enabled fully on Java 8u372, Java 11.0.16, Java 17+.</p>
+</div>
 <div class="paragraph">
 <p><strong>Q5: Should I use the <code>run-java.sh</code> script or start Java directly in my container?</strong></p>
 </div>
