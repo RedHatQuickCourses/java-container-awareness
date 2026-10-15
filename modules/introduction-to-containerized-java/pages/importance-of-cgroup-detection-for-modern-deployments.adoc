@@ -15,9 +15,9 @@ Before container-aware JVMs, a Java application running inside a container would
 
 Cgroup detection is the mechanism by which the JVM detects the boundaries imposed by the container runtime. Its importance for deployments cannot be overstated for the following reasons:
 
-*   **Boundary Compliance:** It ensures the JVM respects the container’s quota rather than the physical host's capacity. By reading from cgroups (`/sys/fs/cgroup/`) on both cgroups v1 and cgroups v2, the JVM adjusts its heap and CPU settings (for thread calculation).
+*   **Boundary Compliance:** It ensures the JVM respects the container’s quota rather than the physical host's capacit by reading from cgroups hierarch (`/sys/fs/cgroup/`) on both cgroups v1 and cgroups v2. The JVM adjusts its heap and CPU settings (for thread calculation).
 *   **Preventing Failures:** With proper cgroup detection, the JVM aligns its garbage collection triggers and heap allocation thresholds with the container’s memory limit. This prevents the scenario where the application performs perfectly under light load but crashes instantly when the memory pressure when crossed the cgroup ceiling.
-*   **Orchestration Alignment:** Orchestrators like OpenShift and Kubernetes deploy containers that have Resource Limits and Requests and those are enforced by the kernel. Java’s ability to read the CPU and memory limits allows the JVM to operate nominally inside a container regardless of the host. Meaning, given JVM is container-aware, it can effectively use flags like `-XX:MaxRAMPercentage`, ensuring the heap scales dynamically with the pod's assigned limit when it is deployed. Users can tune those percentage values.
+*   **Orchestration Alignment:** Orchestrators like OpenShift and Kubernetes allow deployment of containers that have Resource Limits and/or Requests and those are enforced by the Kubelet and the kernel. Although Java ignores requests, Java’s ability to read the CPU and memory limits allows the JVM to operate nominally inside a container regardless of the host. Meaning, given JVM is container-aware, it can effectively use flags like `-XX:MaxRAMPercentage`, ensuring the heap scales directly with the container's assigned limit when it is deployed. Users can tune those percentage values.
 
 == Implications for DevOps teams
 
@@ -53,7 +53,7 @@ Specifically the default OpenJDK container image, the default `ENTRYPOINT` will 
 
 |===
 
-Although the ENTRYPOINT script adds those environment variables above, Java (by default) already provides other such as: `JAVA_TOOL_OPTIONS` and `_JAVA_OPTIONS`. Meaning, those are not inherited from the run-java.sh. Those extra environment variables are usually not recommended because they are used for any Java process inside the container 
+Although the ENTRYPOINT script adds those environment variables above, Java (natively by default) already provides other such as: `JAVA_TOOL_OPTIONS` and `_JAVA_OPTIONS`. Meaning, those are not inherited from the run-java.sh. However those extra environment variables are usually not recommended because they are used for any Java process inside the container, because they are detected by any Java process inside that container.
 
 .Example: Why JAVA_TOOL_OPTIONS should be usually avoided
 [source,console]
@@ -76,11 +76,11 @@ For a deep dive into how these changes specifically affect Java runtimes specifi
 
 - OpenJDK 8u372+, 11.0.16+, 17, and 21 natively support cgroups v2 detection.
 - Red Hat container images now rely on native OpenJDK C++ container detection rather than legacy `run-java.sh` wrapper scripts for setting memory limits.
-- The `MaxRAMPercentage` property (defaulting to 80% in these images) allows the JVM to dynamically size its heap based on the cgroups v2 boundaries.
+- The `MaxRAMPercentage` property (defaulting to 80% in current images) allows the JVM to dynamically size its heap based on the cgroups v2 boundaries.
 
 == Additional References
 
-For detailed information on the UBI 9 OpenJDK 21 container image, including available environment variables and configuration options, see the official documentation:
+For detailed information on the UBI 9 OpenJDK 21 container image, including available environment variables and configuration options, see the official container details:
 
 * https://rh-openjdk.github.io/redhat-openjdk-containers/ubi9/ubi9-openjdk-21.html[Red Hat OpenJDK 21 UBI 9 Container Image Documentation]
 
