@@ -284,7 +284,7 @@
 <p><strong>Look for:</strong> The <code>Limits</code> and <code>Requests</code> sections.</p>
 </li>
 <li>
-<p><strong>Action:</strong> Ensure the <code>Limits</code> are explicitly defined. If <code>Limits</code> are missing, the JVM may default to host-level visibility rather than container-level, potentially leading to incorrect heap sizing.</p>
+<p><strong>Action:</strong> Ensure the <code>Limits</code> are explicitly defined. If <code>Limits</code> are absent, the JVM will default to host-limits, consequently the CPU and memory settings will be calculated from there. See <code>unbouded deployments</code> for more details.</p>
 </li>
 </ul>
 </div>
@@ -347,7 +347,7 @@ oc exec &lt;pod-name&gt; -- jcmd 1 VM.info</code></pre>
 <p><strong>Look for:</strong> <code>Heap size</code></p>
 </li>
 <li>
-<p><strong>Verification:</strong> If <code>Heap size</code> is disproportionately large compared to your container limit, your application is at risk of being killed by the kernel, the value must match the MaxRAMPercentage already set.</p>
+<p><strong>Verification:</strong> If <code>Heap size</code> (plus off-heap) is not adequate size compared to the container limit, your application is at risk of being killed by the kernel, the value must match the <code>MaxRAMPercentage</code>. The default <code>MaxRAMPercentage</code> value depends on how the application was started: run-java.sh sets (currently 80%), whereas 25% is the default value.</p>
 </li>
 </ul>
 </div>
