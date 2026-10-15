@@ -244,7 +244,7 @@
 <div class="sect2">
 <h3 id="_the_mechanics_of_detection"><a class="anchor" href="#_the_mechanics_of_detection"></a>The Mechanics of Detection</h3>
 <div class="paragraph">
-<p>Container-aware JVMs (starting from Java 8u191 and newer) automatically inspect cgroup files, such as <code>memory.limit_in_bytes</code> to size the heap, but cgroups will also be used to determine the available processor count (for thread pool calculations).</p>
+<p>Container-aware JVMs (starting from Java 8u191 and newer) automatically inspect cgroups v2 files hierarch, such as <code>memory.limit_in_bytes</code> to size the heap, but cgroups will also be used to determine the available processor count that are used for Java thread pool calculations.</p>
 </div>
 <div class="paragraph">
 <p>When analyzing your application, you can extract this metadata using <code>jcmd</code>. If your JVM is properly detecting the container environment, the output will reveal specific cgroup configurations:</p>
@@ -265,7 +265,7 @@ memory_usage_in_bytes: 125108224</code></pre>
 <p><strong><code>active_processor_count</code></strong>: Essential for the JVM to size its internal thread pools (e.g., ForkJoinPool).</p>
 </li>
 <li>
-<p><strong><code>memory_limit_in_bytes</code></strong>: Dictates the physical memory limit the JVM uses to calculate its initial heap size (typically 1/4 of the container limit by default).</p>
+<p><strong><code>memory_limit_in_bytes</code></strong>: Dictates the physical memory limit the JVM uses to calculate its heap size. By default the percentage for heap max size will be 25% (on upstream default) or 80% (when starting with <code>run-java.sh</code>).</p>
 </li>
 </ul>
 </div>
@@ -281,9 +281,17 @@ memory_usage_in_bytes: 125108224</code></pre>
 <div class="sect2">
 <h3 id="_the_decoupling_risk"><a class="anchor" href="#_the_decoupling_risk"></a>The Decoupling Risk</h3>
 <div class="paragraph">
-<p>There are several risks of decoupling.
-- The Xmx set the full size of the heap, given it is unrelated so the container size can reduce and starve the application or have too much space useless.
-- A common pitfall is ignoring the off-heap footprint. If the Java Heap (Xmx) to 80% of your container limit, but your application requires 30% for off-heap memory (Metaspace, Code Cache, Thread stacks, Direct Buffers), the container will exceed its memory limit and OOMKill.</p>
+<p>There are several risks of decoupling, i.e. manually setting Xmx separately from the container size:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The Xmx set the full size of the heap, given it is unrelated so the container size can reduce and starve the application or have too much space useless.</p>
+</li>
+<li>
+<p>A common pitfall is ignoring the off-heap footprint. If the Java Heap (Xmx) to 80% of your container limit, but your application requires 30% for off-heap memory (Metaspace, Code Cache, Thread stacks, Direct Buffers), the container will exceed its memory limit and OOMKill.</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
 <p>This results in a <strong>cgroup OOMKill</strong>, which is distinct from a JVM <code>java.lang.OutOfMemoryError</code>.</p>
@@ -310,7 +318,7 @@ memory_usage_in_bytes: 125108224</code></pre>
 <p><strong>Container-aware:</strong> Use <code>kubectl top pod</code> or the OpenShift Web Console metrics.</p>
 </li>
 <li>
-<p><strong>Non-container-aware:</strong> Avoid using legacy <code>top</code> or <code>free</code> commands inside the container, as they often report host-level data rather than container-constrained data.</p>
+<p><strong>Non-container-aware:</strong> Avoid using <code>top</code> or <code>free</code> commands inside the container, as they will report host-level data rather than container-constrained data.</p>
 </li>
 </ul>
 </div>
