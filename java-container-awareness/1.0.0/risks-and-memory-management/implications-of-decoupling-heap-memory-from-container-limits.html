@@ -277,7 +277,7 @@
 <p>Decoupling occurs when the JVM’s memory configuration ignores the orchestrator’s resource constraints. This makes the application blind to the environment it resides in.</p>
 </div>
 <div class="paragraph">
-<p>Modern Java versions (Java 8u191+, Java 11+) are designed to be container-aware, meaning they automatically derive memory settings from cgroups. Overriding this by hardcoding heap values removes the benefits of this feature, essentially reverting the JVM to a legacy mode that is non-container aware  of its surroundings.</p>
+<p>Current Java versions (Java 8u191+, Java 11.0.16+, Java 17+) are designed to be fully container-aware on both cgroups v1 and cgroups natively, meaning they automatically derive memory settings from cgroups. Overriding this by hardcoding heap values removes the benefits of this feature, essentially reverting the JVM to a legacy mode that is non-container aware of its surroundings.</p>
 </div>
 </div>
 </div>
