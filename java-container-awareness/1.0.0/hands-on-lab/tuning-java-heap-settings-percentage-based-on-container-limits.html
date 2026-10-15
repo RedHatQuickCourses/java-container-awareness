@@ -239,10 +239,10 @@
 <h2 id="_the_shift_to_percentage_based_memory_management"><a class="anchor" href="#_the_shift_to_percentage_based_memory_management"></a>The Shift to Percentage-Based Memory Management</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Historically since Java inception, developers used the <code>-Xmx</code> flag to set an absolute heap size (e.g., <code>-Xmx2g</code>). In a container, this creates a static configuration that ignores the actual memory limit of the container. If the container limit is lowered, the JVM may attempt to exceed it, leading to a <code>cgroup</code> OOM-Kill.</p>
+<p>Historically since Java inception, developers used the <code>-Xmx</code> flag to set directly the heap size as absolute value (e.g., <code>-Xmx2g</code>). However, deploying with container aware Java inside a container, Java will calculate (entirely by default - user needs to do nothing) the Java heap size as a percentage from the container size. Therefore, setting <code>Xmx</code> manually becomes a liability making Java ignore the actual memory limit of the container. If the heap is inadequately set the JVM will eventually exceed the container size leading to a <code>cgroup</code> OOM-Kill.</p>
 </div>
 <div class="paragraph">
-<p>By using <strong>RAM Percentage flags</strong>, you decouple the specific memory limit from the application code, allowing the JVM to calculate its heap size dynamically based on the container&#8217;s available memory.</p>
+<p>The default behavior uses <strong>RAM Percentage flags</strong> where by default the heap size is associated with the container&#8217;s memory limit, allowing the JVM to calculate its heap size dynamically based on the container&#8217;s available memory and re-size upon JVM restart.</p>
 </div>
 <div class="sect2">
 <h3 id="_key_configuration_flags"><a class="anchor" href="#_key_configuration_flags"></a>Key Configuration Flags</h3>
@@ -267,7 +267,7 @@
 </td>
 <td class="content">
 <div class="paragraph">
-<p>When tuning these percentages, remember that the <strong>total container memory</strong> must accommodate more than just the heap. You must account for <strong>off-heap memory</strong>, which includes:</p>
+<p>When tuning these percentages, remember that the <strong>total container memory</strong> must accommodate more than just the heap. One must account for <strong>off-heap memory</strong>, which includes:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -289,7 +289,7 @@
 </ul>
 </div>
 <div class="paragraph">
-<p>Setting <code>-XX:MaxRAMPercentage</code> too high (e.g., 95%) leaves insufficient room for native memory, inevitably leading to native memory pressure and <code>cgroups</code> OOM-Kill.</p>
+<p>Setting <code>-XX:MaxRAMPercentage</code> too high leaves insufficient room for native memory, inevitably leading to native memory pressure and <code>cgroups</code> OOM-Killer. The exact percentage cannot be precised without application direct knowledge. Details on <a href="https://access.redhat.com/solutions/7141090">Can Red Hat provide optimal MaxRAMPercentage or related flags for SpringBoot or Java applications</a>.</p>
 </div>
 </td>
 </tr>
@@ -412,7 +412,7 @@ ENV JAVA_OPTS_APPEND="-XX:MaxRAMPercentage=50.0"
 </td>
 <td class="content">
 <div class="paragraph">
-<p>If you observe <code>java.lang.OutOfMemoryError: Metaspace</code> or native crashes, your <code>MaxRAMPercentage</code> is too aggressive. Lower the value by 5-10% and redeploy.</p>
+<p>If you observe <code>java.lang.OutOfMemoryError: Metaspace</code> verify the MaxMetaspace flag, which sets the Metaspace limit and although present in the off-heap has its own cap. Details <a href="https://developers.redhat.com/articles/2024/07/19/metaspace-setting-and-tuning-jdk-8-applications-and-outside-containers">Metaspace setting and tuning in JDK 8+ Applications: in and outside containers</a>.</p>
 </div>
 </td>
 </tr>
