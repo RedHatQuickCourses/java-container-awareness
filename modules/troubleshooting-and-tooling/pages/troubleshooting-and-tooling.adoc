@@ -2,7 +2,7 @@
 :page-audio-src: troubleshooting-and-tooling.wav
 :page-transcript-src: troubleshooting-and-tooling.txt
 
-Troubleshooting Java in containerized environments requires distinguishing between tools that report host-level node metrics versus those that are container-aware. Improper resource utilization undoubtedly will lead to memory misconfiguration, `OOMKills`, OOMExceptions, SIGMTERMs, and under/over-utilization of resources.
+Troubleshooting Java in containerized environments requires distinguishing between tools that report host-level node metrics versus those that are container-aware. Improper resource utilization undoubtedly will lead to memory misconfiguration, `OOMKills`, OOMExceptions, SIGTERMs, crashes (hs_error crashes), and under/over-utilization of resources.
 
 *   **Host-level vs. Container-aware Tools**: Standard Linux utilities like `lscpu`, `nproc`, and `free -m` reflect the underlying node's resources rather than container limits.
 *   **Container-aware Limits**: Utilize JVM-specific tools such as jcmd's `VM.info` or `-XX:+PrintFlagsFinal` (via `--XshowSettings:system`) to accurately retrieve container memory and CPU constraints enforced on the container.
