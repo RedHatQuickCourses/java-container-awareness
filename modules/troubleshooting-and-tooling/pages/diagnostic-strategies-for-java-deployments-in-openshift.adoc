@@ -59,7 +59,7 @@ Java diagnostics, jcmd, is very useful for Java and Java inside containers in ge
 If a pod is frequently restarting, it may be hitting OOM (Out of Memory) kills. Since the OOM Killer is enforced at the cgroup level, standard Java `OutOfMemoryError` logs might not appear if the kernel terminates the process before the JVM can report it.
 
 *   **Inspect Pod Events:** Use `oc describe pod <pod-name>` to check for the `OOMKilled` state.
-*   **Check Exit Codes:** An exit code of `137` is a strong indicator that the container was terminated by the OOM killer because it exceeded the OpenShift memory limit.
+*   **Check Exit Codes:** An exit code of `137` is a strong indicator that the container was terminated by the OOM killer because it exceeded its respective container memory limit.
 
 === 4. Usage of JVM flags for scenarios
 
