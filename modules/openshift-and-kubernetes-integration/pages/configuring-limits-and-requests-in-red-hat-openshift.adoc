@@ -32,11 +32,13 @@ The above will impact also the Quality of Service, QoS, of the pods. The QoS is 
 
 === Resource Allocation Table
 
-[cols="1,2,2", options="header"]
+When running Java inside a container, it is critical to understand how the container engine translates CPU configurations into Linux cgroup metrics. The following table summarizes the differences between requests and limits, highlighting a key behavior: the JVM calculates its available processors based solely on hard CPU limits, completely ignoring CPU requests. This value is then used for the thread calculation.
+
+[cols="1,2,2,2", options="header"]
 |===
-| Resource Type | Purpose | Calculation Method
-| **CPU Request** | Scheduling and node assignment. | Sets `cpu.share` in cgroups to prioritize usage.
-| **CPU Limit** | Binding execution allocation (throttling). | Sets quota and period (defaults to 100ms segments).
+| Resource Type | Purpose | Calculation Method | JVM Behavior
+| **CPU Request** | Scheduling and node assignment. | Sets `cpu.share` in cgroups to prioritize usage. | Java does not use requests.
+| **CPU Limit** | Binding execution allocation (throttling). | Sets quota and period (defaults to 100ms segments). | Java uses limits.
 |===
 
 == Perspectives on Resource Awareness
