@@ -10,10 +10,10 @@ Historically since Java started, developers used the `-Xmx` flag to set directly
 
 The default behavior uses **RAM Percentage flags** where by default the heap size is associated with the container's memory limit, allowing the JVM to calculate its heap size dynamically based on the container's available memory and re-size upon JVM restart.
 
-=== Key Configuration Flags
+=== Key JVM Heap Percentage Flags
 *   `-XX:MaxRAMPercentage=N`: Sets the maximum heap size as a percentage of the container's memory limit. The default upstream limit is25%, though specialized container images (like Red Hat’s `run-java.sh` scripts) will default to 80%.
 *   `-XX:InitialRAMPercentage=N`: Sets the initial heap size as a percentage of the container limit.
-*   `-XX:MinRAMPercentage=N`: Defines the minimum heap size used when the container memory limit is small.
+*   `-XX:MinRAMPercentage=N`: Defines the minimum heap size used when the application usage is small, based on the container size.
 
 [IMPORTANT]
 ====
@@ -70,10 +70,13 @@ By default an OpenJDK application is container-aware and will detect the contain
 |===
 | Execution Method | Default Heap Allocation
 
-| Red Hat OpenJDK's run-java.sh ENTRYPOINT
-| 80% (previously was 50%)
+| Red Hat OpenJDK's `run-java.sh` `ENTRYPOINT` (Current)
+| 80%
 
-| Direct java ENTRYPOINT
+| Red Hat OpenJDK's `run-java.sh` `ENTRYPOINT` (Previous)
+| 50%
+
+| Direct `java` `ENTRYPOINT`
 | 25%
 |===
 
@@ -92,11 +95,13 @@ The default comes for free, so the user has to do nothing to set it up. To tune 
 | `JAVA_TOOLS_OPTIONS="-XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0"`
 |===
 
-After the deployment restarts, validate that the JVM calculated the heap size relative to the pod's memory limit (look for the active `-XX:MaxRAMPercentage` flag and the resulting `VM.max_heap_size`) by following the `jcmd` verification in xref:risks-and-memory-management:hands-on-lab-heap-settings.adoc[Analyzing Heap and Off-Heap Settings]. Then monitor memory usage via the OpenShift web console or CLI, keeping usage below the container limit to leave headroom for native off-heap memory.
+After the deployment restarts, validate that the JVM calculated the heap size relative to the container's memory limit (look if `-XX:MaxRAMPercentage` flag is active and the resulting Max heap) by following the `jcmd` verification in xref:risks-and-memory-management:hands-on-lab-heap-settings.adoc[Analyzing Heap and Off-Heap Settings]. 
+
+When monitoring memory usage via the OpenShift web console, the scrapping will use cadAdvisor/cgroups output, which present the JVM as a black box, and reports all JVM's touched/allocated pages. Ensure the heap percentage is enough for off-heap and subsequent application nominal growth and workload.
 
 [TIP]
 ====
-If you observe `java.lang.OutOfMemoryError: Metaspace` verify the MaxMetaspace flag, which sets the Metaspace limit and although present in the off-heap has its own cap. Details https://developers.redhat.com/articles/2024/07/19/metaspace-setting-and-tuning-jdk-8-applications-and-outside-containers[Metaspace setting and tuning in JDK 8+ Applications: in and outside containers].
+If you observe `java.lang.OutOfMemoryError: Metaspace` verify the MaxMetaspace flag, which sets the Metaspace limit and although present in the off-heap has its own cap - the value may or may not be set depending on the context. Details https://developers.redhat.com/articles/2024/07/19/metaspace-setting-and-tuning-jdk-8-applications-and-outside-containers[Metaspace setting and tuning in JDK 8+ Applications: in and outside containers].
 ====
 
 == Reference Documentation
