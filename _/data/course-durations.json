@@ -1,5 +1,5 @@
 {
-  "totalSeconds": 5120,
+  "totalSeconds": 5121,
   "pageCount": 31,
   "pages": [
     {
@@ -110,7 +110,7 @@
     {
       "module": "troubleshooting-and-tooling",
       "page": "troubleshooting-and-tooling.adoc",
-      "seconds": 58
+      "seconds": 59
     },
     {
       "module": "troubleshooting-and-tooling",
