@@ -276,7 +276,8 @@ memory_usage_in_bytes: 125108224</code></pre>
 <h2 id="_identifying_limitations_and_misconfigurations"><a class="anchor" href="#_identifying_limitations_and_misconfigurations"></a>Identifying Limitations and Misconfigurations</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Analyzing resource utilization requires verifying that your JVM heap plus off-heap requirements remain within the Kubernetes/OpenShift <code>limits</code>.</p>
+<p>Analyzing resource utilization requires verifying that your JVM heap plus off-heap requirements remain within the Kubernetes/OpenShift container <code>limits</code>. OOMKill does not happen necessarily on first allocation that crosses, it happens on the subsequent allocation, because the kernel doesn&#8217;t immmediately kills the application on the spot.
+Technically speaking the kernel decides to trigger the OOMKill based on the RSS since OOMKill triggers on a lack of pageable addresses and OOMKill is SIGKILL, without chance to TERM in any capacity.</p>
 </div>
 <div class="sect2">
 <h3 id="_the_decoupling_risk"><a class="anchor" href="#_the_decoupling_risk"></a>The Decoupling Risk</h3>
