@@ -28,7 +28,7 @@ oc describe pod <pod-name>
 ----
 
 *   **Look for:** The `Limits` and `Requests` sections.
-*   **Action:** Ensure the `Limits` are explicitly defined. If `Limits` are missing, the JVM may default to host-level visibility rather than container-level, potentially leading to incorrect heap sizing.
+*   **Action:** Ensure the `Limits` are explicitly defined. If `Limits` are absent, the JVM will default to host-limits, consequently the CPU and memory settings will be calculated from there. See `unbouded deployments` for more details.
 
 === Leveraging `oc debug` and `inspect`
 When an application behaves unexpectedly, you can use `oc debug` to inspect the runtime environment from inside the pod's namespace.
@@ -66,7 +66,7 @@ oc exec <pod-name> -- jcmd 1 VM.info
 ----
 
 *   **Look for:** `Heap size`
-*   **Verification:** If `Heap size` is disproportionately large compared to your container limit, your application is at risk of being killed by the kernel, the value must match the MaxRAMPercentage already set.
+*   **Verification:** If `Heap size` (plus off-heap) is not adequate size compared to the container limit, your application is at risk of being killed by the kernel, the value must match the `MaxRAMPercentage`. The default `MaxRAMPercentage` value depends on how the application was started: run-java.sh sets (currently 80%), whereas 25% is the default value.
 
 == Troubleshooting a Resource-Constrained Pod
 
