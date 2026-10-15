@@ -196,12 +196,12 @@ Error: A fatal exception has occurred. Program will exit.
 **Q9: How do I interpret JVM diagnostic files like `VM.info`?**
 
 When diagnosing runtime behavior or crashes, refer to the official support documentation:
-* https://access.redhat.com/solutions/6973111[Red Hat Solution 6973111: Interpreting VM.info file in OpenJDK/OracleJDK]
+https://access.redhat.com/solutions/6973111[Interpreting VM.info file in OpenJDK/OracleJDK]
 
 **Q10: How can I build and test my OpenShift container images locally before deploying?**
 
 To replicate the OpenShift Source-to-Image (S2I) build process on your local machine, follow this guide:
-* https://developers.redhat.com/articles/2026/09/23/build-openjdk-container-images-locally-using-standalone-s2i-tool[Build OpenJDK container images locally using standalone S2I tool]
+https://developers.redhat.com/articles/2026/09/23/build-openjdk-container-images-locally-using-standalone-s2i-tool[Build OpenJDK container images locally using standalone S2I tool]
 
 
 == Resources
