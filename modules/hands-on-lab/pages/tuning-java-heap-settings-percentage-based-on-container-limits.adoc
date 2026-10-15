@@ -6,7 +6,7 @@ In containerized environments orchestrators, Red Hat OpenShift, Red Hat OpenJDK 
 
 == The Shift to Percentage-Based Memory Management
 
-Historically since Java inception, developers used the `-Xmx` flag to set directly the heap size as absolute value (e.g., `-Xmx2g`). However, deploying with container aware Java inside a container, Java will calculate (entirely by default - user needs to do nothing) the Java heap size as a percentage from the container size. Therefore, setting `Xmx` manually becomes a liability making Java ignore the actual memory limit of the container. If the heap is inadequately set the JVM will eventually exceed the container size leading to a `cgroup` OOM-Kill.
+Historically since Java started, developers used the `-Xmx` flag to set directly the heap size as absolute value (e.g., `-Xmx2g`). However, deploying with container aware Java inside a container, Java will calculate (entirely by default - user needs to do nothing) the Java heap size as a percentage from the container size. Therefore, setting `Xmx` manually becomes a liability making Java ignore the actual memory limit of the container. If the heap is inadequately set the JVM will eventually exceed the container size leading to a `cgroup` OOM-Kill.
 
 The default behavior uses **RAM Percentage flags** where by default the heap size is associated with the container's memory limit, allowing the JVM to calculate its heap size dynamically based on the container's available memory and re-size upon JVM restart.
 
@@ -29,9 +29,9 @@ Setting `-XX:MaxRAMPercentage` too high leaves insufficient room for native memo
 
 ====
 
-== Applying Percentage-Based Heap Settings
+== Tuning Percentage-Based Heap Settings
 
-This section covers the configuration you apply to use container-aware memory settings instead of hardcoded heap limits.
+This section covers the configuration the user can tune container-aware memory settings instead of hardcoded heap limits.
 
 [NOTE]
 ====
@@ -47,7 +47,7 @@ First, verify that your application is running without explicit `-Xmx` flags or 
 oc set env deployment/<deployment-name> --list
 ----
 
-Do **not** bake the memory constraints into the image. The following Dockerfile pattern should be avoided — set the percentage through deployment environment variables instead, so it stays decoupled from the image:
+Do **not** set the memory constraints into the image, in fact all JVM flags should be set at runtime rather than build time. The following Containerfile (Dockerfile) pattern should be avoided — set the percentage through deployment environment variables instead, so it stays decoupled from the image:
 
 [source,dockerfile]
 ----
