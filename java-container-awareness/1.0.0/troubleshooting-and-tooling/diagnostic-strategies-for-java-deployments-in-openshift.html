@@ -239,12 +239,12 @@
 <h2 id="_identifying_container_aware_tools"><a class="anchor" href="#_identifying_container_aware_tools"></a>Identifying Container-Aware Tools</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>A critical diagnostic step is distinguishing between container-aware and legacy tools.</p>
+<p>A critical diagnostic step is distinguishing between container-aware and non-container aware tools.</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Legacy Tools:</strong> Tools like <code>top</code>, <code>free</code>, or older JVM monitoring utilities may report the host&#8217;s total RAM and CPU count. Relying on these leads to "false positives" where an administrator believes the application has more resources than it actually does.</p>
+<p><strong>Non-container aware Tools:</strong> Tools like <code>top</code>, <code>free</code>, or older JVM monitoring utilities may report the host&#8217;s total RAM and CPU count. Relying on these leads to "false positives" where an administrator believes the application has more resources than it actually does.</p>
 </li>
 <li>
 <p><strong>Container-Aware Tools:</strong> Modern JDKs (8u191+, 11+) and utilities like <code>jcmd</code>, <code>jstat</code>, and modern observability agents are cgroup-aware. They query the container&#8217;s <code>/sys/fs/cgroup/</code> filesystem to report limits specifically applied to the pod.</p>
