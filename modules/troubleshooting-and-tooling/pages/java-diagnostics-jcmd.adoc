@@ -10,14 +10,14 @@ In a containerized world, `jcmd` allows developers and operators to bridge the g
 
 
 === Key Capabilities
-*   **Process Identification:** List running Java processes within the container.
+*   **Process Identification:** List running Java processes in the container owned by the user running jcmd.
 *   **Performance Diagnostics:** Retrieve thread dumps, GC statistics, and class loading metadata.
 *   **Memory Management Analysis:** Inspect heap usage and native memory tracking (NMT).
-*   **Dynamic Configuration:** Adjust certain JVM flags at runtime (where supported).
+*   **Dynamic Configuration:** Adjust certain JVM flags at runtime (when the flag is adjustable).
 
 == Using jcmd for Resource Inspection
 
-The main tool for Java investigations inside a container is VM.info, which is avaliable in JDK 11+. 
+The main tool for Java investigations inside a container is `VM.info`, which is only avaliable in JDK 11+. 
 It prints several details on the Java process itself, from the JVM perspective.
 See full review on https://access.redhat.com/solutions/6973111[Interpreting VM.info file in OpenJDK/OracleJDK].
 
@@ -40,7 +40,7 @@ jcmd <PID> GC.run
 
 === Analyzing Native Memory
 
-One of the most critical aspects of containerized Java is distinguishing between the **Java Heap** and **Off-Heap memory**. If the container is being killed by the OOMKiller but the heap appears healthy, the issue may reside in native memory (e.g., libraries, Metaspace, code cache, or direct buffers).
+One important aspects of Java inside a container is the memory allocation in **Java Heap** and **Off-Heap memory**. If the container is being killed by the OOMKiller but the heap appears stable and healthy, the issue may reside in native memory (e.g. libraries, Metaspace, code cache, or direct buffers).
 
 ==== Dynamic memory tracking
 
@@ -117,4 +117,9 @@ Check if the Garbage Collector is struggling due to container constraints:
 $ jcmd <PID> GC.class_histogram
 ----
 
-*Troubleshooting Tip:* If `jcmd` reports a heap size significantly different from your container memory limits, check your deployment YAML to ensure you are not manually overriding the heap size with `-Xmx` or if the Java is adequately detecting cgroups (8u472+, 11.0.16+ for cgroups v2).
+*Troubleshooting Tip:* If `jcmd` reports a heap size significantly disassociated  from the container memory limits, verify:
+
+* re-deploy the application to make sure the value is dynamic.
+* check your deployment YAML to ensure you are not manually overriding the heap size with `-Xmx` at runtime
+* check your build details if the containerfile/build details itself is not overriding the heap size at build time
+* check if the Java is adequately detecting cgroups (8u372+, 11.0.16+, 17+ for cgroups v2) or has an initialization script that overwrites the default values.
