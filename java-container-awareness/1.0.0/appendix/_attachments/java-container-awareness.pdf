@@ -4,8 +4,8 @@
 << /Title (Java Container Awareness)
 /Creator <feff>
 /Producer (Asciidoctor PDF 2.3.27, based on Prawn 2.4.0)
-/ModDate (D:20261015185021+00'00')
-/CreationDate (D:20261015185021+00'00')
+/ModDate (D:20261015185054+00'00')
+/CreationDate (D:20261015185054+00'00')
 >>
 endobj
 2 0 obj
@@ -69183,7 +69183,7 @@ endobj
 [322 0 R /XYZ 0 108.77 null]
 endobj
 331 0 obj
-<< /Length 11808
+<< /Length 11868
 >>
 stream
 q
@@ -69404,7 +69404,7 @@ ET
 BT
 48.24 532.626 Td
 /F2.0 13 Tf
-<546865205669736962696c69747920476170> Tj
+<436f6e7461696e65722d61776172656e65737320746f6f6c73207673204e6f6e2d636f6e7461696e6572206177617265> Tj
 ET
 
 0.0 0.0 0.0 SCN
@@ -72411,8 +72411,8 @@ endobj
 [346 0 R /XYZ 0 153.47 null]
 endobj
 353 0 obj
-<< /Limits [(hands-on-lab:monitoring-cpu-and-memory-usage-using-container-aware-tools:::_the_visibility_gap) (hands-on-lab:tuning-java-heap-settings-percentage-based-on-container-limits:::_common_properties)]
-/Names [(hands-on-lab:monitoring-cpu-and-memory-usage-using-container-aware-tools:::_the_visibility_gap) 335 0 R (hands-on-lab:monitoring-cpu-and-memory-usage-using-container-aware-tools:::_verifying_container_limits) 341 0 R (hands-on-lab:troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect) 347 0 R (hands-on-lab:troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect:::_diagnostic_strategy) 348 0 R (hands-on-lab:troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect:::_identifying_misalignment) 349 0 R (hands-on-lab:troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect:::_leveraging_oc_debug_and_inspect) 352 0 R (hands-on-lab:troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect:::_tools_for_verification) 350 0 R (hands-on-lab:troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect:::_troubleshooting_a_resource_constrained_pod) 357 0 R (hands-on-lab:troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect:::_using_jcmd) 356 0 R (hands-on-lab:troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect:::_using_oc_describe) 351 0 R (hands-on-lab:tuning-java-heap-settings-percentage-based-on-container-limits) 310 0 R (hands-on-lab:tuning-java-heap-settings-percentage-based-on-container-limits:::_applying_percentage_based_heap_settings) 317 0 R (hands-on-lab:tuning-java-heap-settings-percentage-based-on-container-limits:::_common_properties) 330 0 R]
+<< /Limits [(hands-on-lab:monitoring-cpu-and-memory-usage-using-container-aware-tools:::_container_awareness_tools_vs_non_container_aware) (hands-on-lab:tuning-java-heap-settings-percentage-based-on-container-limits:::_common_properties)]
+/Names [(hands-on-lab:monitoring-cpu-and-memory-usage-using-container-aware-tools:::_container_awareness_tools_vs_non_container_aware) 335 0 R (hands-on-lab:monitoring-cpu-and-memory-usage-using-container-aware-tools:::_verifying_container_limits) 341 0 R (hands-on-lab:troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect) 347 0 R (hands-on-lab:troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect:::_diagnostic_strategy) 348 0 R (hands-on-lab:troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect:::_identifying_misalignment) 349 0 R (hands-on-lab:troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect:::_leveraging_oc_debug_and_inspect) 352 0 R (hands-on-lab:troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect:::_tools_for_verification) 350 0 R (hands-on-lab:troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect:::_troubleshooting_a_resource_constrained_pod) 357 0 R (hands-on-lab:troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect:::_using_jcmd) 356 0 R (hands-on-lab:troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect:::_using_oc_describe) 351 0 R (hands-on-lab:tuning-java-heap-settings-percentage-based-on-container-limits) 310 0 R (hands-on-lab:tuning-java-heap-settings-percentage-based-on-container-limits:::_applying_percentage_based_heap_settings) 317 0 R (hands-on-lab:tuning-java-heap-settings-percentage-based-on-container-limits:::_common_properties) 330 0 R]
 >>
 endobj
 354 0 obj
@@ -81023,140 +81023,140 @@ xref
 0001001513 00000 n 
 0001001699 00000 n 
 0001001745 00000 n 
-0001013608 00000 n 
-0001013978 00000 n 
-0001014024 00000 n 
-0001015212 00000 n 
-0001015258 00000 n 
-0001015304 00000 n 
-0001015350 00000 n 
-0001015396 00000 n 
-0001032231 00000 n 
-0001032635 00000 n 
-0001032681 00000 n 
-0001032879 00000 n 
-0001033077 00000 n 
-0001033283 00000 n 
-0001046994 00000 n 
-0001047364 00000 n 
-0001047410 00000 n 
-0001047456 00000 n 
-0001047502 00000 n 
-0001047548 00000 n 
-0001047594 00000 n 
-0001047640 00000 n 
-0001049403 00000 n 
-0001063240 00000 n 
-0001063610 00000 n 
-0001063656 00000 n 
-0001063702 00000 n 
-0001071815 00000 n 
-0001072219 00000 n 
-0001072386 00000 n 
-0001072553 00000 n 
-0001072743 00000 n 
-0001090473 00000 n 
-0001090896 00000 n 
-0001090942 00000 n 
-0001090988 00000 n 
-0001091226 00000 n 
-0001091470 00000 n 
-0001091702 00000 n 
-0001091974 00000 n 
-0001092227 00000 n 
-0001092273 00000 n 
-0001092319 00000 n 
-0001092567 00000 n 
-0001092840 00000 n 
-0001120787 00000 n 
-0001121170 00000 n 
-0001121216 00000 n 
-0001144747 00000 n 
-0001145148 00000 n 
-0001145350 00000 n 
-0001145396 00000 n 
-0001150369 00000 n 
-0001150794 00000 n 
-0001150841 00000 n 
-0001151030 00000 n 
-0001151219 00000 n 
-0001151479 00000 n 
-0001151526 00000 n 
-0001152627 00000 n 
-0001152817 00000 n 
-0001152895 00000 n 
-0001153100 00000 n 
-0001153240 00000 n 
-0001153424 00000 n 
-0001153713 00000 n 
-0001154011 00000 n 
-0001154371 00000 n 
-0001154665 00000 n 
-0001154930 00000 n 
-0001155228 00000 n 
-0001155484 00000 n 
-0001155792 00000 n 
-0001156209 00000 n 
-0001156577 00000 n 
-0001156839 00000 n 
-0001157190 00000 n 
-0001157567 00000 n 
-0001157912 00000 n 
-0001158255 00000 n 
-0001158553 00000 n 
-0001158872 00000 n 
-0001159221 00000 n 
-0001159532 00000 n 
-0001159794 00000 n 
-0001160145 00000 n 
-0001160474 00000 n 
-0001160819 00000 n 
-0001161018 00000 n 
-0001161412 00000 n 
-0001161727 00000 n 
-0001162084 00000 n 
-0001162435 00000 n 
-0001162578 00000 n 
-0001163864 00000 n 
-0001163909 00000 n 
-0001164183 00000 n 
-0001164457 00000 n 
-0001175734 00000 n 
-0001175948 00000 n 
-0001177303 00000 n 
-0001178220 00000 n 
-0001189702 00000 n 
-0001189921 00000 n 
-0001191276 00000 n 
-0001192192 00000 n 
-0001193273 00000 n 
-0001193495 00000 n 
-0001193804 00000 n 
-0001194943 00000 n 
-0001198783 00000 n 
-0001198997 00000 n 
-0001199307 00000 n 
-0001200223 00000 n 
-0001208867 00000 n 
-0001209091 00000 n 
-0001210446 00000 n 
-0001211362 00000 n 
-0001217888 00000 n 
-0001218101 00000 n 
-0001219456 00000 n 
-0001220371 00000 n 
-0001224562 00000 n 
-0001224772 00000 n 
-0001226127 00000 n 
-0001227042 00000 n 
-0001228129 00000 n 
-0001228353 00000 n 
-0001228654 00000 n 
+0001013668 00000 n 
+0001014038 00000 n 
+0001014084 00000 n 
+0001015272 00000 n 
+0001015318 00000 n 
+0001015364 00000 n 
+0001015410 00000 n 
+0001015456 00000 n 
+0001032291 00000 n 
+0001032695 00000 n 
+0001032741 00000 n 
+0001032939 00000 n 
+0001033137 00000 n 
+0001033343 00000 n 
+0001047054 00000 n 
+0001047424 00000 n 
+0001047470 00000 n 
+0001047516 00000 n 
+0001047562 00000 n 
+0001047608 00000 n 
+0001047654 00000 n 
+0001047700 00000 n 
+0001049523 00000 n 
+0001063360 00000 n 
+0001063730 00000 n 
+0001063776 00000 n 
+0001063822 00000 n 
+0001071935 00000 n 
+0001072339 00000 n 
+0001072506 00000 n 
+0001072673 00000 n 
+0001072863 00000 n 
+0001090593 00000 n 
+0001091016 00000 n 
+0001091062 00000 n 
+0001091108 00000 n 
+0001091346 00000 n 
+0001091590 00000 n 
+0001091822 00000 n 
+0001092094 00000 n 
+0001092347 00000 n 
+0001092393 00000 n 
+0001092439 00000 n 
+0001092687 00000 n 
+0001092960 00000 n 
+0001120907 00000 n 
+0001121290 00000 n 
+0001121336 00000 n 
+0001144867 00000 n 
+0001145268 00000 n 
+0001145470 00000 n 
+0001145516 00000 n 
+0001150489 00000 n 
+0001150914 00000 n 
+0001150961 00000 n 
+0001151150 00000 n 
+0001151339 00000 n 
+0001151599 00000 n 
+0001151646 00000 n 
+0001152747 00000 n 
+0001152937 00000 n 
+0001153015 00000 n 
+0001153220 00000 n 
+0001153360 00000 n 
+0001153544 00000 n 
+0001153833 00000 n 
+0001154131 00000 n 
+0001154491 00000 n 
+0001154785 00000 n 
+0001155050 00000 n 
+0001155348 00000 n 
+0001155604 00000 n 
+0001155912 00000 n 
+0001156329 00000 n 
+0001156697 00000 n 
+0001156959 00000 n 
+0001157310 00000 n 
+0001157687 00000 n 
+0001158032 00000 n 
+0001158375 00000 n 
+0001158673 00000 n 
+0001158992 00000 n 
+0001159341 00000 n 
+0001159652 00000 n 
+0001159914 00000 n 
+0001160265 00000 n 
+0001160594 00000 n 
+0001160939 00000 n 
+0001161138 00000 n 
+0001161532 00000 n 
+0001161847 00000 n 
+0001162204 00000 n 
+0001162555 00000 n 
+0001162698 00000 n 
+0001163984 00000 n 
+0001164029 00000 n 
+0001164303 00000 n 
+0001164577 00000 n 
+0001175854 00000 n 
+0001176068 00000 n 
+0001177423 00000 n 
+0001178340 00000 n 
+0001189822 00000 n 
+0001190041 00000 n 
+0001191396 00000 n 
+0001192312 00000 n 
+0001193393 00000 n 
+0001193615 00000 n 
+0001193924 00000 n 
+0001195063 00000 n 
+0001198903 00000 n 
+0001199117 00000 n 
+0001199427 00000 n 
+0001200343 00000 n 
+0001208987 00000 n 
+0001209211 00000 n 
+0001210566 00000 n 
+0001211482 00000 n 
+0001218008 00000 n 
+0001218221 00000 n 
+0001219576 00000 n 
+0001220491 00000 n 
+0001224682 00000 n 
+0001224892 00000 n 
+0001226247 00000 n 
+0001227162 00000 n 
+0001228249 00000 n 
+0001228473 00000 n 
+0001228774 00000 n 
 trailer
 << /Size 461
 /Root 2 0 R
 /Info 1 0 R
 >>
 startxref
-1229792
+1229912
 %%EOF
