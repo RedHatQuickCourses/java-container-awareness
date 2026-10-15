@@ -138,9 +138,8 @@ sh-5.1$
 **Notes:** Given that CPU boundaries are expressed as integers in this lab, keep the following points in mind:
 
 - Deployments created directly using `new-app` do not explicitly set CPU requests or limits. Consequently, they may run without CPU constraints unless defaults are applied by the cluster or namespace configuration.
-- CPU values below 1 are effectively set to 1 CPU in this lab. This may be suitable for very small applications, such as Quarkus workloads, but is generally not recommended for enterprise applications. Limited CPU availability can constrain application threads and affect garbage collection (GC) behavior. In particular, the Serial GC may be more appropriate for workloads with limited CPU resources.
+- CPU values below 1 are effectively set to 1 CPU in this lab. This may be suitable for very small applications, such as Quarkus workloads, but is generally not recommended for enterprise applications. Limited CPU boundaries can constrain application threads and affect garbage collection (GC) behavior. Consequently, the Serial GC may be more appropriate for workloads with limited CPU resources.
 - Fractional CPU values are truncated, not rounded, when converted to integer CPU boundaries. For example, both 2200 millicores and 2950 millicores result in 2 CPUs.
-- Java does not use CPU requests to determine its available processor count; it relies on CPU limits when container awareness is enabled and the runtime correctly detects the container's resource constraints.
+- Java does not use CPU requests to determine its available processor count. It relies on CPU limits when container awareness is enabled and the runtime correctly detects the container's resource constraints.
 - Java workloads can benefit from explicitly configured CPU and memory limits for more predictable resource usage and performance. See `unbounded deployment` for further details.
-
-
+- In the VM.info file, the line `Heap address: 0x00000000e0000000, size: MB`, Compressed Oops mode: 32-bit, will only appear if the heap is lower than 30Gb, otherwise `Compressed Oops` will be disabled and the line won't be there. Set `-XX:+UseCompressedOops` manually in case the heap is higher than 30Gb to see that line.
