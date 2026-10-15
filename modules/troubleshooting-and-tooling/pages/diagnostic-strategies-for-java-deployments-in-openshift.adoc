@@ -106,8 +106,11 @@ oc rsh <pod-name>
 # List running Java processes
 jcmd
 
-# Get a detailed report of the VM's perceived memory constraints
+# Get a summary of the current flags the JVM is using
 jcmd <pid> VM.flags
+
+# Get a detailed report of the VM's perceived memory constraints
+jcmd <pid> VM.info
 ----
 
 === Step 3: Troubleshooting a constraint
