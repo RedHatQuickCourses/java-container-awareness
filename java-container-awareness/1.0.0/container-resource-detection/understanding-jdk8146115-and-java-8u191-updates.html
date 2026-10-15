@@ -247,13 +247,10 @@
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Memory Miscalculation:</strong> The JVM would attempt to size its heap based on the host&#8217;s physical RAM, often exceeding the container&#8217;s hard memory limit set by Kubernetes or OpenShift.</p>
+<p><strong>Memory Miscalculation:</strong> The JVM would attempt to size its heap based a specific Xmx value, often exceeding the container&#8217;s hard memory limit set by Kubernetes or OpenShift. This would lead to OOM Killer occurences: once the Java process exceeded the container&#8217;s cgroup memory limit, the OCP node kernel&#8217;s Out-Of-Memory (OOM) Killer would terminate the process, leading to unexpected pod restarts.</p>
 </li>
 <li>
-<p><strong>OOM Killer Intervention:</strong> Once the Java process exceeded the container&#8217;s cgroup memory limit, the OCP node kernel&#8217;s Out-Of-Memory (OOM) Killer would terminate the process, leading to unexpected pod restarts.</p>
-</li>
-<li>
-<p><strong>CPU Throttling:</strong> Similar issues occurred with CPU calculation, where the JVM would perceive all host cores as available, leading to inefficient thread pool sizing and potential overhead, such as context-switching and multiple threads competing for resources.</p>
+<p><strong>CPU and thread calculation:</strong> The CPUs limits would be detected from the host in any situation, leading to inefficient thread pool sizing and potential overhead, such as context-switching and multiple threads competing for resources and even including CPU throttling.</p>
 </li>
 </ul>
 </div>
@@ -266,29 +263,29 @@
 <p>To address these issues, the OpenJDK community introduced <strong>JDK8146115</strong>. This enhancement provided the necessary infrastructure for the JVM to correctly read and respect cgroup memory and CPU limits.</p>
 </div>
 <div class="paragraph">
-<p>Instead of querying <code>/proc/meminfo</code> or <code>/proc/stat</code>—which reflect host-level resources—the JVM was updated to inspect the cgroup filesystem (<code>/sys/fs/cgroup/</code>) directly. This allows the JVM to identify the specific constraints applied to the process namespace.</p>
+<p>Instead of querying <code>/proc/meminfo</code> or <code>/proc/stat</code> that reflect host-level resources, the JVM was updated to inspect the cgroup filesystem hierarch directly (<code>/sys/fs/cgroup/</code>). This allows the JVM to identify the specific constraints applied to the process namespace.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_java_8u191_the_paradigm_shift"><a class="anchor" href="#_java_8u191_the_paradigm_shift"></a>Java 8u191: The Paradigm Shift</h2>
+<h2 id="_java_8u191_beginning_of_container_awareness"><a class="anchor" href="#_java_8u191_beginning_of_container_awareness"></a>Java 8u191: Beginning of container-awareness</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>While JDK8146115 provided the foundational logic, the release of <strong>Java 8u191</strong> served as the catalyst for widespread adoption. This update backported the container-awareness features, effectively bringing modern cloud-native capabilities to long-standing Java 8 applications.</p>
-</div>
-<div class="paragraph">
-<p>Key changes introduced in 8u191 include:</p>
+<p>The release of <strong>Java 8u191</strong> that had JDK-8146115 provided the first step towards fully container awareness. This update backported the container-awareness features, bringing container detection capabilities to Java 8 deployments. After this version more improvements were done to have a full percentage setting of the heap based on the container size.</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Native Cgroup Awareness:</strong> The JVM now automatically detects container limits at startup.</p>
+<p><strong>Native Cgroup Awareness:</strong> The JVM automatically detects container limits at startup for both cgroups v1 and cgroups v2 (8u372, 11.0.16+, 17+).</p>
+</li>
+<li>
+<p><strong>Native Cgroup cgroups v2 compliance:</strong> Both cgroups v1 and cgroups v2 (8u372, 11.0.16+, 17+) limits are detected.</p>
 </li>
 <li>
 <p><strong>Default Ergonomics:</strong> The default heap size calculation logic was updated to use a fraction of the container’s memory limit instead of the host&#8217;s physical memory.</p>
 </li>
 <li>
-<p><strong>New JVM Flags:</strong> Introduction of flags such as <code>-XX:MaxRAMPercentage</code>, <code>-XX:MinRAMPercentage</code>, and <code>-XX:InitialRAMPercentage</code>, allowing developers to define heap sizes as a ratio of the container limit rather than hard-coded values.</p>
+<p><strong>Specific JVM Flags:</strong> Introduction of flags such as <code>-XX:MaxRAMPercentage</code>, <code>-XX:MinRAMPercentage</code>, and <code>-XX:InitialRAMPercentage</code>, allowing developers to define heap sizes as a ratio of the container limit rather than hard-coded values.</p>
 </li>
 </ul>
 </div>
@@ -307,7 +304,7 @@
 <tr>
 <th class="tableblock halign-left valign-top">Feature</th>
 <th class="tableblock halign-left valign-top">Legacy Behavior (Pre-8u191)</th>
-<th class="tableblock halign-left valign-top">Current Behavior (8u191+)</th>
+<th class="tableblock halign-left valign-top">Current Behavior (After 8u191+)</th>
 </tr>
 </thead>
 <tbody>
