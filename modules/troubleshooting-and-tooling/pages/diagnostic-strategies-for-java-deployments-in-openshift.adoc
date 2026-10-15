@@ -6,9 +6,9 @@ When managing Java applications in OpenShift, traditional diagnostic tools often
 
 == Identifying Container-Aware Tools
 
-A critical diagnostic step is distinguishing between container-aware and legacy tools.
+A critical diagnostic step is distinguishing between container-aware and non-container aware tools.
 
-*   **Legacy Tools:** Tools like `top`, `free`, or older JVM monitoring utilities may report the host's total RAM and CPU count. Relying on these leads to "false positives" where an administrator believes the application has more resources than it actually does.
+*   **Non-container aware Tools:** Tools like `top`, `free`, or older JVM monitoring utilities may report the host's total RAM and CPU count. Relying on these leads to "false positives" where an administrator believes the application has more resources than it actually does.
 *   **Container-Aware Tools:** Modern JDKs (8u191+, 11+) and utilities like `jcmd`, `jstat`, and modern observability agents are cgroup-aware. They query the container's `/sys/fs/cgroup/` filesystem to report limits specifically applied to the pod.
 
 == Diagnostic Strategies
