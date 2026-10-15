@@ -21,7 +21,7 @@ Instead of looking at the host's total resources or needing a hard-coded value f
 1.  **Read Container Memory Limits:** Automatically calculate maximum heap size as a percentage based on the cgroups memory limits of the container. Not request.
 2.  **Detect CPU Availability:** Properly identify the number of CPU shares or quotas allocated to the container, allowing the garbage collector and internal thread pools to scale their concurrency appropriately.
 
-Containers achieve isolation through **Control Groups (cgroups)**, which is a Linux kernel feature that limits, accounts for, and isolates the resource usage of a collection of processes. Before 2019, Java was not cgroup-aware when running inside a container. This created a mismatch where the JVM believed it had access to gigabytes of host RAM, leading to:
+Containers achieve isolation through **Control Groups (cgroups)**, which is a Linux kernel feature that limits, accounts for, and isolates the resource usage of a collection of processes. Before 2019, Java was not cgroup-aware when running inside a container. This would create a mismatch where the JVM believed it had access to gigabytes of host RAM, leading to:
 
 *   **OOMKills:** The JVM would attempt to allocate heap memory based on host capacity, triggering the container orchestrator to kill the process for exceeding its cgroup memory limit.
 *   **Performance Degradation:** The JVM would size its internal thread pools (e.g., ForkJoinPool) based on the total physical CPU cores of the host, leading to excessive context switching and performance bottlenecks in environments where the container was throttled, given the container likely has different CPU limits.
