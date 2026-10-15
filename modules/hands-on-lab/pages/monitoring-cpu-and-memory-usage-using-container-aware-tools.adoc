@@ -4,7 +4,7 @@
 
 When deploying Java applications in containerized environments like Red Hat OpenShift or Kubernetes, traditional Linux diagnostic tools often fall short. Tools that are not container-aware report the physical or virtual resources of the entire host node rather than the specific constraints applied to your pod. 
 
-This section explores how to distinguish between container-aware and node-aware outputs and how to use them effectively for troubleshooting.
+This section explores how to distinguish between container-aware and non-container-aware outputs and how to use them effectively for troubleshooting.
 
 == The Visibility Gap
 If you use standard Linux utilities such as `lscpu`, `nproc`, or `free -m` inside a container, you are likely seeing the resources of the underlying host node. Relying on these values for capacity planning and testing likely will lead to OOMExceptions (OOMException), Out of Memory (OOM) kills or CPU throttling because the JVM may attempt to allocate resources exceeding the container's cgroup limits.
@@ -53,11 +53,11 @@ current number of tasks: 98
 
 == Verifying Container Limits
 
-The step-by-step procedure for this comparison — logging into the pod and contrasting node-aware tools (`free -m`, `nproc`) against container-aware output (`java -XshowSettings:system -version` and `jcmd 1 VM.info`) — is walked through on the same `hotrod-app` deployment in xref:container-resource-detection:determining-cpu-availability-within-containers-openshift.adoc[Inspecting CPU-Aware Deployments in OpenShift], which contrasts `nproc` with `active_processor_count`.
+The step-by-step procedure for this comparison — logging into the pod and contrasting non-container aware tools (`free -m`, `nproc`) against container-aware output (`java -XshowSettings:system -version` and `jcmd 1 VM.info`) — is walked through on the same `hotrod-app` deployment in xref:container-resource-detection:determining-cpu-availability-within-containers-openshift.adoc[Inspecting CPU-Aware Deployments in OpenShift], which contrasts `nproc` with `active_processor_count`.
 
 As you run it there, keep this "Visibility Gap" framing in mind — it is the point of this activity:
 
-*   **Node-aware tools** (`free -m`, `nproc`, `top`, `lscpu`) report the resources of the entire OpenShift worker node, *not* your pod. Do not use them for capacity planning inside a container.
-*   **Container-aware output** (`java -XshowSettings:system`, `jcmd 1 VM.info`) reflects the cgroup limits actually applied to the pod. Confirm that `memory_limit_in_bytes` and `active_processor_count` match the `limits` defined in your pod's YAML; if they differ, verify your JVM is 8u191 or later, as older versions lack proper cgroup awareness.
+*   **Non-container-aware tools** (`free -m`, `nproc`, `top`, `lscpu`) report the resources of the entire OpenShift worker node, *not* the container. Do not use them for capacity planning inside a container.
+*   **Container-aware output** (`java -XshowSettings:system`, `jcmd 1 VM.info`) reflects the cgroup limits actually applied to the container. Confirm that `memory_limit_in_bytes` and `active_processor_count` match the `limits` defined in side the pod YAML; if they differ, verify your JVM is 8u191 or later, as older versions lack proper cgroup awareness (8u372+, 11.0.16+, 17+ for cgroups v2 complaince).
 
 For the full annotated `container (cgroup) information` block and how each field maps to your YAML, see xref:openshift-and-kubernetes-integration:configuring-limits-and-requests-in-red-hat-openshift.adoc[Configuring Limits and Requests in Red Hat OpenShift].
