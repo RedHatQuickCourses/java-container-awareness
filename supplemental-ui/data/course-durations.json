@@ -1,11 +1,11 @@
 {
-  "totalSeconds": 4938,
+  "totalSeconds": 5188,
   "pageCount": 31,
   "pages": [
     {
       "module": "ROOT",
       "page": "index.adoc",
-      "seconds": 57
+      "seconds": 60
     },
     {
       "module": "LABENV",
@@ -15,22 +15,22 @@
     {
       "module": "introduction-to-containerized-java",
       "page": "introduction-to-containerized-java.adoc",
-      "seconds": 67
+      "seconds": 83
     },
     {
       "module": "introduction-to-containerized-java",
       "page": "evolution-of-java-in-containerized-environments.adoc",
-      "seconds": 235
+      "seconds": 239
     },
     {
       "module": "introduction-to-containerized-java",
       "page": "overview-of-container-aware-versus-non-container-aware-java.adoc",
-      "seconds": 174
+      "seconds": 199
     },
     {
       "module": "introduction-to-containerized-java",
       "page": "importance-of-cgroup-detection-for-modern-deployments.adoc",
-      "seconds": 214
+      "seconds": 221
     },
     {
       "module": "container-resource-detection",
@@ -40,7 +40,7 @@
     {
       "module": "container-resource-detection",
       "page": "understanding-jdk8146115-and-java-8u191-updates.adoc",
-      "seconds": 138
+      "seconds": 153
     },
     {
       "module": "container-resource-detection",
@@ -50,27 +50,27 @@
     {
       "module": "container-resource-detection",
       "page": "determining-cpu-availability-within-containers.adoc",
-      "seconds": 216
+      "seconds": 242
     },
     {
       "module": "container-resource-detection",
       "page": "determining-cpu-availability-within-containers-podman.adoc",
-      "seconds": 132
+      "seconds": 137
     },
     {
       "module": "container-resource-detection",
       "page": "determining-cpu-availability-within-containers-openshift.adoc",
-      "seconds": 150
+      "seconds": 166
     },
     {
       "module": "risks-and-memory-management",
       "page": "risks-and-memory-management.adoc",
-      "seconds": 98
+      "seconds": 108
     },
     {
       "module": "risks-and-memory-management",
       "page": "implications-of-decoupling-heap-memory-from-container-limits.adoc",
-      "seconds": 188
+      "seconds": 191
     },
     {
       "module": "risks-and-memory-management",
@@ -95,12 +95,12 @@
     {
       "module": "openshift-and-kubernetes-integration",
       "page": "configuring-limits-and-requests-in-red-hat-openshift.adoc",
-      "seconds": 392
+      "seconds": 413
     },
     {
       "module": "openshift-and-kubernetes-integration",
       "page": "understanding-cgroups-implications-for-java-applications.adoc",
-      "seconds": 168
+      "seconds": 181
     },
     {
       "module": "openshift-and-kubernetes-integration",
@@ -110,7 +110,7 @@
     {
       "module": "troubleshooting-and-tooling",
       "page": "troubleshooting-and-tooling.adoc",
-      "seconds": 50
+      "seconds": 59
     },
     {
       "module": "troubleshooting-and-tooling",
@@ -120,37 +120,37 @@
     {
       "module": "troubleshooting-and-tooling",
       "page": "analyzing-container-limits-and-resource-utilization.adoc",
-      "seconds": 91
+      "seconds": 102
     },
     {
       "module": "troubleshooting-and-tooling",
       "page": "diagnostic-strategies-for-java-deployments-in-openshift.adoc",
-      "seconds": 278
+      "seconds": 283
     },
     {
       "module": "troubleshooting-and-tooling",
       "page": "java-diagnostics-jcmd.adoc",
-      "seconds": 104
+      "seconds": 120
     },
     {
       "module": "hands-on-lab",
       "page": "hands-on-lab.adoc",
-      "seconds": 55
+      "seconds": 54
     },
     {
       "module": "hands-on-lab",
       "page": "tuning-java-heap-settings-percentage-based-on-container-limits.adoc",
-      "seconds": 149
+      "seconds": 178
     },
     {
       "module": "hands-on-lab",
       "page": "monitoring-cpu-and-memory-usage-using-container-aware-tools.adoc",
-      "seconds": 174
+      "seconds": 178
     },
     {
       "module": "hands-on-lab",
       "page": "troubleshooting-resource-constraints-in-an-openshift-environment-eg-inspect.adoc",
-      "seconds": 91
+      "seconds": 104
     },
     {
       "module": "appendix",
