@@ -120,4 +120,5 @@ memory_soft_limit_in_bytes: 716800 k <-------------- soft limit 700mb
 [NOTE]
 ====
 If you observe `cgroup OOMKills` despite the JVM reporting correct memory percentage (e.g. 25%, 50%, or 80%), analyze your off-heap usage via `jcmd <pid> VM.native_memory summary`. You may need to decrease your `MaxRAMPercentage` to provide more breathing room for the native memory footprint, such as instrumentation or `Metaspace`.
+If you observe `SIGTERM`s happening verify the thread usage and blockage via thread dumps analysis (jcmd $PID ThreadPrint or jstack).
 ====
