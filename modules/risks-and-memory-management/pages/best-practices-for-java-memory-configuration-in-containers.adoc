@@ -1,6 +1,4 @@
 = Best Practices for Java Memory Configuration in Containers
-:page-audio-src: best-practices-for-java-memory-configuration-in-containers.wav
-:page-transcript-src: best-practices-for-java-memory-configuration-in-containers.txt
 
 As Java has evolved to be flexible and container-aware, some practices could be considered anti-patterns, such as:
 

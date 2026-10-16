@@ -1,6 +1,4 @@
 = Appendix
-:page-audio-src: appendix.wav
-:page-transcript-src: appendix.txt
 
 == Complementary materials
 

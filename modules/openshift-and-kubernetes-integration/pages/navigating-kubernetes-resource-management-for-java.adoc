@@ -1,6 +1,4 @@
 = Navigating Kubernetes resource management for Java
-:page-audio-src: navigating-kubernetes-resource-management-for-java.wav
-:page-transcript-src: navigating-kubernetes-resource-management-for-java.txt
 
 In Kubernetes and OpenShift environments, resource management is governed by the orchestration layer: kubeAPI, which creates deployments with CPU settings. In case this fails (at container creation or deployment) events will show the cause.
 

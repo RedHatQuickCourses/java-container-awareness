@@ -1,6 +1,4 @@
 = Determining CPU Availability Within Containers
-:page-audio-src: determining-cpu-availability-within-containers.wav
-:page-transcript-src: determining-cpu-availability-within-containers.txt
 
 In a virtualized or bare-metal host, the Java Virtual Machine (JVM) will query the operating system for the total number of physical CPUs and memory available on the host. However, in containerized environments the resources will be restricted to a subset of the host's compute resources. A container deployed by OpenShift or Kubernetes may (or may not) have container limits, a deployment without limits is called unbounded deployment.
 

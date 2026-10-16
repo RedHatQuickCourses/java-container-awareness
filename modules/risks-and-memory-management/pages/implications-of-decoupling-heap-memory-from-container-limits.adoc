@@ -1,6 +1,4 @@
 = Implications of Decoupling Heap Memory from Container Limits
-:page-audio-src: implications-of-decoupling-heap-memory-from-container-limits.wav
-:page-transcript-src: implications-of-decoupling-heap-memory-from-container-limits.txt
 
 Inside a containerized environment, the JVM’s ability to detect container resource boundaries is a critical feature. When developers manually specify heap sizes using the traditional heap limit: `-Xmx` without regard for the container's cgroup limits, they risk decoupling the JVM memory footprint from the orchestration layer. This decoupling often leads to significant operational instability and an inherited risk of OOMKill.
 
