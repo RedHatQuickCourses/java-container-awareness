@@ -26,6 +26,7 @@ Default OpenJDK container uses run-java.sh as ENTRYPOINT, this has several impli
 * ParallelGC is the default container (regardless of CPU)
 * Environment variables: `JAVA_OPTS`, `JAVA_OPTS_APPEND` 
 * PID 1 will be the default Java process
+* The flag `ExitOnOutOfMemoryError` comes enabled by default and will Exit when OOMException happens. That's on purpose to allow the container restart fully.
 
 Example:
 
