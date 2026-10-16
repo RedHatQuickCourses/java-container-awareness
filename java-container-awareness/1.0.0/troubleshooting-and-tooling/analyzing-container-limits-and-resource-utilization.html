@@ -423,18 +423,18 @@ Technically speaking the kernel decides to trigger the OOMKill based on the RSS 
 <h2 id="_verifying_jvm_resource_awareness_reference"><a class="anchor" href="#_verifying_jvm_resource_awareness_reference"></a>Verifying JVM Resource Awareness (Reference)</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Use the following as general guidance to confirm that a running pod is correctly interpreting its cgroup limits. For the full hands-on Native Memory Tracking (NMT) walkthrough — enabling <code>-XX:NativeMemoryTracking</code> and reading <code>jcmd 1 VM.native_memory summary</code> — follow <a href="../risks-and-memory-management/hands-on-lab-heap-settings.html" class="xref page">Analyzing Heap and Off-Heap Settings</a>.</p>
+<p>Use the following as general guidance to confirm that a running pod is correctly interpreting its cgroup limits. For the full hands-on Native Memory Tracking (NMT) walkthrough — enabling <code>NativeMemoryTracking</code> (<code>-XX:NativeMemoryTracking=summary</code> or <code>-XX:NativeMemoryTracking=details</code>) and then read at runtime with <code>jcmd $PID VM.native_memory summary</code>. Follow <a href="../risks-and-memory-management/hands-on-lab-heap-settings.html" class="xref page">Analyzing Heap and Off-Heap Settings</a>.</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Access the pod and identify the Java PID</strong> with <code>oc rsh &lt;pod-name&gt;</code> followed by <code>jps</code> (or <code>ps -aux</code>, or <code>jcmd</code>); the application typically runs as PID 1.</p>
+<p><strong>Access the pod and identify the Java PID</strong> with <code>oc rsh &lt;pod-name&gt;</code> followed by <code>jps</code> (or <code>ps -aux</code>, or <code>jcmd</code>); the application typically runs as PID 1 if spawned by <code>run-java.sh</code>.</p>
 </li>
 <li>
-<p><strong>Check resource visibility</strong> with <code>jcmd &lt;pid&gt; VM.native_memory summary</code> and look for the container-specific configuration in the diagnostic output.</p>
+<p><strong>Check resource visibility</strong> with <code>jcmd &lt;pid&gt; VM.native_memory summary</code> and look for the container-specific configuration in the diagnostic output. That will return <code>Native memory tracking is not enabled</code> in case <code>NativeMemoryTracking</code> not enabled.</p>
 </li>
 <li>
-<p><strong>Cross-reference with OpenShift limits:</strong> Compare the <code>memory_limit_in_bytes</code> reported by the JVM with the memory limit defined in the deployment YAML. If they do not align, verify that the application is container-aware and using <code>run-java.sh</code>. When <code>run-java.sh</code> is the entrypoint, you can adjust <code>JAVA_OPTS</code> and <code>JAVA_OPTS_APPEND</code> with <code>-XX:MaxRAMPercentage</code>; these environment variables only take effect with that entrypoint.</p>
+<p><strong>Cross-reference with OpenShift limits:</strong> Compare the <code>memory_limit_in_bytes</code> reported by the JVM with the memory limit defined in the deployment YAML. If they do not align, verify that the application is container-aware and using <code>run-java.sh</code>. When <code>run-java.sh</code> is the entrypoint, you can adjust <code>JAVA_OPTS</code> and <code>JAVA_OPTS_APPEND</code> with the JVM flag <code>-XX:MaxRAMPercentage</code>; these environment variables only take effect with the <code>run-java.sh</code> ENTRYPOINT.</p>
 </li>
 </ul>
 </div>
